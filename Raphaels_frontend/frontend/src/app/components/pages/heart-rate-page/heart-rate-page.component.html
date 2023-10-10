@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Heart Rate Data</title>
+</head>
+<body>
+  
+  <div class="table-container">
+    <h1>Welcome to your Heart Rate Data, {{user.first_name}}!</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Heart Rate Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ user.heartRateData[0].timeStamp }}</td>
+            <td>{{ user.heartRateData[0].sensorValue }}</td>
+        </tr>
+        <tr>
+            <td>2023-05-02</td>
+            <td>78</td>
+        </tr>
+        <tr>
+            <td>2023-05-03</td>
+            <td>85</td>
+        </tr>
+        <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+  </div>
+</body>
+</html>

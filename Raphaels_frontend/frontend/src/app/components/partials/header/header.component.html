@@ -1,0 +1,25 @@
+<header>
+    <div class="container">
+        <a routerLink="/" class="logo">Heart Rate App</a>
+        <nav>
+            <ul>
+                <li *ngIf="!isAuth"> <!-- works like an if-clause!-->
+                    <a routerLink="/login">Login</a>
+                </li>
+                <li *ngIf="isAuth" class="menu-container">
+                    <a routerLink="/dashboard">{{user.first_name}}</a>
+                    <div class="menu">
+                        <a routerLink="/profile">Profile</a>
+                        <a routerLink="/order">Orders</a>
+                        <a (click)="logout()">Logout</a>
+                    </div>
+                </li>
+                <li>
+                    <a routerLink="/cart-page">
+                        Cart <span>5</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>

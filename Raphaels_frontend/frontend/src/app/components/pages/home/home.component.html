@@ -1,0 +1,20 @@
+<h1>Welcome to the Heart Rate App!</h1>
+
+<ul>
+    <!-- to look through the list items using *ngFor; food is the variable -->
+    <li *ngFor="let food of foods">
+        <!-- this a-tag goes to the food page, using the food.id; data is not completely dynamic, so 
+            no [] are used and the dynamic data is in {{}} instead -->
+        <a routerLink="/food/{{food.id}}">
+            <!-- square brackets allow dynamic data; w/out [] it would just be a literal string -->
+            <img [src]="food.imageUrl" [alt]="food.name"/>
+            <!-- <img src="{{food.imageUrl}}" alt="{{food.name}}"/> would work as well -->
+            <div class="content">
+                <div class="name">
+                    {{food.name}}
+                </div>
+                <!-- continue Part 5 8:15 -->
+            </div>
+        </a> 
+    </li>
+</ul>
