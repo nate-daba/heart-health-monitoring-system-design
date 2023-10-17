@@ -1,3 +1,4 @@
+/// This code was copied from ChatGPT:
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
