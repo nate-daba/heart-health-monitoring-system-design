@@ -70,10 +70,12 @@ void loop()
 
   if (checkForBeat(irValue) == true)
   {
-    //We sensed a beat!
+    // We sensed a beat!
     long delta = millis() - lastBeat;
     lastBeat = millis();
 
+    // Calculating the heart rate based on the time interval between consecutive
+    // heartbeats. 
     beatsPerMinute = 60 / (delta / 1000.0);
 
     if (beatsPerMinute < 255 && beatsPerMinute > 20)
