@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import express from 'express';
 import cors from "cors";
 import userRouter from './routes/user.router';
+import physicianRouter from './routes/physician.router';
 import heartRateRouter from './routes/heart-rate.router';
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors({ // why to use cors: https://youtu.be/Y28hObRey9g?t=413
     origin:["http://localhost:4200"]
 }));
 app.use("/api/users", userRouter);
+app.use("/api/physicians", physicianRouter);
 app.use("/api/heart-rate", heartRateRouter);
 
 const port = 5000

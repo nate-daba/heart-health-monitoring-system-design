@@ -3,8 +3,9 @@
         <a routerLink="/" class="logo">Heart Rate App</a>
         <nav>
             <ul>
-                <li *ngIf="!isAuth"> <!-- works like an if-clause!-->
-                    <a routerLink="/login">Login</a>
+                <!-- 'ngIf' works like an if-clause - li is only shown when the if statement is true -->
+                <li *ngIf="!isAuth"> 
+                    <a routerLink="/login">Patient Login</a>
                 </li>
                 <li *ngIf="isAuth" class="menu-container">
                     <a routerLink="/dashboard">{{user.first_name}}</a>
@@ -14,10 +15,16 @@
                         <a (click)="logout()">Logout</a>
                     </div>
                 </li>
-                <li>
-                    <a routerLink="/cart-page">
-                        Cart <span>5</span>
-                    </a>
+                <li *ngIf="!isAuth">
+                    <a routerLink="/Phy_Login">Physician Login</a>
+                </li>
+                <li *ngIf="isAuth" class="menu-container">
+                    <a routerLink="/dashboard">{{user.first_name}}</a>
+                    <div class="menu">
+                        <a routerLink="/profile">Profile</a>
+                        <a routerLink="/order">Orders</a>
+                        <a (click)="logout()">Logout</a>
+                    </div>
                 </li>
             </ul>
         </nav>
