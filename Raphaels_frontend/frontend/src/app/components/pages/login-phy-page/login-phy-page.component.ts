@@ -4,13 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
-  selector: 'app-login-page',
-  templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.css']
+  selector: 'app-login-phy-page',
+  templateUrl: './login-phy-page.component.html',
+  styleUrls: ['./login-phy-page.component.css']
 })
-export class LoginPageComponent implements OnInit {
+export class LoginPhyPageComponent implements OnInit {
 
-  // "!" means it's required; html forms element refers to it
   loginForm!:FormGroup; // an angular prebuilt from Angular Forms
   isSubmitted = false;
   returnUrl = '';

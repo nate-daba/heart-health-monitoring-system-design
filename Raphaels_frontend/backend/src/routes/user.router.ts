@@ -1,4 +1,3 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import jwt from 'jsonwebtoken';
 import asyncHandler from 'express-async-handler';
 import { Router } from 'express';

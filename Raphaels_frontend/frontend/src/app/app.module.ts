@@ -16,6 +16,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HeartRatePageComponent } from './components/pages/heart-rate-page/heart-rate-page.component';
+import { LoginPhyPageComponent } from './components/pages/login-phy-page/login-phy-page.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { HeartRatePageComponent } from './components/pages/heart-rate-page/heart
     HomeComponent,
     LoginPageComponent,
     RegisterPageComponent,
-    HeartRatePageComponent
+    HeartRatePageComponent,
+    LoginPhyPageComponent
   ],
   imports: [
     BrowserModule,
