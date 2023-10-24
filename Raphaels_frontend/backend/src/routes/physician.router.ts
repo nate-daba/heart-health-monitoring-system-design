@@ -4,7 +4,6 @@ import { Router } from 'express';
 import { Physician, PhysicianModel } from '../models/physician.model';
 import { User, UserModel } from '../models/user.model';
 import { HeartRateModel } from '../models/heart-rate.model';
-import { HTTP_BAD_REQUEST } from '../constants/http_status';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
@@ -25,7 +24,7 @@ router.post('/login', asyncHandler(
             console.log(physician);
             res.send(generateTokenResponse(physician));
         } else {
-            res.status(HTTP_BAD_REQUEST).send("Email or password are invalid.");
+            res.status(400).send("Email or password are invalid.");
         }
 }))
 
@@ -36,7 +35,7 @@ router.post('/register', asyncHandler(
         console.log(email, ", ", password)
         physician = await PhysicianModel.findOne({email});
         if (physician) {
-            res.status(HTTP_BAD_REQUEST).send("Physician already exists, please login.");
+            res.status(400).send("Physician already exists, please login.");
             return;
         }
 
