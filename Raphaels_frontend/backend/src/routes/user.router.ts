@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 import { Router } from 'express';
 import { User, UserModel } from '../models/user.model';
 import { HeartRateModel } from '../models/heart-rate.model';
-import { HTTP_BAD_REQUEST } from '../constants/http_status';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
@@ -24,7 +23,7 @@ router.post('/login', asyncHandler(
             console.log(user);
             res.send(generateTokenResponse(user));
         } else {
-            res.status(HTTP_BAD_REQUEST).send("Email or password are invalid.");
+            res.status(404).send("Email or password are invalid.");
         }
 }))
 
@@ -35,13 +34,14 @@ router.post('/register', asyncHandler(
         console.log(email, ", ", password)
         user = await UserModel.findOne({email});
         if (user) {
-            res.status(HTTP_BAD_REQUEST).send("User already exists, please login.");
+            res.status(400).send("User already exists, please login.");
             return;
         }
 
         const encryptedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new UserModel ({
+            //id:'',
             first_name, // if 'name: name', you can just write 'name'
             last_name,
             email: email.toLowerCase(),
@@ -63,12 +63,14 @@ router.post('/register', asyncHandler(
 
 const generateTokenResponse = (user: User) => {
     const token = jwt.sign( //generate a token = sign a token
-        { email:user.email, isAdmin:user.isAdmin }, 
+        { //id: user.id, 
+            email:user.email, isAdmin:user.isAdmin }, 
         "SecretKey",
         { expiresIn: "30d"}
     );
 
     return {
+        //id: user.id,
         email:user.email,
         first_name: user.first_name,
         last_name: user.last_name,
