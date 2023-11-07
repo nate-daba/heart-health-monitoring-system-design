@@ -1,4 +1,6 @@
-const BASE_URL = 'http://localhost:5000'; // this url will change when uploading to real server
+import { environment } from "src/environments/environment";
+
+const BASE_URL = environment.production? '' : 'http://localhost:5000';
 
 export const USER_LOGIN_URL = BASE_URL + '/api/users/login';
 export const USER_REGISTER_URL = BASE_URL + '/api/users/register';

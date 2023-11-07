@@ -16,7 +16,7 @@ router.post('/login', asyncHandler(
         const {email, password} = req.body; // alternatively (Destructuring Assignment)
         // 1. const user = sample_users.find(user => user.email === body.email &&
         //     user.password === body.password);
-        user = await UserModel.findOne({email});
+        const user = await UserModel.findOne({email});
         
         if(user && (await bcrypt.compare(password,user.password))){
             console.log('b4 genTknResp');
@@ -87,22 +87,24 @@ const accessToken = "3923315920a08f34632580858dfa793e619df985";
 const deviceId = "e00fce68324153a783dcc4f7";
 
 // Subscribe to the "sensorData" event
-axios.post(`https://api.particle.io/v1/devices/${deviceId}/events`, {
-  name: "sensorData",
-  auth: accessToken,
-})
-.then((response) => {
-    console.log("Subscribed to sensorData event");
-})
-.catch((error) => {
-    console.error("Failed to subscribe to sensorData event", error);
-});
+// axios causes the huge print on Terminal when backend starts
+//This block was commented out on 10/24/23:
+// axios.post(`https://api.particle.io/v1/devices/${deviceId}/events`, {
+//   name: "sensorData",
+//   auth: accessToken,
+// })
+// .then((response) => {
+//     console.log("Subscribed to sensorData event");
+// })
+// .catch((error) => {
+//     console.error("Failed to subscribe to sensorData event", error);
+// });
 
 // Listen for incoming events
-const Particle = require("particle-api-js");
-const particle = new Particle();
-
-let i = 1;
+//This block was commented out on 10/24/23:
+// const Particle = require("particle-api-js");
+// const particle = new Particle();
+// let i = 1;
 
 // async function startParticleStream() {
 // particle.getEventStream({
@@ -147,34 +149,35 @@ let i = 1;
 //     particle.
 // }
 
-async function startParticleStream() {
-    const eventStream = particle.getEventStream({
-        deviceId: deviceId,
-        auth: accessToken,
-    });
+//This block was commented out on 10/24/23:
+// async function startParticleStream() {
+//     const eventStream = particle.getEventStream({
+//         deviceId: deviceId,
+//         auth: accessToken,
+//     });
     
-        console.log("Listening for events...");
-        eventStream.on("event", async (event: any) => {
-        if (event.name === "sensorData") {
-            const data = JSON.parse(event.data);
-            console.log("Received sensor data:", data);
-            // Store the data in your MongoDB database or perform any other actions
-            const sensorValue = data.sensorValue;
-            console.log("sensorValue = ", sensorValue);
-            const newSensorData = new HeartRateModel({
-                sensorValue: sensorValue,
-                timeStamp: new Date(), // Use the current date and time as the timestamp
-            });
-            newSensorData.save()
-            .then(() => console.log('Sensor data saved to MongoDB'))
-            .catch((error) => console.error('Error saving sensor data:', error));
-            setTimeout(() => {
-                console.log('Processing next event after delay...');
+//         console.log("Listening for events...");
+//         eventStream.on("event", async (event: any) => {
+//         if (event.name === "sensorData") {
+//             const data = JSON.parse(event.data);
+//             console.log("Received sensor data:", data);
+//             // Store the data in your MongoDB database or perform any other actions
+//             const sensorValue = data.sensorValue;
+//             console.log("sensorValue = ", sensorValue);
+//             const newSensorData = new HeartRateModel({
+//                 sensorValue: sensorValue,
+//                 timeStamp: new Date(), // Use the current date and time as the timestamp
+//             });
+//             newSensorData.save()
+//             .then(() => console.log('Sensor data saved to MongoDB'))
+//             .catch((error) => console.error('Error saving sensor data:', error));
+//             setTimeout(() => {
+//                 console.log('Processing next event after delay...');
 
-              }, 3000);
-            i++;
-        }
-        console.log('i = ' + i);
+//               }, 3000);
+//             i++;
+//         }
+//         console.log('i = ' + i);
         
-        });
-}
+//         });
+// }
