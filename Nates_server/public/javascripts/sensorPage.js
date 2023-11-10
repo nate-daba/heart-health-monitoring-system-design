@@ -113,7 +113,8 @@ function loginSuccess(token) {
     getDevices();
 }
 
-function getDevices() {
+function getDevices() 
+{
     // Request the device list from the cloud
     particle.listDevices({ auth: sessionStorage.particleToken }).then(
         function (data) {
@@ -126,7 +127,8 @@ function getDevices() {
             deviceList = data.body;
 
             deviceIdToName = {};
-            deviceList.forEach(function(dev) {
+            deviceList.forEach(function(dev) 
+            {
                 deviceIdToName[dev.id] = dev.name;
             });
 
@@ -134,14 +136,26 @@ function getDevices() {
             particle.getEventStream({ name: 'heartrate', auth: sessionStorage.particleToken }).then(
             function (stream) {
                 console.log('starting event stream');
-                stream.on('event', function (eventData) {
-        console.log('read heartrate (bpm): ' + eventData.data);
-                    showSensor(eventData)
+                stream.on('event', function (eventData) 
+                {
+                    console.log('read heartrate (bpm): ' + eventData.data);
+                    showSensor(eventData, 'heartrate')
                 });
             });
+            // Subscribe to server-sent-events (SSE) data stream
+            particle.getEventStream({ name: 'spo2', auth: sessionStorage.particleToken }).then(
+                function (stream) {
+                    console.log('starting event stream');
+                    stream.on('event', function (eventData) 
+                    {
+                        console.log('read spo2 : ' + eventData.data);
+                        showSensor(eventData, 'spo2')
+                    });
+                });
 
         },
-        function (err) {
+        function (err)
+        {
             // Failed to retrieve the device list. The token may have expired
             // so prompt for login again.
             $('#mainDiv').css('display', 'none');
@@ -151,7 +165,7 @@ function getDevices() {
     );
 }
 
-function showSensor(eventData) {
+function showSensor(eventData, dataType) {
     // eventData.coreid = Device ID
     const deviceId = eventData.coreid;
 
@@ -162,17 +176,23 @@ function showSensor(eventData) {
     // eventData.data = event payload
     const sensorValue = parseInt(eventData.data);
 
-    console.log('deviceName=' + deviceName + ' sensorValue=' + sensorValue);
+    console.log('deviceName=' + deviceName + ', data type=' + dataType + ', sensorValue=' + sensorValue);
 
 if ($('#prog' + deviceId).length == 0) {
-// Add a row
-    let html = '<tr><td>' + deviceName + ' heartrate ' + '</td><td><progress id="prog' + deviceId + '" value="0" max="250"></progress><td id="sensorValue' + deviceId + '">' + sensorValue + ' bpm</td></tr>';
+// Add rows to the table for new devices
+    var unit = '';
+    if (dataType == 'heartrate')
+        unit = ' bpm';
+    else if (dataType == 'spo2')
+        unit = ' %';
+    let html = '<tr><td>' + deviceName + dataType + ' ' + '</td><td><progress id="prog' + deviceId + '" value="0" max="250"></progress><td id="sensorValue' + deviceId + '">' + sensorValue;
+    html += ' ' + unit + '</td></tr>';
 $('#sensorTable > tbody').append(html);
 } 
-else {
-// Update the sensor value for the existing row
-$('#sensorValue' + deviceId).text(sensorValue + ' bpm');
+else 
+{
+    // Update the sensor value for the existing row
+    $('#sensorValue' + deviceId).text(sensorValue + ' ' + unit);
 }
-
     $('#prog' + deviceId).val(sensorValue);
 }
