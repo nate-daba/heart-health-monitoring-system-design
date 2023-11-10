@@ -155,8 +155,10 @@ void loop()
     Serial.print(spo2, DEC);
 
     Serial.print(F(", SPO2Valid="));
-    Serial.println(validSPO2, DEC);
+    Serial.print(validSPO2, DEC);
 
+    Particle.publish("heartrate", String(heartRate), PRIVATE);
+    Serial.println(F(", published !!"));
     takeMeasurement = false;
   }
 }
