@@ -32,8 +32,6 @@
   but it will also run at 3.3V.
 */
 
-
-
 #include <Wire.h>
 #include "MAX30105.h"
 #include "spo2_algorithm.h"
@@ -43,7 +41,7 @@
 // Allows us to use our particle device without Wi-Fi connection.
 void setup();
 void loop();
-#line 38 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/heartRateAndSpO2/src/heartRateAndSpO2.ino"
+#line 36 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/heartRateAndSpO2/src/heartRateAndSpO2.ino"
 SYSTEM_THREAD(ENABLED);
 
 MAX30105 particleSensor;
@@ -59,14 +57,20 @@ int8_t validSPO2; //indicator to show if the SPO2 calculation is valid
 int32_t heartRate; //heart rate value
 int8_t validHeartRate; //indicator to show if the heart rate calculation is valid
 
-byte readLED = D7; //Blinks with each data read
+byte takeMeasurementLED = D7; // Blinks with each data read
+unsigned long measurementPeriod = 60000; // Frequency of asking user to take measurement
+bool takeMeasurement = false; // Flag to indicate if we should take a measurement
+unsigned long lastMeasurementPrompted = 0; // Time since last measurement prompt 
+unsigned long timeout = 5 * 60 * 1000;  // 5 minutes in milliseconds
+unsigned long lastBlinkMillis = 0; // will store last time LED was updated
+const long blinkInterval = 500;    // interval at which to blink (milliseconds)
 
 void setup()
 {
   Serial.begin(115200); // initialize serial communication at 115200 bits per second
   Serial.println("Initializing...");
 
-  pinMode(readLED, OUTPUT); //set as output to control LED
+  pinMode(takeMeasurementLED, OUTPUT); //set as output to control LED
 
   // Initialize sensor
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
@@ -88,70 +92,72 @@ void setup()
 
 void loop()
 {
-  bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
-
-  //read the first 100 samples, and determine the signal range
-  for (byte i = 0 ; i < bufferLength ; i++)
+  if ((lastMeasurementPrompted == 0) || (millis() - lastMeasurementPrompted > measurementPeriod)) 
   {
-    while (particleSensor.available() == false) //do we have new data?
-      particleSensor.check(); //Check the sensor for new data
-
-    redBuffer[i] = particleSensor.getRed();
-    irBuffer[i] = particleSensor.getIR();
-    particleSensor.nextSample(); //We're finished with this sample so move to next sample
-
-    Serial.print(F("red="));
-    Serial.print(redBuffer[i], DEC);
-    Serial.print(F(", ir="));
-    Serial.println(irBuffer[i], DEC);
-  }
-
-  //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
-  maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-
-  //Continuously taking samples from MAX30102.  Heart rate and SpO2 are calculated every 1 second
-  while (1)
-  {
-    //dumping the first 25 sets of samples in the memory and shift the last 75 sets of samples to the top
-    for (byte i = 25; i < 100; i++)
+    takeMeasurement = true;
+    Serial.println("Please place your index finger on the sensor.");
+    lastMeasurementPrompted = millis();
+    long irValue = particleSensor.getIR();
+    
+    while(irValue < 50000 && (millis() - lastMeasurementPrompted < timeout)) 
     {
-      redBuffer[i - 25] = redBuffer[i];
-      irBuffer[i - 25] = irBuffer[i];
+      if(millis() - lastBlinkMillis > blinkInterval) 
+      {
+        // Only toggle the LED when the blink interval has passed
+        digitalWrite(takeMeasurementLED, !digitalRead(takeMeasurementLED));
+        lastBlinkMillis = millis(); // Update the last blink time
+      }
+      irValue = particleSensor.getIR(); // Check the sensor value again
     }
+    
+    digitalWrite(takeMeasurementLED, LOW); // Turn off LED
 
-    //take 25 sets of samples before calculating the heart rate.
-    for (byte i = 75; i < 100; i++)
+    if ((millis() - lastMeasurementPrompted) >= timeout) 
+    {
+      // Handle timeout: 5 minutes elapsed without a measurement
+      Serial.println("Timeout: 5 minutes elapsed without a measurement.");
+      takeMeasurement = false;
+    }
+    else 
+    {
+      Serial.println("Taking measurement now ...");
+      // Continue with measurement
+    }
+    // Update lastMeasurementPrompted regardless of whether a measurement was taken or timed out
+    lastMeasurementPrompted = millis();
+  } 
+
+  if(takeMeasurement)
+  {  
+    bufferLength = 100; //buffer length of 100 stores 4 seconds of samples running at 25sps
+
+    //read the first 100 samples, and determine the signal range
+    for (byte i = 0 ; i < bufferLength ; i++)
     {
       while (particleSensor.available() == false) //do we have new data?
         particleSensor.check(); //Check the sensor for new data
 
-      digitalWrite(readLED, !digitalRead(readLED)); //Blink onboard LED with every data read
-
       redBuffer[i] = particleSensor.getRed();
       irBuffer[i] = particleSensor.getIR();
       particleSensor.nextSample(); //We're finished with this sample so move to next sample
-
-      //send samples and calculation result to terminal program through UART
-      Serial.print(F("red="));
-      Serial.print(redBuffer[i], DEC);
-      Serial.print(F(", ir="));
-      Serial.print(irBuffer[i], DEC);
-
-      Serial.print(F(", HR="));
-      Serial.print(heartRate, DEC);
-
-      Serial.print(F(", HRvalid="));
-      Serial.print(validHeartRate, DEC);
-
-      Serial.print(F(", SPO2="));
-      Serial.print(spo2, DEC);
-
-      Serial.print(F(", SPO2Valid="));
-      Serial.println(validSPO2, DEC);
     }
 
-    //After gathering 25 new samples recalculate HR and SP02
+    //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
+    // report measurement results to serial monitor
+    Serial.print(F("HR="));
+    Serial.print(heartRate, DEC);
+
+    Serial.print(F(", HRvalid="));
+    Serial.print(validHeartRate, DEC);
+
+    Serial.print(F(", SPO2="));
+    Serial.print(spo2, DEC);
+
+    Serial.print(F(", SPO2Valid="));
+    Serial.println(validSPO2, DEC);
+
+    takeMeasurement = false;
   }
 }
 
