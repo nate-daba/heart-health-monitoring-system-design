@@ -9,6 +9,8 @@ int light = D7; // This is where your LED is plugged in. The other side goes to 
 SYSTEM_THREAD(ENABLED);
 
 void setup() {
+  Serial.begin(115200); // initialize serial communication at 115200 bits per second:
+  Serial.print("Initializing...");
   // Put initialization like pinMode and begin functions here.
   pinMode(light, OUTPUT);
 
@@ -21,4 +23,5 @@ void loop() {
   delay(1000);                       // Wait for 1000mS = 1 second
   digitalWrite(light, LOW);    // Turn OFF the LED pins
   delay(1000);                       // Wait for 1 second in off mode
+
 }

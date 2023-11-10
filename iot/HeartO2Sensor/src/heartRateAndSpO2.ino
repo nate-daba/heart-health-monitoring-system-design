@@ -30,6 +30,8 @@
 #include "MAX30105.h"
 #include "spo2_algorithm.h"
 
+SYSTEM_THREAD(ENABLED);
+
 MAX30105 particleSensor;
 
 #define MAX_BRIGHTNESS 255

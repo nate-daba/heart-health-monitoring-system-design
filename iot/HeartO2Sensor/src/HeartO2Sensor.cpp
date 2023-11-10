@@ -3,61 +3,64 @@
 /******************************************************/
 
 #include "Particle.h"
-#line 1 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_Semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/HeartO2Sensor/src/HeartO2Sensor.ino"
-/*
- * Project HeartO2Sensor
- * Description: heart rate and oxygen saturation sensor
- * Author: Natnael Daba
- * Date: October 3, 2023
- */
+#line 1 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/HeartO2Sensor/src/HeartO2Sensor.ino"
+// /*
+//  * Project HeartO2Sensor
+//  * Description: heart rate and oxygen saturation sensor
+//  * Author: Natnael Daba
+//  * Date: October 3, 2023
+//  */
 
-/*
-  Optical Heart Rate Detection (PBA Algorithm) using the MAX30105 Breakout
-  By: Nathan Seidle @ SparkFun Electronics
-  Date: October 2nd, 2016
-  https://github.com/sparkfun/MAX30105_Breakout
+// /*
+//   Optical Heart Rate Detection (PBA Algorithm) using the MAX30105 Breakout
+//   By: Nathan Seidle @ SparkFun Electronics
+//   Date: October 2nd, 2016
+//   https://github.com/sparkfun/MAX30105_Breakout
 
-  This is a demo to show the reading of heart rate or beats per minute (BPM) using
-  a Penpheral Beat Amplitude (PBA) algorithm.
+//   This is a demo to show the reading of heart rate or beats per minute (BPM) using
+//   a Penpheral Beat Amplitude (PBA) algorithm.
 
-  It is best to attach the sensor to your finger using a rubber band or other tightening
-  device. Humans are generally bad at applying constant pressure to a thing. When you
-  press your finger against the sensor it varies enough to cause the blood in your
-  finger to flow differently which causes the sensor readings to go wonky.
+//   It is best to attach the sensor to your finger using a rubber band or other tightening
+//   device. Humans are generally bad at applying constant pressure to a thing. When you
+//   press your finger against the sensor it varies enough to cause the blood in your
+//   finger to flow differently which causes the sensor readings to go wonky.
 
-  Hardware Connections (Breakoutboard to Arduino):
-  -5V = 5V (3.3V is allowed)
-  -GND = GND
-  -SDA = A4 (or SDA)
-  -SCL = A5 (or SCL)
-  -INT = Not connected
+//   Hardware Connections (Breakoutboard to Arduino):
+//   -5V = 5V (3.3V is allowed)
+//   -GND = GND
+//   -SDA = A4 (or SDA)
+//   -SCL = A5 (or SCL)
+//   -INT = Not connected
 
-  The MAX30105 Breakout can handle 5V or 3.3V I2C logic. We recommend powering the board with 5V
-  but it will also run at 3.3V.
-*/
+//   The MAX30105 Breakout can handle 5V or 3.3V I2C logic. We recommend powering the board with 5V
+//   but it will also run at 3.3V.
+// */
 
 #include <Wire.h>
 #include "MAX30105.h"
 
 #include "heartRate.h"
 
+// Allows us to use our particle device without Wi-Fi connection.
 void setup();
 void loop();
-#line 38 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_Semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/HeartO2Sensor/src/HeartO2Sensor.ino"
+#line 39 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/HeartO2Sensor/src/HeartO2Sensor.ino"
+SYSTEM_THREAD(ENABLED);
+
 MAX30105 particleSensor;
 
 const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
 byte rates[RATE_SIZE]; //Array of heart rates
-byte rateSpot = 0;
+byte rateSpot = 0; //Index into rates array
 long lastBeat = 0; //Time at which the last beat occurred
 
-float beatsPerMinute;
-int beatAvg;
+float beatsPerMinute; 
+int beatAvg; // Moving Average of the heart rate
 int loopCounter = 0;
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(115200); // initialize serial communication at 115200 bits per second
   Serial.println("Initializing...");
 
   // Initialize sensor
@@ -80,6 +83,9 @@ void loop()
   if (checkForBeat(irValue) == true)
   {
     // We sensed a beat!
+    // millis(): Returns the number of milliseconds since the device began 
+    // running the current program. Subtracting lastBeat from millis() gives us
+    // the time between beats.
     long delta = millis() - lastBeat;
     lastBeat = millis();
 
