@@ -187,7 +187,7 @@ if ($('#prog' + deviceId).length == 0) {
         unit = ' %';
     let html = '<tr><td>' + deviceName + dataType + ' ' + '</td><td><progress id="prog' + deviceId + '" value="0" max="250"></progress><td id="sensorValue' + deviceId + '">' + sensorValue;
     html += ' ' + unit + '</td></tr>';
-$('#sensorTable > tbody').append(html);
+    $('#sensorTable > tbody').append(html);
 } 
 else 
 {
