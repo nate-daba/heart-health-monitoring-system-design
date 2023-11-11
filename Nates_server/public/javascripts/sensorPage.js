@@ -180,24 +180,9 @@ function showSensor(eventData, vitalSignType)
     console.log('deviceName=' + deviceName + ', data type=' + vitalSignType + ', sensorValue=' + sensorValue);
 
     $('#deviceName').text(deviceName); // TODO: move this line somewhere else where it is only called once per device
-    
+
     let field = "#" + vitalSignType;
+    $(field).css("color", "red");
     $(field).text(sensorValue);
-    // if ($('#prog' + deviceId).length == 0) {
-    // // Add rows to the table for new devices
-    //     var unit = '';
-    //     if (dataType == 'heartrate')
-    //         unit = ' bpm';
-    //     else if (dataType == 'spo2')
-    //         unit = ' &#37;';
-    //     let html = '<tr><td>' + deviceName + ' ' + dataType + ' ' + '</td><td><progress id="prog' + deviceId + '" value="0" max="250"></progress><td id="sensorValue' + deviceId + '">' + sensorValue;
-    //     html += ' ' + unit + '</td></tr>';
-    //     $('#sensorTable > tbody').append(html);
-    // } 
-    // else 
-    // {
-    //     // Update the sensor value for the existing row
-    //     $('#sensorValue' + deviceId).text(sensorValue + ' ' + unit);
-    // }
-    //     $('#prog' + deviceId).val(sensorValue);
+    
 }
