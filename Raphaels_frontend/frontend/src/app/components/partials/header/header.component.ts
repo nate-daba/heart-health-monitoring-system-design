@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 import { User } from 'src/app/shared/models/User';
+import { Physician } from 'src/app/shared/models/Physician';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +11,7 @@ import { User } from 'src/app/shared/models/User';
 export class HeaderComponent implements OnInit {
 
   user!:User;
+  physician!:Physician;
 
   constructor(private userService: UserService) { 
     userService.userObservable.subscribe((newUser) => {
@@ -25,8 +27,12 @@ export class HeaderComponent implements OnInit {
     this.userService.logout();
   }
 
-  get isAuth() {
+  get patientIsAuth() {
     return this.user.token;
+  }
+
+  get physicianIsAuth() {
+    return this.physician.token;
   }
 
 }

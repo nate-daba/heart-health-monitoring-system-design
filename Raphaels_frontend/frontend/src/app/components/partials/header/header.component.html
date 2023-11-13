@@ -1,28 +1,30 @@
 <header>
     <div class="container">
         <a routerLink="/" class="logo">Heart Rate App</a>
+        <a *ngIf="patientIsAuth" routerLink="/devices" class="logo">Devices</a>
+        <a *ngIf="patientIsAuth" routerLink="/measurements" class="logo">Measurements</a>
+        <a *ngIf="physicianIsAuth" routerLink="/patients" class="logo">Patients</a>
+
         <nav>
             <ul>
                 <!-- 'ngIf' works like an if-clause - li is only shown when the if statement is true -->
-                <li *ngIf="!isAuth"> 
+                <li *ngIf="!patientIsAuth && !physicianIsAuth"> 
                     <a routerLink="/login">Patient Login</a>
                 </li>
-                <li *ngIf="isAuth" class="menu-container">
+                <li *ngIf="patientIsAuth && !physicianIsAuth" class="menu-container">
                     <a routerLink="/dashboard">{{user.first_name}}</a>
                     <div class="menu">
-                        <a routerLink="/profile">Profile</a>
-                        <a routerLink="/order">Orders</a>
+                        <a routerLink="/phy-account">Account</a>
                         <a (click)="logout()">Logout</a>
                     </div>
                 </li>
-                <li *ngIf="!isAuth">
-                    <a routerLink="/Phy_Login">Physician Login</a>
+                <li *ngIf="!physicianIsAuth && !patientIsAuth">
+                    <a routerLink="/phy-login">Physician Login</a>
                 </li>
-                <li *ngIf="isAuth" class="menu-container">
+                <li *ngIf="physicianIsAuth && !patientIsAuth" class="menu-container">
                     <a routerLink="/dashboard">{{user.first_name}}</a>
                     <div class="menu">
-                        <a routerLink="/profile">Profile</a>
-                        <a routerLink="/order">Orders</a>
+                        <a routerLink="/user-account">Account</a>
                         <a (click)="logout()">Logout</a>
                     </div>
                 </li>

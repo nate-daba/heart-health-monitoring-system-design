@@ -17,6 +17,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HeartRatePageComponent } from './components/pages/heart-rate-page/heart-rate-page.component';
 import { LoginPhyPageComponent } from './components/pages/login-phy-page/login-phy-page.component';
+import { ProfilePageComponent } from './components/pages/profile-page/profile-page.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { LoginPhyPageComponent } from './components/pages/login-phy-page/login-p
     LoginPageComponent,
     RegisterPageComponent,
     HeartRatePageComponent,
-    LoginPhyPageComponent
+    LoginPhyPageComponent,
+    ProfilePageComponent
   ],
   imports: [
     BrowserModule,
