@@ -23,5 +23,5 @@ void loop() {
   delay(1000);                       // Wait for 1000mS = 1 second
   digitalWrite(light, LOW);    // Turn OFF the LED pins
   delay(1000);                       // Wait for 1 second in off mode
-
+  Serial.println("in the loop");
 }
