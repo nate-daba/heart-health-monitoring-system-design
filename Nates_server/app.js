@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');     // Parses JSON in body
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var sensorRouter = require('./routes/sensor'); 
+var devicesRouter = require('./routes/devices');
 
 var app = express();
 
@@ -41,6 +42,7 @@ app.use(express.static(path.join(__dirname, 'public'))); // Serve static files f
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/sensor', sensorRouter); 
+app.use('/devices', devicesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
