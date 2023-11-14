@@ -8,10 +8,10 @@ router.post('/', function(req, res){
 
     const newData = new sensorData({
         eventName: req.body.event,
-        heartrate: req.body.data.data,
-        spo2: req.body.data.data, // need to change this later
-        deviceId: req.body.data.coreid,
-        published_at: req.body.data.published_at
+        heartrate: req.body.data,
+        spo2: req.body.data, // need to change this later
+        deviceId: req.body.coreid,
+        published_at: req.body.published_at
     });
 
     newData.save()
