@@ -4,13 +4,13 @@ $(document).ready(function() {
 
     $.ajax({
         url: '/sensor/read',
-        method: 'POST',
+        method: 'GET',
         headers: {
             'x-auth': window.localStorage.getItem("token") // Assuming token is stored in localStorage
         },
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify({ deviceId: deviceId }), // Data is sent as query parameters for GET requests
+        data: { deviceId: deviceId }, // Data is sent as query parameters for GET requests
     })
     .done(function(response) {
         // Assuming the response is an array of data objects

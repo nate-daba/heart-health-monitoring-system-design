@@ -16,7 +16,7 @@ router.post('/', function(req, res){
 
     newData.save()
         .then(data => {
-            console.log({'Incoming-data': req.body})
+            console.log({'Incoming-data saved to db': req.body})
             let msgStr = `${req.body.event} from ${req.body.data.coreid} has been saved`;
             res.status(201).json({message: msgStr});
         })
@@ -26,21 +26,19 @@ router.post('/', function(req, res){
         });
 });
 
-router.post('/read', function(req, res){
-    console.log('hit the read route');
-    console.log('deviceId: ' + req.body.deviceId)
-    console.log(typeof req.body.deviceId)
-    sensorData.find({deviceId: req.body.deviceId}, function (err, docs) {
-        if (err){
-            console.error(err); // Log the error so you can inspect it in your server logs
-            res.status(500).json({message: "An error occurred while retrieving data."});
-        }
-        else{
-            console.log('Something bad happened');
-            res.status(200).json(docs); // Use 200 OK for a successful GET request
-        }
-    });
+router.get('/read', async function(req, res){
+
+    try {
+        const docs = await sensorData.find({ deviceId: req.body.deviceId });
+        console.log('Data retrieved successfully');
+        console.log('docs:', docs);
+        res.status(200).json(docs); // Use 200 OK for a successful operation
+    } catch (err) {
+        console.error(err); // Log the error so you can inspect it in your server logs
+        res.status(500).json({ message: "An error occurred while retrieving data." });
+    }
 });
+
 
 
 module.exports = router;
