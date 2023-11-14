@@ -1,0 +1,10 @@
+/* styles.css */
+.success-message {
+    text-align: center;
+    margin: 20px 0;
+    color: green;
+}
+
+.measurement-table {
+    margin-top: 20px;
+}

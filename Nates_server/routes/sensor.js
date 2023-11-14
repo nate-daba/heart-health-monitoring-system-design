@@ -16,6 +16,7 @@ router.post('/', function(req, res){
 
     newData.save()
         .then(data => {
+            console.log({'Incoming-data': req.body})
             let msgStr = `${req.body.event} from ${req.body.data.coreid} has been saved`;
             res.status(201).json({message: msgStr});
         })
@@ -24,5 +25,22 @@ router.post('/', function(req, res){
             res.status(500).json({message: 'Error saving data'});
         });
 });
+
+router.post('/read', function(req, res){
+    console.log('hit the read route');
+    console.log('deviceId: ' + req.body.deviceId)
+    console.log(typeof req.body.deviceId)
+    sensorData.find({deviceId: req.body.deviceId}, function (err, docs) {
+        if (err){
+            console.error(err); // Log the error so you can inspect it in your server logs
+            res.status(500).json({message: "An error occurred while retrieving data."});
+        }
+        else{
+            console.log('Something bad happened');
+            res.status(200).json(docs); // Use 200 OK for a successful GET request
+        }
+    });
+});
+
 
 module.exports = router;

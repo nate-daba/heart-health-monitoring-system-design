@@ -6,16 +6,38 @@
     <title>Register Device</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        <h2 class="mb-6 text-xl text-gray-800 text-center font-bold">Register Your Device</h2>
-        <form id="registerDeviceForm">
-            <div class="mb-4">
-                <label for="inputDeviceId" class="block text-gray-700 text-sm font-bold mb-2">Device ID</label>
-                <input type="text" id="inputDeviceId" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter Device ID" required>
+<body class="bg-gray-100">
+    <div class="flex flex-col items-center justify-center min-h-screen">
+        <div class="bg-white p-8 rounded shadow-md w-full max-w-3xl">
+            <h2 class="mb-6 text-xl text-gray-800 text-center">To register your device, please click on the button below to get a list of all available devices in your account.</h2>
+            <div class="flex justify-center mb-4">
+                <button id="listDevices" type="button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-sm">List all devices</button>
             </div>
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">Register Device</button>
-        </form>
+            <div id="deviceTableContainer" class="mb-4 hidden">
+                <table id="deviceTable" class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Device ID
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Online
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200 text-center">
+                        <!-- Devices will be listed here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="registrationStatus" class="text-center mt-4"></div>
     </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/javascripts/device-registration.js"></script>
