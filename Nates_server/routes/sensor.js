@@ -29,7 +29,7 @@ router.post('/', function(req, res){
 router.get('/read', async function(req, res){
 
     try {
-        const docs = await sensorData.find({ deviceId: req.body.deviceId });
+        const docs = await sensorData.find({ deviceId: req.query.deviceId });
         console.log('Data retrieved successfully');
         console.log('docs:', docs);
         res.status(200).json(docs); // Use 200 OK for a successful operation
