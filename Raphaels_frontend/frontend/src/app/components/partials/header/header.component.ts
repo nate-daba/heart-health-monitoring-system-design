@@ -27,12 +27,12 @@ export class HeaderComponent implements OnInit {
     this.userService.logout();
   }
 
-  get patientIsAuth() {
+  get isAuth() {
     return this.user.token;
   }
 
-  get physicianIsAuth() {
-    return this.physician.token;
-  }
+  // get physicianIsAuth() {
+  //   return this.physician.token;
+  // }
 
 }
