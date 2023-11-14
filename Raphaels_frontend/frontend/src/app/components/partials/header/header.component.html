@@ -8,6 +8,21 @@
         <nav>
             <ul>
                 <!-- 'ngIf' works like an if-clause - li is only shown when the if statement is true -->
+                <li *ngIf="!patientIsAuth">
+                    <a routerLink="/login">!PatAuth</a>
+                </li>
+                <li *ngIf="patientIsAuth">
+                    <a routerLink="/login">PatAuth</a>
+                </li>
+                <li *ngIf="!physicianIsAuth">
+                    <a routerLink="/login">!PhyAuth</a>
+                </li>
+                <li *ngIf="physicianIsAuth">
+                    <a routerLink="/login">PhyAuth</a>
+                </li>
+                <li *ngIf="!patientIsAuth || !physicianIsAuth">
+                    <a routerLink="/login">!PatAuth or !PhyAuth</a>
+                </li>
                 <li *ngIf="!patientIsAuth && !physicianIsAuth"> 
                     <a routerLink="/login">Patient Login</a>
                 </li>
