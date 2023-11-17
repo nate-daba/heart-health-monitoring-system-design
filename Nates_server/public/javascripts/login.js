@@ -12,6 +12,8 @@ $(document).ready(function() {
             email: email,
             password: password
         };
+        console.log('credentials: ' + credentials);
+
         $.ajax({
             url: '/users/signUp',
             method: 'POST',
@@ -27,6 +29,5 @@ $(document).ready(function() {
         .fail(function(err){
             console.log(err);
         });
-    
     });
 });

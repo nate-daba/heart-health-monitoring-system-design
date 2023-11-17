@@ -1,0 +1,73 @@
+/* signUp.css */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    /* Interactive background gradient */
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    transition: background 0.5s ease;
+}
+
+body:hover {
+    /* Change gradient position on hover for interactive effect */
+    background-position: 100% 0;
+}
+
+#signUpForm {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 350px; /* Increased width */
+    box-sizing: border-box;
+    margin: 0 auto; /* Center form in the middle of the page */
+}
+
+#signUpForm input[type="text"],
+#signUpForm input[type="email"],
+#signUpForm input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#signUpForm button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    background-color: #5c6bc0;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#signUpForm button:hover {
+    background-color: #3f51b5;
+}
+
+#signUpForm .errorDiv {
+    color: red;
+    text-align: center;
+    margin-top: 10px; /* Added space above the error message */
+}
+
+#signUpForm p {
+    text-align: center;
+}
+
+#signUpForm a {
+    color: #5c6bc0;
+    text-decoration: none;
+}
+
+#signUpForm a:hover {
+    text-decoration: underline;
+}
