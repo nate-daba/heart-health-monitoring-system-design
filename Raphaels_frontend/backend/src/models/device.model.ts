@@ -7,7 +7,7 @@ export interface Device{
 
 export const DeviceSchema = new Schema<Device>({
     deviceId: {type: String, required: true},
-    email: {type: String, required: true, unique: true}
+    email: {type: String, required: true}
 }, {
     timestamps: true,
     toJSON:{

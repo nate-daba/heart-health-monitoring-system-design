@@ -5,8 +5,4 @@ export class User{
     last_name!:string;
     address!:string;
     token!:string;
-    isAdmin!:boolean;
-    heartRateData!: [
-        { sensorValue: number, timeStamp: Date}
-    ]
 }

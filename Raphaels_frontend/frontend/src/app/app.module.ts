@@ -15,7 +15,7 @@ import { RegisterPageComponent } from './components/pages/register-page/register
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HeartRatePageComponent } from './components/pages/heart-rate-page/heart-rate-page.component';
+import { MeasurementPageComponent } from './components/pages/measurement-page/measurement-page.component';
 import { LoginPhyPageComponent } from './components/pages/login-phy-page/login-phy-page.component';
 import { ProfilePageComponent } from './components/pages/profile-page/profile-page.component';
 
@@ -30,7 +30,7 @@ import { ProfilePageComponent } from './components/pages/profile-page/profile-pa
     HomeComponent,
     LoginPageComponent,
     RegisterPageComponent,
-    HeartRatePageComponent,
+    MeasurementPageComponent,
     LoginPhyPageComponent,
     ProfilePageComponent
   ],

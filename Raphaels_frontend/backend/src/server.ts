@@ -4,9 +4,9 @@ import path from 'path';
 import mongoose from 'mongoose';
 import express from 'express';
 import cors from "cors";
-import userRouter from './routes/user.router';
-import physicianRouter from './routes/physician.router';
-import heartRateRouter from './routes/heart-rate.router';
+import UserRouter from './routes/user.router';
+import PhysicianRouter from './routes/physician.router';
+import MeasurementRouter from './routes/measurement.router';
 import {dbConnect} from './configs/database.config'
 dbConnect();
 
@@ -21,9 +21,9 @@ app.use(cors({ // why to use cors: https://youtu.be/Y28hObRey9g?t=413
     credentials:true,
     origin:["http://localhost:4200"]
 }));
-app.use("/api/users", userRouter);
-app.use("/api/physicians", physicianRouter);
-app.use("/api/heart-rate", heartRateRouter);
+app.use("/api/users", UserRouter);
+app.use("/api/physicians", PhysicianRouter);
+app.use("/api/measurement", MeasurementRouter);
 
 app.use(express.static('public'));
 app.get('*', (req,res) => {

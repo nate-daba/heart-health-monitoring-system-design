@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import asyncHandler from 'express-async-handler';
 import { Router } from 'express';
 import { User, UserModel } from '../models/user.model';
-import { HeartRateModel } from '../models/heart-rate.model';
+import { MeasurementModel } from '../models/measurement.model';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
@@ -46,12 +46,7 @@ router.post('/register', asyncHandler(
             last_name,
             email: email.toLowerCase(),
             password: encryptedPassword,
-            address,
-            isAdmin: false,
-            heartRateData: [ 
-                { sensorValue: 111,
-                timeStamp: new Date() }
-            ]
+            address
         })
 
         const dbUser = await UserModel.create(newUser);
@@ -64,7 +59,7 @@ router.post('/register', asyncHandler(
 const generateTokenResponse = (user: User) => {
     const token = jwt.sign( //generate a token = sign a token
         { //id: user.id, 
-            email:user.email, isAdmin:user.isAdmin }, 
+            email:user.email }, 
         "SecretKey",
         { expiresIn: "30d"}
     );
@@ -75,109 +70,8 @@ const generateTokenResponse = (user: User) => {
         first_name: user.first_name,
         last_name: user.last_name,
         address: user.address,
-        isAdmin: user.isAdmin,
-        token: token,
-        heartRateData: user.heartRateData
+        token: token
     };
 }
 
 export default router;
-
-const accessToken = "3923315920a08f34632580858dfa793e619df985";
-const deviceId = "e00fce68324153a783dcc4f7";
-
-// Subscribe to the "sensorData" event
-// axios causes the huge print on Terminal when backend starts
-//This block was commented out on 10/24/23:
-// axios.post(`https://api.particle.io/v1/devices/${deviceId}/events`, {
-//   name: "sensorData",
-//   auth: accessToken,
-// })
-// .then((response) => {
-//     console.log("Subscribed to sensorData event");
-// })
-// .catch((error) => {
-//     console.error("Failed to subscribe to sensorData event", error);
-// });
-
-// Listen for incoming events
-//This block was commented out on 10/24/23:
-// const Particle = require("particle-api-js");
-// const particle = new Particle();
-// let i = 1;
-
-// async function startParticleStream() {
-// particle.getEventStream({
-//     deviceId: deviceId,
-//     auth: accessToken,
-// })
-//     .then((stream: any) => {
-//         console.log("Listening for events...");
-//         stream.on("event", (event: any) => {
-//         if (event.name === "sensorData") {
-//             const data = JSON.parse(event.data);
-//             console.log("Received sensor data:", data);
-//             // Store the data in your MongoDB database or perform any other actions
-//             const sensorValue = data.sensorValue;
-//             console.log("sensorValue = ", sensorValue);
-//             const newSensorData = new HeartRateModel({
-//                 sensorValue: sensorValue,
-//                 timeStamp: new Date(), // Use the current date and time as the timestamp
-//             });
-//             newSensorData.save()
-//             .then(() => console.log('Sensor data saved to MongoDB'))
-//             .catch((error) => console.error('Error saving sensor data:', error));
-//             setTimeout(() => {
-//                 console.log('Processing next event after delay...');
-
-//               }, 3000);
-//             i++;
-//         }
-//         console.log('i = ' + i);
-//         if (i > 2) {
-//             stream.unsubscribe();
-//             console.log('Event stream unsubscribed.');
-//         }
-//         });
-//     })
-//     .catch((error: any) => {
-//         console.error("Error getting event stream", error);
-//     });
-// }
-
-// function stopParticleStream() {
-//     particle.
-// }
-
-//This block was commented out on 10/24/23:
-// async function startParticleStream() {
-//     const eventStream = particle.getEventStream({
-//         deviceId: deviceId,
-//         auth: accessToken,
-//     });
-    
-//         console.log("Listening for events...");
-//         eventStream.on("event", async (event: any) => {
-//         if (event.name === "sensorData") {
-//             const data = JSON.parse(event.data);
-//             console.log("Received sensor data:", data);
-//             // Store the data in your MongoDB database or perform any other actions
-//             const sensorValue = data.sensorValue;
-//             console.log("sensorValue = ", sensorValue);
-//             const newSensorData = new HeartRateModel({
-//                 sensorValue: sensorValue,
-//                 timeStamp: new Date(), // Use the current date and time as the timestamp
-//             });
-//             newSensorData.save()
-//             .then(() => console.log('Sensor data saved to MongoDB'))
-//             .catch((error) => console.error('Error saving sensor data:', error));
-//             setTimeout(() => {
-//                 console.log('Processing next event after delay...');
-
-//               }, 3000);
-//             i++;
-//         }
-//         console.log('i = ' + i);
-        
-//         });
-// }

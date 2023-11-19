@@ -28,10 +28,7 @@ export class UserService {
           this.userSubject.next(user);
           this.toastrService.success(
             //`Welcome to Food Court ${user.first_name}!`,
-            //'Login successful!',
-            //`${user.last_name}`
-            `${user.heartRateData[0].sensorValue}`,
-            `${user.heartRateData[0].timeStamp}`
+            'Welcome to your Heart Rate and Blood Oxygen App, ${user._name}!'
           )
         },
         error: (errorResponse) => {
@@ -48,7 +45,7 @@ export class UserService {
           this.setUserToLocalStorage(user);
           this.userSubject.next(user);
           this.toastrService.success(
-            `Welcome to the Food Court ${user.first_name}`, 
+            `Welcome ${user.first_name}`, 
             'Registering Successful'
           )
         },

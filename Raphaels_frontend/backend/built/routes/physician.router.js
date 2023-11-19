@@ -99,11 +99,7 @@ router.post('/register', (0, express_async_handler_1.default)(function (req, res
                     last_name: last_name,
                     email: email.toLowerCase(),
                     password: encryptedPassword,
-                    address: address,
-                    isAdmin: false,
-                    patients: [
-                        { email: "john@gmail.com" }
-                    ]
+                    address: address
                 });
                 return [4 /*yield*/, physician_model_1.PhysicianModel.create(newPhysician)];
             case 3:
@@ -116,15 +112,13 @@ router.post('/register', (0, express_async_handler_1.default)(function (req, res
 }); }));
 var generateTokenResponse = function (physician) {
     var token = jsonwebtoken_1.default.sign(//generate a token = sign a token
-    { email: physician.email, isAdmin: physician.isAdmin }, "SecretKey", { expiresIn: "30d" });
+    { email: physician.email }, "SecretKey", { expiresIn: "30d" });
     return {
         email: physician.email,
         first_name: physician.first_name,
         last_name: physician.last_name,
         address: physician.address,
-        isAdmin: physician.isAdmin,
-        token: token,
-        patients: physician.patients
+        token: token
     };
 };
 exports.default = router;

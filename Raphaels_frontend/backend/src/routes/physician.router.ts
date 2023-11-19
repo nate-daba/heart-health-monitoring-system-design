@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { Router } from 'express';
 import { Physician, PhysicianModel } from '../models/physician.model';
 import { User, UserModel } from '../models/user.model';
-import { HeartRateModel } from '../models/heart-rate.model';
+import { MeasurementModel } from '../models/measurement.model';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
@@ -46,11 +46,7 @@ router.post('/register', asyncHandler(
             last_name,
             email: email.toLowerCase(),
             password: encryptedPassword,
-            address,
-            isAdmin: false,
-            patients: [
-                { email: "john@gmail.com"}
-            ]
+            address
         })
 
         const dbPhysician = await PhysicianModel.create(newPhysician);
@@ -62,7 +58,7 @@ router.post('/register', asyncHandler(
 
 const generateTokenResponse = (physician: Physician) => {
     const token = jwt.sign( //generate a token = sign a token
-        { email:physician.email, isAdmin:physician.isAdmin }, 
+        { email:physician.email }, 
         "SecretKey",
         { expiresIn: "30d"}
     );
@@ -72,9 +68,7 @@ const generateTokenResponse = (physician: Physician) => {
         first_name: physician.first_name,
         last_name: physician.last_name,
         address: physician.address,
-        isAdmin: physician.isAdmin,
-        token: token,
-        patients: physician.patients
+        token: token
     };
 }
 

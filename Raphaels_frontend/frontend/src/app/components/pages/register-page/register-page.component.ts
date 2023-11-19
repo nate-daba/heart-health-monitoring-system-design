@@ -58,7 +58,7 @@ export class RegisterPageComponent implements OnInit {
 
     this.userService.register(user).subscribe(_ => {
       // this.router.navigateByUrl(this.returnUrl);
-      this.router.navigateByUrl('/heart-rate');
+      this.router.navigateByUrl('/measurements');
     }) // don't care about the ubscribe input parameter, so just put a '_'
   }
 
