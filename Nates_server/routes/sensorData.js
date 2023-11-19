@@ -46,7 +46,7 @@ router.get('/read', async function(req, res) {
 
     try {
         const docs = await sensorData.find({ deviceId: req.query.deviceId });
-
+        
         // Check if any documents were found
         if (docs.length === 0) {
             return res.status(404).json({ message: "No data found for the provided Device ID." });
