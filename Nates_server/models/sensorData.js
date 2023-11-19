@@ -2,10 +2,9 @@ const db = require('../db');
 
 const sensorDataSchema = new db.Schema({
     eventName: String,
-    heartrate: Number,
-    spo2: Number,
+    data: {heartrate: Number, spo2: Number},
     deviceId: String,
-    published_at: Date
+    published_at: Date // this should later be changed to measurementTime
 });
 
 const sensorData = db.model('sensorData', sensorDataSchema, 'data');

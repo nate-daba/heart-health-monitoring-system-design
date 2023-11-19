@@ -29,9 +29,9 @@ $(document).ready(function() {
         response.forEach(function(data) {
             var row = $('<tr>').append(
                 $('<td>').text(data.deviceId),
-                $('<td>').text(data.heartRate),
-                $('<td>').text(data.spo2),
-                $('<td>').text(new Date(data.measurementTime).toLocaleString()) // Formatting timestamp
+                $('<td>').text(data.data.heartRate),
+                $('<td>').text(data.data.spo2),
+                $('<td>').text(new Date(data.published_at).toLocaleString()) // Formatting timestamp
             );
             $('#dataBody').append(row);
         });

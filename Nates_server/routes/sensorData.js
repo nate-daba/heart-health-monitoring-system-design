@@ -2,29 +2,41 @@ var express = require('express');
 var router = express.Router();
 var sensorData = require('../models/sensorData');
 
-router.post('/', function(req, res){
+router.post('/', function(req, res) {
     console.log(req.body);
-    // res.json({message: 'Got it!'}); // This line should be removed or moved inside the .then block to avoid sending multiple responses
 
+    // Parse the JSON string in req.body.data into an object
+    let sensorDataObj;
+    try {
+        sensorDataObj = JSON.parse(req.body.data);
+    } catch (e) {
+        console.error("Error parsing JSON:", e);
+        return res.status(400).json({ message: "Bad request: JSON data is malformed." });
+    }
+
+    // Now you can use sensorDataObj to access heartrate and spo2
     const newData = new sensorData({
         eventName: req.body.event,
-        heartrate: req.body.data,
-        spo2: req.body.data, // need to change this later
+        data: {
+            heartrate: sensorDataObj.heartrate,
+            spo2: sensorDataObj.spo2
+        },
         deviceId: req.body.coreid,
         published_at: req.body.published_at
     });
 
     newData.save()
         .then(data => {
-            console.log({'Incoming-data saved to db': req.body})
-            let msgStr = `${req.body.event} from ${req.body.data.coreid} has been saved`;
-            res.status(201).json({message: msgStr});
+            console.log({'Incoming-data saved to db': data});
+            let msgStr = `${req.body.event} from ${req.body.coreid} has been saved`;
+            res.status(201).json({ message: msgStr });
         })
         .catch(err => {
-            console.log(err);
-            res.status(500).json({message: 'Error saving data'});
+            console.error(err);
+            res.status(500).json({ message: 'Error saving data' });
         });
 });
+
 
 router.get('/read', async function(req, res) {
     // Check if the deviceId query parameter is provided
