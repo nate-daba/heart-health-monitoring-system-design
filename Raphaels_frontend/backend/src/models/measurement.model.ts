@@ -21,4 +21,4 @@ export const MeasurementSchema = new Schema({
     }
 });
 
-export const MeasurementModel = model('measurement', MeasurementSchema, 'data');
+export const MeasurementModel = model('measurements', MeasurementSchema, 'data');

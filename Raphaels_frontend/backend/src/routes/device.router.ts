@@ -124,3 +124,4 @@ router.post('/createWebhook', asyncHandler(
     }
 ));
 
+export default router;

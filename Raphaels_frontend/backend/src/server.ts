@@ -7,6 +7,7 @@ import cors from "cors";
 import UserRouter from './routes/user.router';
 import PhysicianRouter from './routes/physician.router';
 import MeasurementRouter from './routes/measurement.router';
+import DeviceRouter from './routes/device.router';
 import {dbConnect} from './configs/database.config'
 dbConnect();
 
@@ -23,7 +24,8 @@ app.use(cors({ // why to use cors: https://youtu.be/Y28hObRey9g?t=413
 }));
 app.use("/api/users", UserRouter);
 app.use("/api/physicians", PhysicianRouter);
-app.use("/api/measurement", MeasurementRouter);
+app.use("/api/measurements", MeasurementRouter);
+app.use("/api/devices", DeviceRouter);
 
 app.use(express.static('public'));
 app.get('*', (req,res) => {

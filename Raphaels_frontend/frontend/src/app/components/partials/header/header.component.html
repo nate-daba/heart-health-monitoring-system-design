@@ -27,7 +27,7 @@
                     <a routerLink="/login">Patient Login</a>
                 </li>
                 <li *ngIf="isAuth" class="menu-container">
-                    <a routerLink="/dashboard">{{user.first_name}}</a>
+                    <a routerLink="/dashboard">{{user.first_name}} {{user.last_name}}</a>
                     <div class="menu">
                         <a routerLink="/phy-account">Account</a>
                         <a (click)="logout()">Logout</a>
