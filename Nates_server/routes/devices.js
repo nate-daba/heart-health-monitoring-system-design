@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var User = require('../models/device');
+var Device = require('../models/device');
 const axios = require('axios');
 const qs = require('qs');
 
@@ -9,57 +9,72 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-// This route claims a device to the authenticated user
+// This route attaches a device to a user account
+router.post('/register', async function(req, res){
+  try {
+    // Destructure the body for better readability
+    const { deviceId, email } = req.body;
 
-router.post('/register', function(req, res){
-    console.log(req.body);
+    // Validate the input
+    if (!deviceId || !email) {
+      return res.status(400).json({ message: 'Bad request: Device ID and email are required.' });
+    }
 
-    let data = qs.stringify({
-      'id': req.body.deviceId, 
+    // Initialize the new device
+    var newDevice = new Device({
+      deviceId: deviceId,
+      email: email
     });
 
-    let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: 'https://api.particle.io/v1/devices',
-    headers: { 
-      'Content-Type': 'application/x-www-form-urlencoded', 
-      'Authorization': 'Bearer ' + req.headers["x-auth"]
-    },
-    data: data
-    };
+    // Save the new device to the database
+    await newDevice.save();
 
-    axios.request(config)
-    .then((response) => {
-      console.log('Device succesfully claimed!');
-      console.log(response.data);
-      res.status(201).json(response.data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    // Send a 201 response if the device is successfully saved
+    res.status(201).json({ message: 'Device registered successfully.' });
 
+  } catch (error) {
+    console.error('Registration error:', error);
+
+    // Check for validation errors (assuming the use of Mongoose)
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Bad request: Invalid device data.', errors: error.errors });
+    }
+
+    // If the error code is 11000, it indicates a duplicate key error
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Bad request: Device already registered.' });
+    }
+
+    // Handle unauthorized errors
+    if (error.name === 'UnauthorizedError') {
+      return res.status(401).json({ message: 'Unauthorized: Invalid credentials.' });
+    }
+
+    // Generic error message for other cases
+    res.status(500).json({ message: 'Internal server error: Unable to register device.' });
+  }
 });
 
+
 // API doc: https://docs.particle.io/reference/cloud-apis/api/#list-devices
-router.get('/list', function(req, res){
-  let config = {
-    method: 'get',
-    maxBodyLength: Infinity,
-    url: 'https://api.particle.io/v1/devices',
-    headers: { 
-      'Authorization': 'Bearer ' + req.headers["x-auth"]
-    }
-  };
+// router.get('/list', function(req, res){
+//   let config = {
+//     method: 'get',
+//     maxBodyLength: Infinity,
+//     url: 'https://api.particle.io/v1/devices',
+//     headers: { 
+//       'Authorization': 'Bearer ' + req.headers["x-auth"]
+//     }
+//   };
   
-  axios.request(config)
-  .then((response) => {
-    console.log(JSON.stringify(response.data));
-    res.status(201).json(response.data);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-})
+//   axios.request(config)
+//   .then((response) => {
+//     console.log(JSON.stringify(response.data));
+//     res.status(201).json(response.data);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+// })
 
 module.exports = router;

@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var sensorRouter = require('./routes/sensor'); 
+var sensorRouter = require('./routes/sensorData'); 
 var devicesRouter = require('./routes/devices');
 var integrationsRouter = require('./routes/integrations');
 

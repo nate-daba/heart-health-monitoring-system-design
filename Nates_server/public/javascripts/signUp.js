@@ -1,6 +1,7 @@
 // sign up callback function
 function signUp(e) {
     e.preventDefault();
+    $('.errorDiv').hide();
     // data validation
     if ($('#email').val() === "") {
         window.alert("Email can not be empty.");
@@ -39,17 +40,22 @@ function signUp(e) {
         data: JSON.stringify(newUserData),
         dataType: 'json'
     })
-    .done(function (data, textStatus, jqXHR) {
+    .done(function(data) {
         console.log(data);
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("email", newUserData.email);
         window.location.href = '/device-registration.html'; // Redirect to the device registration page
     })
-    .fail(function (jqXHR, textStatus, errorThrown) {
-        console.log(err);
+    .fail(function(err) {
+        console.log(err.responseJSON.message);
+        if(err.status === 409) {
+            $('.errorDiv p').text(err.responseJSON.message);
+            $('.errorDiv').show();
+        }
     });
 };
 
 $(document).ready(function() {
-    console.log("signUp.js ready");
+    
     $('#signUpForm').on('submit', signUp);
 });

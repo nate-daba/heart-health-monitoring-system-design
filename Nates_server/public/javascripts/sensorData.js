@@ -1,9 +1,20 @@
 $(document).ready(function() {
     // Retrieve 'deviceId' from local storage
+    var comingFrom = localStorage.getItem('comingFrom');
+    
+    if (comingFrom === 'login') {
+        $('.success-message h2').text('Sensor Data');
+    } else if (comingFrom === 'deviceRegistration') {
+        $('.success-message h2').text('Device Registered Successfully');
+    }
+    
+    // Clear the item to avoid affecting subsequent visits to the page
+    localStorage.removeItem('comingFrom');
+    
     let deviceId = localStorage.getItem("deviceId");
 
     $.ajax({
-        url: '/sensor/read',
+        url: '/sensorData/read',
         method: 'GET',
         headers: {
             'x-auth': window.localStorage.getItem("token") // Assuming token is stored in localStorage

@@ -4,7 +4,7 @@ const userSchema = new db.Schema({
     firstName:      String,
     lastName:       String,
     email:          String,
-    passwordHash:   String,
+    hashedPassword:   String,
     lastAccess:     { type: Date, default: Date.now },
  });
 

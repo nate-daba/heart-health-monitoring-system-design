@@ -18,56 +18,54 @@ body:hover {
 }
 
 #signUpForm {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    width: 350px; /* Increased width */
-    box-sizing: border-box;
-    margin: 0 auto; /* Center form in the middle of the page */
-}
-
-#signUpForm input[type="text"],
-#signUpForm input[type="email"],
-#signUpForm input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-#signUpForm button {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: none;
-    background-color: #5c6bc0;
+    width: 300px;
+    padding: 16px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* Adjust the input styles if necessary */
+  input[type=text], input[type=email], input[type=password] {
+    width: calc(100% - 30px); /* Adjust width as needed */
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: 1px solid #ccc;
+    background: #f1f1f1;
+    border-radius: 10px;
+    display: block; /* Ensure inputs are block-level elements */
+  }
+  
+  /* Style the submit button */
+  #signUpButton {
+    background-color: #008CBA;
     color: white;
-    border-radius: 4px;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
     cursor: pointer;
-}
-
-#signUpForm button:hover {
-    background-color: #3f51b5;
-}
-
-#signUpForm .errorDiv {
+    width: 100%;
+    opacity: 0.9;
+    border-radius: 10px;
+    display: block; /* Ensure the button is a block-level element */
+  }
+  
+  #signUpButton:hover {
+    opacity: 1;
+  }
+  
+  /* Style the error message container */
+  .errorDiv {
     color: red;
     text-align: center;
-    margin-top: 10px; /* Added space above the error message */
-}
-
-#signUpForm p {
-    text-align: center;
-}
-
-#signUpForm a {
-    color: #5c6bc0;
-    text-decoration: none;
-}
-
-#signUpForm a:hover {
-    text-decoration: underline;
-}
+    margin-top: 10px; /* Adds space above the error message */
+  }
+  
+  /* Style the error message text */
+  .errorMessage {
+    margin: 0; /* Removes default paragraph margin */
+    font-size: 0.9em; /* Adjusts the font size */
+  }
+  

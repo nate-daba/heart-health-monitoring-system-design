@@ -27,20 +27,20 @@ function logIn(e) {
         console.log(data);
         if (data.success){
             localStorage.setItem("token", data.access_token);
-            window.location.href = '/device-registration.html'; // Redirect to the device registration page
+            localStorage.setItem('comingFrom', 'login');
+            window.location.href = '/sensorData.html'; // Redirect to the device registration page
         }
         else{
             $('.errorDiv').show();
         }
     })
     .fail(function(err){
-        console.log(err);
+        $('.errorDiv').show();
     });
 };
 
 
 $(document).ready(function() {
-    console.log("login.js ready");
     $('#loginForm').on('submit', logIn); // Changed to listen on form submit
 });
 
