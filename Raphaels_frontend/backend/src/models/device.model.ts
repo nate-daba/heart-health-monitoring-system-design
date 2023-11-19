@@ -18,4 +18,4 @@ export const DeviceSchema = new Schema<Device>({
     }
 });
 
-export const DeviceModel = model<Device>('user', DeviceSchema);
+export const DeviceModel = model<Device>('device', DeviceSchema);
