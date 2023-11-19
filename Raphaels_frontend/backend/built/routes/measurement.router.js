@@ -42,86 +42,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_async_handler_1 = __importDefault(require("express-async-handler"));
 var express_1 = require("express");
 var measurement_model_1 = require("../models/measurement.model");
-var axios_1 = __importDefault(require("axios"));
-var qs_1 = __importDefault(require("qs"));
 var router = (0, express_1.Router)();
 router.post('/', (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var measurement, newData;
-    return __generator(this, function (_a) {
-        measurement = req.body.measurement;
-        newData = new measurement_model_1.MeasurementModel({ measurement: measurement });
-        newData.save();
-        res.sendStatus(200);
-        return [2 /*return*/];
-    });
-}); }));
-router.post('/createWebhook', (0, express_async_handler_1.default)(function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    //physician = await PhysicianModel.findOne({email});
-    // Function to create a webhook
-    function createWebhook(eventType) {
-        return __awaiter(this, void 0, void 0, function () {
-            var data, config, response, error_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        data = qs_1.default.stringify({
-                            'integration_type': req.body.integration_type,
-                            'event': eventType,
-                            'url': req.body.url,
-                            'requestType': req.body.requestType
-                        });
-                        config = {
-                            method: 'post',
-                            maxBodyLength: Infinity,
-                            url: 'https://api.particle.io/v1/integrations',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'Authorization': 'Bearer ' + req.headers["x-auth"]
-                            },
-                            data: data
-                        };
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, axios_1.default.request(config)];
-                    case 2:
-                        response = _a.sent();
-                        console.log("Webhook for ".concat(eventType, " data created successfully!"));
-                        return [2 /*return*/, response.data]; // Return the response data
-                    case 3:
-                        error_2 = _a.sent();
-                        throw error_2; // Throw the error to be caught by the caller
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    var heartrateResponse, spo2Response, error_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var _a, eventName, data, deviceId, newData, dbMeasurement;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
-                console.log(req.body);
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 4, , 5]);
-                return [4 /*yield*/, createWebhook('heartrate')];
-            case 2:
-                heartrateResponse = _a.sent();
-                return [4 /*yield*/, createWebhook('spo2')];
-            case 3:
-                spo2Response = _a.sent();
-                // Send the response back to the client
-                res.json({
-                    heartrateResponse: heartrateResponse,
-                    spo2Response: spo2Response
+                _a = req.body, eventName = _a.eventName, data = _a.data, deviceId = _a.deviceId;
+                console.log(eventName, ", ", deviceId);
+                newData = new measurement_model_1.MeasurementModel({
+                    eventName: eventName,
+                    data: data,
+                    deviceId: deviceId
                 });
-                return [3 /*break*/, 5];
-            case 4:
-                error_1 = _a.sent();
-                console.error('An error occurred:', error_1);
-                res.status(500).send('An error occurred while creating webhooks.');
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                return [4 /*yield*/, measurement_model_1.MeasurementModel.create(newData)];
+            case 1:
+                dbMeasurement = _b.sent();
+                //newData.save(); // from Nate's server
+                res.sendStatus(200);
+                alert("Measurement ".concat(data, " was added to the database."));
+                return [2 /*return*/];
         }
     });
 }); }));

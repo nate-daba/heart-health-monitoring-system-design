@@ -177,3 +177,4 @@ router.post('/createWebhook', (0, express_async_handler_1.default)(function (req
         }
     });
 }); }));
+exports.default = router;

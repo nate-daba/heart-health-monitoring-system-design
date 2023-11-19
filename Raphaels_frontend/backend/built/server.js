@@ -11,6 +11,7 @@ var cors_1 = __importDefault(require("cors"));
 var user_router_1 = __importDefault(require("./routes/user.router"));
 var physician_router_1 = __importDefault(require("./routes/physician.router"));
 var measurement_router_1 = __importDefault(require("./routes/measurement.router"));
+var device_router_1 = __importDefault(require("./routes/device.router"));
 var database_config_1 = require("./configs/database.config");
 (0, database_config_1.dbConnect)();
 var app = (0, express_1.default)();
@@ -24,7 +25,8 @@ app.use((0, cors_1.default)({
 }));
 app.use("/api/users", user_router_1.default);
 app.use("/api/physicians", physician_router_1.default);
-app.use("/api/measurement", measurement_router_1.default);
+app.use("/api/measurements", measurement_router_1.default);
+app.use("/api/devices", device_router_1.default);
 app.use(express_1.default.static('public'));
 app.get('*', function (req, res) {
     res.sendFile(path_1.default.join(__dirname, 'public', 'index.html'));

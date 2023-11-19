@@ -21,4 +21,4 @@ exports.MeasurementSchema = new mongoose_1.Schema({
         virtuals: true
     }
 });
-exports.MeasurementModel = (0, mongoose_1.model)('measurement', exports.MeasurementSchema, 'data');
+exports.MeasurementModel = (0, mongoose_1.model)('measurements', exports.MeasurementSchema, 'data');
