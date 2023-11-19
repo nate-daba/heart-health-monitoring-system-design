@@ -157,8 +157,10 @@ void loop()
     Serial.print(F(", SPO2Valid="));
     Serial.print(validSPO2, DEC);
 
-    Particle.publish("heartrate", String(heartRate), PRIVATE);
-    Particle.publish("spo2", String(spo2), PRIVATE);
+    String data = String::format("{\"heartrate\":%d,\"spo2\":%d}", heartRate, spo2);
+
+    Particle.publish("sensorData", data, PRIVATE);
+    
     Serial.println(F(", published !!"));
     takeMeasurement = false;
   }
