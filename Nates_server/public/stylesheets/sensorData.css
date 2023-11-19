@@ -8,3 +8,9 @@
 .measurement-table {
     margin-top: 20px;
 }
+
+/* Center align text in table headers and data cells */
+.measurement-table th,
+.measurement-table td {
+    text-align: center;
+}

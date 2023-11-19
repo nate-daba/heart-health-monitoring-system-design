@@ -6,23 +6,22 @@
     <title>Device Registration Status</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="stylesheets/sensorData.css">
- 
 </head>
 <body>
     <div class="container">
-        <div class="success-message">
+        <div class="success-message text-center">
             <h2>Device Registered Successfully</h2>
         </div>
-        <table class="table table-striped measurement-table">
+        <table class="table table-striped measurement-table text-center">
             <thead class="thead-dark">
                 <tr>
-                    <th scope="col">Device ID</th>
-                    <th scope="col">Heart Rate (bpm)</th>
-                    <th scope="col">SpO2 (&#37;)</th>
-                    <th scope="col">Measurement Time</th>
+                    <th scope="col" class="text-center">Device ID</th>
+                    <th scope="col" class="text-center">Heart Rate (bpm)</th>
+                    <th scope="col" class="text-center">SpO2 (&#37;)</th>
+                    <th scope="col" class="text-center">Measurement Time</th>
                 </tr>
             </thead>
-            <tbody id="dataBody">
+            <tbody id="dataBody" class="text-center">
                 <!-- Data will be inserted here by JavaScript -->
             </tbody>
         </table>
@@ -31,4 +30,3 @@
     <script src="/javascripts/sensorData.js"></script>
 </body>
 </html>
-
