@@ -46,12 +46,12 @@ export class UserService {
           this.userSubject.next(user);
           this.toastrService.success(
             `Welcome ${user.first_name}`, 
-            'Registering Successful'
+            'Registration Successful!'
           )
         },
         error: (errorResponse) => {
           this.toastrService.error(errorResponse.error,
-            'Registering Failed')
+            'Registration Failed')
         }
       })
     )

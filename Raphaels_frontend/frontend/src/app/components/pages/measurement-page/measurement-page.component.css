@@ -4,6 +4,12 @@ body {
     align-items: center;
     margin: 0;
   }
+
+  .register{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   
   .table-container {
     width: 80%;
@@ -39,3 +45,4 @@ body {
   tr:hover {
     background-color: #ddd;
   }
+  

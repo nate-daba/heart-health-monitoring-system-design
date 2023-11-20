@@ -14,4 +14,4 @@ exports.DeviceSchema = new mongoose_1.Schema({
         virtuals: true
     }
 });
-exports.DeviceModel = (0, mongoose_1.model)('user', exports.DeviceSchema);
+exports.DeviceModel = (0, mongoose_1.model)('device', exports.DeviceSchema);

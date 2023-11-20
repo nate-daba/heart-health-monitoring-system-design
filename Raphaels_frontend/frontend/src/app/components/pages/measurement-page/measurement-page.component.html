@@ -6,7 +6,13 @@
 <body>
   
   <div class="table-container">
-    <h1>Here is your Measurement Data, {{user.first_name}}</h1>
+    <h1>Here is your Measurement Data, {{user.first_name}}:</h1>
+    <div class="register">
+        New device? &nbsp;
+        <a routerLink="/register-device" [queryParams]="{returnUrl : returnUrl}">
+          Register it here
+        </a>
+    </div>
     <table>
         <thead>
         <tr>

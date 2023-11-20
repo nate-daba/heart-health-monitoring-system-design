@@ -18,6 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MeasurementPageComponent } from './components/pages/measurement-page/measurement-page.component';
 import { LoginPhyPageComponent } from './components/pages/login-phy-page/login-phy-page.component';
 import { ProfilePageComponent } from './components/pages/profile-page/profile-page.component';
+import { RegisterDevicePageComponent } from './components/pages/register-device-page/register-device-page.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { ProfilePageComponent } from './components/pages/profile-page/profile-pa
     RegisterPageComponent,
     MeasurementPageComponent,
     LoginPhyPageComponent,
-    ProfilePageComponent
+    ProfilePageComponent,
+    RegisterDevicePageComponent
   ],
   imports: [
     BrowserModule,

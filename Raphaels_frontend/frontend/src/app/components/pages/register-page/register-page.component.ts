@@ -59,7 +59,7 @@ export class RegisterPageComponent implements OnInit {
     this.userService.register(user).subscribe(_ => {
       // this.router.navigateByUrl(this.returnUrl);
       this.router.navigateByUrl('/measurements');
-    }) // don't care about the ubscribe input parameter, so just put a '_'
+    }) // don't care about the subscribe input parameter, so just put a '_'
   }
 
 }
