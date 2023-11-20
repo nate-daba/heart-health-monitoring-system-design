@@ -9,8 +9,8 @@ To use the Heart Rate Monitoring System, navigate to the login page and enter th
 - **Login Page**: [https://pulseo2monitor.onrender.com/login.html](https://pulseo2monitor.onrender.com/login.html)
 
 - **Credentials**:
-  - Email: `ndaba@arizona.edu`
-  - Password: `^nDr0id1x`
+  - Email: `johnsmith@gmail.com`
+  - Password: `password1234`
 
 If you want to create an account, follow the steps below:
 
