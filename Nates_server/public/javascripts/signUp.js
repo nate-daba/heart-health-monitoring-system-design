@@ -55,6 +55,8 @@ function signUp(e) {
     });
 };
 
+// document ready function
+
 $(document).ready(function() {
     
     $('#signUpForm').on('submit', signUp);
