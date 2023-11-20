@@ -22,7 +22,7 @@ router.post('/', function(req, res) {
             spo2: sensorDataObj.spo2
         },
         deviceId: req.body.coreid,
-        published_at: req.body.published_at
+        published_at: new Date(req.body.published_at)
     });
 
     newData.save()
