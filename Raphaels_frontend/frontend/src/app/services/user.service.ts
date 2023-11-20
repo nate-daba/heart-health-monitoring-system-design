@@ -28,7 +28,7 @@ export class UserService {
           this.userSubject.next(user);
           this.toastrService.success(
             //`Welcome to Food Court ${user.first_name}!`,
-            'Welcome to the Pulse O2 Monitor, ${user.first_name}!'
+            `Welcome back, ${user.first_name}!`
           )
         },
         error: (errorResponse) => {
