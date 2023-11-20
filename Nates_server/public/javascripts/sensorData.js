@@ -11,7 +11,7 @@ $(document).ready(function() {
     // Clear the item to avoid affecting subsequent visits to the page
     localStorage.removeItem('comingFrom');
     
-    let deviceId = localStorage.getItem("deviceId");
+    let email = localStorage.getItem("email");
 
     $.ajax({
         url: '/sensorData/read',
@@ -21,7 +21,7 @@ $(document).ready(function() {
         },
         dataType: 'json',
         contentType: 'application/json',
-        data: { deviceId: deviceId }, // Data is sent as query parameters for GET requests
+        data: { email: email }, // Data is sent as query parameters for GET requests
     })
     .done(function(response) {
         // Assuming the response is an array of data objects
