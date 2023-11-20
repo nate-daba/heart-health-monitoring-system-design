@@ -144,25 +144,32 @@ void loop()
 
     //calculate heart rate and SpO2 after first 100 samples (first 4 seconds of samples)
     maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-    // report measurement results to serial monitor
-    Serial.print(F("HR="));
-    Serial.print(heartRate, DEC);
 
-    Serial.print(F(", HRvalid="));
-    Serial.print(validHeartRate, DEC);
+    if(validSPO2 && validHeartRate) {
+      // report measurement results to serial monitor
+      Serial.print(F("HR="));
+      Serial.print(heartRate, DEC);
 
-    Serial.print(F(", SPO2="));
-    Serial.print(spo2, DEC);
+      Serial.print(F(", HRvalid="));
+      Serial.print(validHeartRate, DEC);
 
-    Serial.print(F(", SPO2Valid="));
-    Serial.print(validSPO2, DEC);
+      Serial.print(F(", SPO2="));
+      Serial.print(spo2, DEC);
 
-    String data = String::format("{\"heartrate\":%d,\"spo2\":%d}", heartRate, spo2);
+      Serial.print(F(", SPO2Valid="));
+      Serial.print(validSPO2, DEC);
 
-    Particle.publish("sensorData", data, PRIVATE);
+      String data = String::format("{\"heartrate\":%d,\"spo2\":%d}", heartRate, spo2);
+
+      Particle.publish("sensorData", data, PRIVATE);
+      
+      Serial.println(F(", published !!"));
+      
+      takeMeasurement = false; // Valid reading processed, reset the flag
+    } else {
+      Serial.println(F("Invalid reading. Please ensure your finger is properly placed on the sensor and remain still."));
+    }
     
-    Serial.println(F(", published !!"));
-    takeMeasurement = false;
   }
 }
 
