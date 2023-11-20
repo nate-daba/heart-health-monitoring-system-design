@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var sensorData = require('../models/sensorData');
+var SensorData = require('../models/sensorData');
+var Device = require('../models/device');
 
 router.post('/', function(req, res) {
     console.log(req.body);
@@ -15,7 +16,7 @@ router.post('/', function(req, res) {
     }
 
     // Now you can use sensorDataObj to access heartrate and spo2
-    const newData = new sensorData({
+    const newData = new SensorData({
         eventName: req.body.event,
         data: {
             heartrate: sensorDataObj.heartrate,
@@ -40,20 +41,24 @@ router.post('/', function(req, res) {
 
 router.get('/read', async function(req, res) {
     // Check if the deviceId query parameter is provided
-    if (!req.query.deviceId) {
-        return res.status(400).json({ message: "Bad request: Device ID is required." });
+    if (!req.query.email) {
+        return res.status(400).json({ message: "Bad request: user email is required." });
     }
 
     try {
-        const docs = await sensorData.find({ deviceId: req.query.deviceId });
+        const deviceDocs = await Device.find({ email: req.query.email });
+        // console.log('deviceDocs: ', deviceDocs);
+        let deviceId = deviceDocs[0].deviceId; // this should be changed later when multiple devices are supported
+        console.log('deviceId: ', deviceId);
+        const sensorDocs = await SensorData.find({ deviceId: deviceId });
         
         // Check if any documents were found
-        if (docs.length === 0) {
+        if (sensorDocs.length === 0) {
             return res.status(404).json({ message: "No data found for the provided Device ID." });
         }
 
-        console.log('Data retrieved successfully:', docs);
-        res.status(200).json(docs); // Use 200 OK for a successful operation
+        console.log('Data retrieved successfully:', sensorDocs);
+        res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
     } catch (err) {
         console.error("An error occurred while retrieving data:", err); // Log the error so you can inspect it in your server logs
         

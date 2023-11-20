@@ -20,6 +20,18 @@ router.post('/register', async function(req, res){
       return res.status(400).json({ message: 'Bad request: Device ID and email are required.' });
     }
 
+    // Check if the device is already registered to another user
+    const existingDevice = await Device.findOne({ deviceId: deviceId });
+    if (existingDevice) {
+      if (existingDevice.email !== email) {
+        return res.status(409).json({ message: 'Conflict: Device already registered to another user.' });
+      } else {
+        // If you want to indicate that the same user is trying to register the device again
+        return res.status(409).json({ message: 'Conflict: Device already registered to this user.' });
+      }
+    }
+
+
     // Initialize the new device
     var newDevice = new Device({
       deviceId: deviceId,
