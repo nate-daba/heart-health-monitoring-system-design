@@ -44,7 +44,7 @@ function signUp(e) {
         console.log(data);
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("email", newUserData.email);
-        window.location.href = '/device-registration.html'; // Redirect to the device registration page
+        window.location.href = '/dashboard.html'; // Redirect to the device registration page
     })
     .fail(function(err) {
         console.log(err.responseJSON.message);

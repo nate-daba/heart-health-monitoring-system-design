@@ -29,7 +29,7 @@ function logIn(e) {
             localStorage.setItem("email", email);
             localStorage.setItem("token", data.access_token);
             localStorage.setItem('comingFrom', 'login');
-            window.location.href = '/sensorData.html'; // Redirect to the device registration page
+            window.location.href = '/dashboard.html'; // Redirect to the device registration page
         }
         else{
             $('.errorDiv').show();
