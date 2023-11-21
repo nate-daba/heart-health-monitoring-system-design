@@ -2,6 +2,7 @@
 
 Design and implementation of low-cost IoT-enabled web app for monitoring heart rate and blood oxygen saturation level.
 
+Milestone submission
 ## Usage
 
 To use the Heart Rate Monitoring System, navigate to the login page and enter the provided credentials:
