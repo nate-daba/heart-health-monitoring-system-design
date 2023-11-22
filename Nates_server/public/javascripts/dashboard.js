@@ -1,3 +1,6 @@
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+
 $(document).ready(function() {
     populateSelectDeviceDropdown();
 
@@ -98,6 +101,7 @@ $('#logout').on('click', function(e) {
 });
 
 function plot(chartId, x, y){
+    
     var ctx = document.getElementById(chartId)
     var myLineChart = new Chart(ctx, {
         type: 'line',
