@@ -2,10 +2,29 @@ Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,Bli
 Chart.defaults.global.defaultFontColor = '#858796';
 
 $(document).ready(function() {
+    // Initialize the selected device ID as empty (no device selected)
+    var selectedDeviceId = '';
+
+    // Handle device selection
+    $('#deviceList').on('click', '.dropdown-item', function(e) {
+        e.preventDefault();
+        selectedDeviceId = $(this).text();
+        updateSelectedDeviceText(selectedDeviceId);
+        $('#deviceId').val(selectedDeviceId);
+
+        // Call the function to fetch sensor data and plot the chart
+        getSensorData(selectedDeviceId);
+    });
+    // Call the function to populate the dropdown when the page loads
     populateSelectDeviceDropdown();
 
 });
 
+function updateSelectedDeviceText(deviceId) {
+    $('#selectedDeviceText').text(deviceId);
+}
+
+// Function to populate the dropdown and update the chart
 function populateSelectDeviceDropdown() {
     var email = localStorage.getItem("email");
 
@@ -28,13 +47,22 @@ function populateSelectDeviceDropdown() {
         response.forEach(function(device){
             var option = $('<a>').addClass('dropdown-item').text(device.deviceId);
             $('#deviceList').prepend(option);
-            
         });
+
+        // Set the default device ID (the first device from the list)
+        if (response.length > 0) {
+            selectedDeviceId = response[0].deviceId;
+            updateSelectedDeviceText(selectedDeviceId);
+
+            // Call the function to fetch sensor data and plot the chart
+            getSensorData(selectedDeviceId);
+        }
     })
     .fail(function(error) {
         console.log(error);
     });
 }
+
 
 
 $('#deviceList').on('click', '.dropdown-item', function(e) {
@@ -88,8 +116,8 @@ function populateCharts(response){
     console.log('spo2 data: ', spo2Data);   
     console.log('time data: ', timeData);
 
-    plot('heartRateChart', timeData, heartrateData);
-    plot('oxygenSaturationChart', timeData, spo2Data);
+    plot('heartRateChart', timeData, heartrateData, ' bpm', 'Heart Rate');
+    plot('oxygenSaturationChart', timeData, spo2Data, ' %', 'Oxygen Saturation');
       
 
 }
@@ -100,16 +128,16 @@ $('#logout').on('click', function(e) {
     window.location.href = '/login.html';
 });
 
-function plot(chartId, x, y){
-    
+function plot(chartId, x, y, unit, label){
+
     var ctx = document.getElementById(chartId)
     var myLineChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: x,
             datasets: [{
-                label: "Heart Rate",
-                lineTension: 0.3,
+                label: label,
+                lineTension: 0,
                 backgroundColor: "rgba(78, 115, 223, 0.05)",
                 borderColor: "rgba(78, 115, 223, 1)",
                 pointRadius: 3,
@@ -143,7 +171,7 @@ function plot(chartId, x, y){
                     drawBorder: false
                 },
                 ticks: {
-                    maxTicksLimit: 7,
+                    maxTicksLimit: 50,
                     minRotation: 45,
                 }
             }],
@@ -185,7 +213,7 @@ function plot(chartId, x, y){
                 callbacks: {
                     label: function(tooltipItem, chart) {
                         var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                        return datasetLabel + ': ' + tooltipItem.yLabel + ' bpm';
+                        return datasetLabel + ': ' + tooltipItem.yLabel + unit;
                     }
                 }
             }

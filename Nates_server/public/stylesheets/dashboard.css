@@ -1,0 +1,10 @@
+/* CSS for moving the device selection dropdown */
+.device-selection-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Move to the right */
+}
+
+.select-device-label {
+    margin-right: 10px; /* Add some space between label and dropdown */
+}
