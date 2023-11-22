@@ -321,45 +321,12 @@
                         </div>                          
                     </div>
 
-                    <!-- Content Row -->
+                    
                     <!-- Content Row for Heart Rate -->
-                    <div class="row">
-                        <div class="col-lg-12 mb-4">
-                            <!-- Heart Rate Cards -->
-                            <div class="row">
-                                <!-- Average Heart Rate Card -->
-                                <div class="col-xl-4 col-md-4 mb-4">
-                                    <div class="card border-left-primary shadow h-100 py-2">
-                                        <div class="card-body">
-                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Average Heart Rate (Last 7 Days)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">72 bpm</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Min Heart Rate Card -->
-                                <div class="col-xl-4 col-md-4 mb-4">
-                                    <div class="card border-left-success shadow h-100 py-2">
-                                        <div class="card-body">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Minimum Heart Rate (Last 7 Days)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">60 bpm</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Max Heart Rate Card -->
-                                <div class="col-xl-4 col-md-4 mb-4">
-                                    <div class="card border-left-info shadow h-100 py-2">
-                                        <div class="card-body">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                Maximum Heart Rate (Last 7 Days)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">85 bpm</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="row" style="display: flex; flex-wrap: nowrap;"> <!-- Flex container -->
+                        <div class="col-lg-10 mb-4" style="flex: 1; display: flex; flex-direction: column;"> <!-- Flex item for chart -->
                             <!-- Heart Rate Chart -->
-                            <div class="card shadow mb-4">
+                            <div class="card shadow mb-4" style="flex-grow: 1;"> <!-- Flex grow to fill container -->
                                 <!-- Card Header for Heart Rate Chart -->
                                 <div class="card-header py-3">
                                     <h4 class="m-0 font-weight-bold text-primary">Heart Rate</h4>
@@ -372,48 +339,53 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Content Row for Oxygen Saturation -->
-                    <div class="row">
-                        <div class="col-lg-12 mb-4">
-                            <!-- Oxygen Saturation Cards -->
-                            <div class="row">
-                                <!-- Average Oxygen Saturation Card -->
-                                <div class="col-xl-4 col-md-4 mb-4">
-                                    <div class="card border-left-primary shadow h-100 py-2">
+                        
+                        <!-- Weekly Summary Cards for Heart Rate -->
+                        <div class="col-lg-2 mb-4" style="flex: 0 0 auto; padding-left: 0; padding-right: 0;"> <!-- Flex item for cards, do not grow or shrink -->
+                            <div class="card shadow" style="text-align: center; border-left: none; border-right: none; height: calc(100% - 24px);"> <!-- Styles for floating effect and matching height -->
+                                <!-- Card Header -->
+                                <div class="card-header py-3" style="border-bottom: none;"> <!-- Style to remove border-bottom -->
+                                    <h4 class="m-0 font-weight-bold text-primary">Weekly Summary</h4>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body d-flex flex-column justify-content-between"> <!-- Flex column with space between -->
+                                    <!-- Average Heart Rate Card -->
+                                    <div class="card border-left-primary shadow h-100 py-2" style="margin-bottom: 1rem; border: none;"> <!-- Added margin-bottom for spacing and border none for floating effect -->
                                         <div class="card-body">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                                Average Oxygen Saturation (Last 7 Days)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">98%</div>
+                                                Average Heart Rate (Last 7 Days)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">72 bpm</div>
                                         </div>
                                     </div>
-                                </div>
-                                <!-- Min Oxygen Saturation Card -->
-                                <div class="col-xl-4 col-md-4 mb-4">
-                                    <div class="card border-left-success shadow h-100 py-2">
+                                    <!-- Min Heart Rate Card -->
+                                    <div class="card border-left-success shadow h-100 py-2" style="margin-bottom: 1rem; border: none;"> <!-- Added margin-bottom for spacing and border none for floating effect -->
                                         <div class="card-body">
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                Minimum Oxygen Saturation (Last 7 Days)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">95%</div>
+                                                Minimum Heart Rate (Last 7 Days)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">60 bpm</div>
                                         </div>
                                     </div>
-                                </div>
-                                <!-- Max Oxygen Saturation Card -->
-                                <div class="col-xl-4 col-md-4 mb-4">
-                                    <div class="card border-left-info shadow h-100 py-2">
+                                    <!-- Max Heart Rate Card -->
+                                    <div class="card border-left-info shadow h-100 py-2" style="margin-bottom: 1.5rem; border: none;"> <!-- Border none for floating effect -->
                                         <div class="card-body">
                                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                Maximum Oxygen Saturation (Last 7 Days)</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">99%</div>
+                                                Maximum Heart Rate (Last 7 Days)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">85 bpm</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Oxygen Saturation Chart -->
-                            <div class="card shadow mb-4">
-                                <!-- Card Header for Oxygen Saturation Chart -->
+                        </div>
+                    </div>                    
+                    
+                    <!-- Content Row for Oxygen Saturation -->
+                    <div class="row" style="display: flex; flex-wrap: nowrap;"> <!-- Flex container -->
+                        <div class="col-lg-10 mb-4" style="flex: 1; display: flex; flex-direction: column;"> <!-- Flex item for chart -->
+                            <!-- Heart Rate Chart -->
+                            <div class="card shadow mb-4" style="flex-grow: 1;"> <!-- Flex grow to fill container -->
+                                <!-- Card Header for  Oxygen Saturation Chart -->
                                 <div class="card-header py-3">
-                                    <h4 class="m-0 font-weight-bold text-primary">Oxygen Saturation Level</h4>
+                                    <h4 class="m-0 font-weight-bold text-primary">Oxygen Saturation</h4>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
@@ -423,7 +395,44 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        
+                        <!-- Weekly Summary Cards for  Oxygen Saturation -->
+                        <div class="col-lg-2 mb-4" style="flex: 0 0 auto; padding-left: 0; padding-right: 0;"> <!-- Flex item for cards, do not grow or shrink -->
+                            <div class="card shadow" style="text-align: center; border-left: none; border-right: none; height: calc(100% - 24px);"> <!-- Styles for floating effect and matching height -->
+                                <!-- Card Header -->
+                                <div class="card-header py-3" style="border-bottom: none;"> <!-- Style to remove border-bottom -->
+                                    <h4 class="m-0 font-weight-bold text-primary">Weekly Summary</h4>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body d-flex flex-column justify-content-between"> <!-- Flex column with space between -->
+                                    <!-- Average  Oxygen Saturation Card -->
+                                    <div class="card border-left-primary shadow h-100 py-2" style="margin-bottom: 1rem; border: none;"> <!-- Added margin-bottom for spacing and border none for floating effect -->
+                                        <div class="card-body">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Average Oxygen Saturation (Last 7 Days)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">72 bpm</div>
+                                        </div>
+                                    </div>
+                                    <!-- Min Heart Rate Card -->
+                                    <div class="card border-left-success shadow h-100 py-2" style="margin-bottom: 1rem; border: none;"> <!-- Added margin-bottom for spacing and border none for floating effect -->
+                                        <div class="card-body">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Minimum Oxygen Saturation (Last 7 Days)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">60 bpm</div>
+                                        </div>
+                                    </div>
+                                    <!-- Max  Oxygen Saturation Card -->
+                                    <div class="card border-left-info shadow h-100 py-2" style="margin-bottom: 1.5rem; border: none;"> <!-- Border none for floating effect -->
+                                        <div class="card-body">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Maximum  Oxygen Saturation (Last 7 Days)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">85 bpm</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                    
                 </div>
                 <!-- /.container-fluid -->
             </div>
@@ -486,6 +495,8 @@
     <!-- Page level custom scripts -->
     <script src="javascripts/demo/chart-area-demo.js"></script>
     <script src="javascripts/demo/chart-pie-demo.js"></script>
+
+    <!-- <script src="javascripts/"></script> -->
 
 </body>
 

@@ -68,25 +68,36 @@ router.post('/register', async function(req, res){
 });
 
 
-// API doc: https://docs.particle.io/reference/cloud-apis/api/#list-devices
-// router.get('/list', function(req, res){
-//   let config = {
-//     method: 'get',
-//     maxBodyLength: Infinity,
-//     url: 'https://api.particle.io/v1/devices',
-//     headers: { 
-//       'Authorization': 'Bearer ' + req.headers["x-auth"]
-//     }
-//   };
-  
-//   axios.request(config)
-//   .then((response) => {
-//     console.log(JSON.stringify(response.data));
-//     res.status(201).json(response.data);
-//   })
-//   .catch((error) => {
-//     console.log(error);
-//   });
-// })
+// create route for retrieving devices for a user with a given email
+router.get('/read', async function(req, res) {
+  console.log('email received at backend', req.query)
+  try {
+    // Check if the email query parameter is provided
+    if (!req.query.email) {
+      return res.status(400).json({ message: "Bad request: user email is required." });
+    }
+    
+    // Retrieve the devices for the user with the given email
+    const deviceDocs = await Device.find({ email: req.query.email });
+
+    // Check if any documents were found
+    if (deviceDocs.length === 0) {
+      return res.status(404).json({ message: "No devices found for the provided email." });
+    }
+
+    console.log('Devices retrieved successfully:', deviceDocs);
+    res.status(200).json(deviceDocs); // Use 200 OK for a successful operation
+  } catch (err) {
+    console.error("An error occurred while retrieving devices:", err); // Log the error so you can inspect it in your server logs
+
+    // If this is a known error type, you can handle it accordingly
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: "Bad request: Invalid email format." });
+    }
+
+    // For other types of errors, return a 500 Internal Server Error
+    res.status(500).json({ message: "An error occurred while retrieving devices." });
+  }
+});
 
 module.exports = router;

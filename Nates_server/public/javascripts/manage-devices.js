@@ -1,5 +1,8 @@
 $(document).ready(function() {
     // showOrHideDeviceTable();
+    // getALLDevices(); should be called here so that the table is populated
+    // with the devices registered to the user when the page loads
+    getALLDevices();
     $('#addDeviceBtn').on('click', registerDevice);
 });
 
@@ -32,46 +35,30 @@ function getALLDevices(e) {
     console.log('Getting all devices registered to', email);
 
     var data = {
-        deviceId: deviceId,
         email: email
     };
 
     $.ajax({
-        url: '/devices/register',
-        method: 'POST',
+        url: '/devices/read',
+        method: 'GET',
         contentType: 'application/json',
-        data: JSON.stringify(data),
+        data: data,
         headers: { 'x-auth': window.localStorage.getItem("token") },
         dataType: 'json',
     })
     .done(function(response) {
-        // Store deviceId in localStorage
-        localStorage.setItem("deviceId", deviceId);
-        
-        // Create a new date object for the 'Added On' column
-        var dateAdded = new Date();
-        
-        // Format the date as a string (You can adjust the format as needed)
-        var dateString = dateAdded.toLocaleString(); // This will give you a local date-time string
-        
-        // Create a new row with the device details
-        var newRow = $('<tr>').append(
-            $('<td>').text(deviceId),
-            $('<td>').text('Argon'),
-            $('<td>').text('ndaba'),
-            $('<td>').text('offline'),
-            $('<td>').text(dateString)
-        );
-        
-        // Append the new row to the devices table body
-        $('#devicesTable tbody').append(newRow);
-        
-        // Check if the table is currently hidden and show it
-        if ($('#devicesTable').is(':hidden')) {
-            $('#devicesTable').show();
-            $('.no-devices-message').remove(); // Remove the 'no devices' message if it exists
-        }
-        
+        response.forEach(function(device){
+            // Create a row for each device
+            var tr = $('<tr>').append(
+                $('<td>').text(device.deviceId),
+                $('<td>').text('Argon'),
+                $('<td>').text('ndaba'),
+                $('<td>').text('offline'),
+                $('<td>').text(new Date().toLocaleString())
+            );
+            // Append the new row to the devices table body
+            $('#devicesTable tbody').append(tr);
+        })
         console.log(response);
     })
     
@@ -87,7 +74,7 @@ function getALLDevices(e) {
 
 function registerDevice(e) {
     e.preventDefault();
-    
+    $('#registrationStatus').hide()
     var deviceId = $('#deviceId').val();
     var email = localStorage.getItem("email");
 
@@ -133,7 +120,11 @@ function registerDevice(e) {
             $('#devicesTable').show();
             $('.no-devices-message').remove(); // Remove the 'no devices' message if it exists
         }
+        var message = 'Device registered successfully!';
         
+        var messageElement = $('<div>').addClass('text-red-500').text(message);
+        $('#registrationStatus').html(messageElement);
+        $('#registrationStatus').show()
         console.log(response);
     })
     
@@ -144,5 +135,6 @@ function registerDevice(e) {
         console.log(errorMessage);
         var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
         $('#registrationStatus').html(errorElement);
+        $('#registrationStatus').show()
     });
 }
