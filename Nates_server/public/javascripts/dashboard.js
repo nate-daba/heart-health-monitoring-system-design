@@ -18,6 +18,11 @@ $(document).ready(function() {
     // Call the function to populate the dropdown when the page loads
     populateSelectDeviceDropdown();
 
+    $('.dateselect').datepicker({
+        format: 'mm/dd/yyyy',
+        // startDate: '-3d'
+    });
+
 });
 
 function updateSelectedDeviceText(deviceId) {
