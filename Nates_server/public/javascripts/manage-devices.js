@@ -106,8 +106,8 @@ function registerDevice(e) {
         // Create a new row with the device details
         var newRow = $('<tr>').append(
             $('<td>').text(deviceId),
-            $('<td>').text('Argon'),
             $('<td>').text('ndaba'),
+            $('<td>').text('Argon'),
             $('<td>').text('offline'),
             $('<td>').text(dateString)
         );

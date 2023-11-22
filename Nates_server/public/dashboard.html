@@ -310,11 +310,8 @@
                             <button type="button" class="btn btn-primary dropdown-toggle animated--fade-in" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-microchip"></i> Select Device
                             </button>
-                            <div class="dropdown-menu">
+                            <div id="deviceList" class="dropdown-menu">
                                 <!-- Dropdown menu links -->
-                                <a class="dropdown-item" href="#">IoT Device 1 - Sensor A</a>
-                                <a class="dropdown-item" href="#">IoT Device 2 - Sensor B</a>
-                                <a class="dropdown-item" href="#">IoT Device 3 - Sensor C</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#">Add new device</a>
                             </div>
@@ -333,9 +330,9 @@
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
-                                    <div class="chart-area">
+                                    <!-- <div class="chart-area"> -->
                                         <canvas id="heartRateChart"></canvas>
-                                    </div>
+                                    <!-- </div> -->
                                 </div>
                             </div>
                         </div>
@@ -389,9 +386,9 @@
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
-                                    <div class="chart-area">
+                                    <!-- <div class="chart-area"> -->
                                         <canvas id="oxygenSaturationChart"></canvas>
-                                    </div>
+                                    <!-- </div> -->
                                 </div>
                             </div>
                         </div>
@@ -496,7 +493,7 @@
     <script src="javascripts/demo/chart-area-demo.js"></script>
     <script src="javascripts/demo/chart-pie-demo.js"></script>
 
-    <!-- <script src="javascripts/"></script> -->
+    <script src="javascripts/dashboard.js"></script>
 
 </body>
 

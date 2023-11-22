@@ -49,7 +49,7 @@ int32_t heartRate; //heart rate value
 int8_t validHeartRate; //indicator to show if the heart rate calculation is valid
 
 byte takeMeasurementLED = D7; // Blinks with each data read
-unsigned long measurementPeriod = 30 * 60000; // Frequency of asking user to take measurement
+unsigned long measurementPeriod = 60000; // Frequency of asking user to take measurement
 bool takeMeasurement = false; // Flag to indicate if we should take a measurement
 unsigned long lastMeasurementPrompted = 0; // Time since last measurement prompt 
 unsigned long timeout = 5 * 60 * 1000;  // 5 minutes in milliseconds

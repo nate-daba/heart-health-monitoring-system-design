@@ -41,15 +41,13 @@ router.post('/', function(req, res) {
 
 router.get('/read', async function(req, res) {
     // Check if the deviceId query parameter is provided
-    if (!req.query.email) {
-        return res.status(400).json({ message: "Bad request: user email is required." });
+    console.log('req.query: ', req.query)
+    if (!req.query.deviceId) {
+        return res.status(400).json({ message: "Bad request: device ID is required." });
     }
 
     try {
-        const deviceDocs = await Device.find({ email: req.query.email });
-        // console.log('deviceDocs: ', deviceDocs);
-        let deviceId = deviceDocs[0].deviceId; // this should be changed later when multiple devices are supported
-        console.log('deviceId: ', deviceId);
+        var deviceId = req.query.deviceId;
         const sensorDocs = await SensorData.find({ deviceId: deviceId });
         
         // Check if any documents were found
