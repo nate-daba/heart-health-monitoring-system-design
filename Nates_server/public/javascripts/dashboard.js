@@ -179,7 +179,7 @@ function getSensorData(deviceId, selectedDate, span){
     .fail(function(error) {
         console.log('No sensor data found for this device and date.')
         console.log(error);
-        destroyData();
+        clearOldData();
     });   
 }
 // Function to plot the data
@@ -296,19 +296,21 @@ function plot(chartId, x, y, unit, label) {
     });
     return myLineChart;
 }
-function destroyData()
+function clearOldData()
 {
     // Destroy the existing charts
-    heartRateChart.destroy();
-    oxygenSaturationChart.destroy();
+    if (heartRateChart && oxygenSaturationChart){
+        heartRateChart.destroy();
+        oxygenSaturationChart.destroy();
+    }
 
     // Clear the weekly summary cards
-    $("#avg-hr").text("");
-    $("#max-hr").text("");
-    $("#min-hr").text("");
-    $("#avg-o2").text("");
-    $("#max-o2").text("");
-    $("#min-o2").text("");
+    $("#avg-hr").text("--");
+    $("#max-hr").text("--");
+    $("#min-hr").text("--");
+    $("#avg-o2").text("--");
+    $("#max-o2").text("--");
+    $("#min-o2").text("--");
 
 }
 // Function to populate the weekly summary cards
