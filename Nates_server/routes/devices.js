@@ -70,7 +70,7 @@ router.post('/register', async function(req, res){
 
 // create route for retrieving devices for a user with a given email
 router.get('/read', async function(req, res) {
-  console.log('email received at backend', req.query)
+  // console.log('email received at backend', req.query)
   try {
     // Check if the email query parameter is provided
     if (!req.query.email) {

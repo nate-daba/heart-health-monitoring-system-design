@@ -39,27 +39,67 @@ router.post('/', function(req, res) {
 });
 
 
-router.get('/read', async function(req, res) {
-    // Check if the deviceId query parameter is provided
-    console.log('req.query: ', req.query)
-    if (!req.query.deviceId) {
-        return res.status(400).json({ message: "Bad request: device ID is required." });
+router.get('/read/:span', async function(req, res) {
+    const span = req.params.span;
+
+    // Check if the deviceId and selectedDate query parameters are provided
+    if (!req.query.deviceId || !req.query.selectedDate) {
+        return res.status(400).json({ message: "Bad request: Both device ID and selected date are required." });
     }
 
     try {
-        var deviceId = req.query.deviceId;
-        const sensorDocs = await SensorData.find({ deviceId: deviceId });
-        
-        // Check if any documents were found
-        if (sensorDocs.length === 0) {
-            return res.status(404).json({ message: "No data found for the provided Device ID." });
-        }
+        const deviceId = req.query.deviceId;
+        const selectedDate = new Date(req.query.selectedDate); // Parse the selected date string into a Date object
 
-        console.log('Data retrieved successfully:', sensorDocs);
-        res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
+        if (span === 'day') {
+            // Fetch data for the specified date only
+            const startDate = new Date(selectedDate);
+            startDate.setHours(0, 0, 0, 0); // Set time to midnight
+
+            const endDate = new Date(selectedDate);
+            endDate.setHours(23, 59, 59, 999); // Set time to end of the day
+
+            const sensorDocs = await SensorData.find({
+                deviceId: deviceId,
+                published_at: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            });
+
+            if (sensorDocs.length === 0) {
+                return res.status(404).json({ message: "No data found for the provided Device ID and selected date." });
+            }
+
+            console.log('Data retrieved successfully:', sensorDocs);
+            res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
+        } else if (span === 'week') {
+            // Fetch data for the last 7 days
+            console.log('fetching data for the last 7 days')
+            const endDate = new Date();
+            const startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - 6); // Calculate the start date for the last 7 days
+            console.log('start date', startDate, 'end date', endDate)
+            const sensorDocs = await SensorData.find({
+                deviceId: deviceId,
+                published_at: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            });
+
+            if (sensorDocs.length === 0) {
+                return res.status(404).json({ message: "No data found for the provided Device ID and the last 7 days." });
+            }
+
+            console.log('Data retrieved successfully:', sensorDocs);
+            res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
+        } else {
+            return res.status(400).json({ message: "Bad request: Invalid 'span' parameter. Use 'day' or 'week'." });
+        }
     } catch (err) {
-        console.error("An error occurred while retrieving data:", err); // Log the error so you can inspect it in your server logs
-        
+        console.error("An error occurred while retrieving data:", err);
+
         // If this is a known error type, you can handle it accordingly
         if (err.name === 'CastError') {
             return res.status(400).json({ message: "Bad request: Invalid Device ID format." });
@@ -69,8 +109,6 @@ router.get('/read', async function(req, res) {
         res.status(500).json({ message: "An error occurred while retrieving data." });
     }
 });
-
-
 
 
 module.exports = router;

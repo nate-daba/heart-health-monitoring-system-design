@@ -26,6 +26,9 @@ function signUp(e) {
         return;
     }
 
+    // add more validations to check if the email is valid, etc.
+    
+
     let newUserData = {
         firstName: $('#firstName').val(),
         lastName: $('#lastName').val(),
