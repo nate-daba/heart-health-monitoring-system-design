@@ -1,12 +1,13 @@
 $(document).ready(function() {
-    // showOrHideDeviceTable();
+    
     // getALLDevices(); should be called here so that the table is populated
     // with the devices registered to the user when the page loads
     getALLDevices();
+    
     $('#addDeviceBtn').on('click', registerDevice);
 });
 
-function showOrHideDeviceTable() {
+function toggleDeviceTableVisibility() {
     // Check if the tbody has any tr (table rows)
     if ($('#devicesTable tbody tr').length === 0) {
         // Hide the table
@@ -26,6 +27,7 @@ function showOrHideDeviceTable() {
         $('#devicesTable').parent().append(noDevicesDiv);
     }
 }
+
 function getALLDevices(e) {
     // stopped here
     // will continue by making a get call to backend to get all devices
@@ -47,35 +49,72 @@ function getALLDevices(e) {
         dataType: 'json',
     })
     .done(function(response) {
+        
         response.forEach(function(device){
-            // Create a row for each device
-            var tr = $('<tr>').append(
+            // make ajax call to backend to get device info
+            var deviceId = device.deviceId;
+            $.ajax({
+                url: '/devices/info',
+                method: 'GET',
+                contentType: 'application/json',
+                data: {deviceId: deviceId},
+                headers: { 'x-auth': window.localStorage.getItem("token") },
+                dataType: 'json',
+            }).done(function(response){
+                console.log('device info', response.message);
+                let deviceName = response.message.deviceName;
+                let deviceStatus = response.message.deviceStatus;
+                let deviceType = response.message.productName;
+                let deviceRegisteredOn =  new Date(response.message.registeredOn).toLocaleString();
+                // Create a row for each device
+                console.log('added on', deviceRegisteredOn)
+                var tr = $('<tr>').append(
                 $('<td>').text(device.deviceId),
-                $('<td>').text('Argon'),
-                $('<td>').text('ndaba'),
-                $('<td>').text('offline'),
-                $('<td>').text(new Date().toLocaleString())
-            );
-            // Append the new row to the devices table body
-            $('#devicesTable tbody').append(tr);
+                $('<td>').text(deviceName),
+                $('<td>').text(deviceType),
+                $('<td>').text(deviceStatus),
+                $('<td>').text(deviceRegisteredOn)
+                );
+                // Append the new row to the devices table body
+                $('#devicesTable tbody').append(tr);
+                console.log('lenght of device table', $('#devicesTable tbody tr').length)
+                toggleDeviceTableVisibility();
+                console.log(response);
+            }).fail(function(jqXHR){
+                console.log('An error occurred:', jqXHR);
+                // Extract and display the error message
+                var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
+                console.log(errorMessage);
+            });
+            
         })
-        console.log(response);
+
     })
-    
     .fail(function(jqXHR) {
         console.log('An error occurred:', jqXHR);
         // Extract and display the error message
-        var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
+        
         console.log(errorMessage);
-        var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
-        $('#registrationStatus').html(errorElement);
+        
+        if ($('#devicesTable tbody tr').length !== 0) {
+            var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
+            var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
+            $('#registrationStatus').html(errorElement);
+        }
+        toggleDeviceTableVisibility();
     });
 }
-
 function registerDevice(e) {
     e.preventDefault();
     $('#registrationStatus').hide()
     var deviceId = $('#deviceId').val();
+    // input validation 
+    if (deviceId === "") {
+        var errorElement = $('<div>').addClass('text-red-500').text('Device ID can not be empty.');
+        $('#registrationStatus').html(errorElement);
+        $('#registrationStatus').show()
+        return;
+    }
     var email = localStorage.getItem("email");
 
     console.log('Device ID:', deviceId, 'Email:', email);
@@ -96,38 +135,50 @@ function registerDevice(e) {
     .done(function(response) {
         // Store deviceId in localStorage
         localStorage.setItem("deviceId", deviceId);
-        
-        // Create a new date object for the 'Added On' column
-        var dateAdded = new Date();
-        
-        // Format the date as a string (You can adjust the format as needed)
-        var dateString = dateAdded.toLocaleString(); // This will give you a local date-time string
-        
-        // Create a new row with the device details
-        var newRow = $('<tr>').append(
+        // get device info of the device just registered
+        $.ajax({
+            url: '/devices/info',
+            method: 'GET',
+            contentType: 'application/json',
+            data: {deviceId: deviceId},
+            headers: { 'x-auth': window.localStorage.getItem("token") },
+            dataType: 'json',
+        }).done(function(response){
+            console.log('device info', response.message);
+            let deviceName = response.message.deviceName;
+            let deviceStatus = response.message.deviceStatus;
+            let deviceType = response.message.productName;
+            let deviceRegisteredOn =  response.message.registeredOn;
+            // Create a row for each device
+            console.log('added on', deviceRegisteredOn)
+            var tr = $('<tr>').append(
             $('<td>').text(deviceId),
-            $('<td>').text('ndaba'),
-            $('<td>').text('Argon'),
-            $('<td>').text('offline'),
-            $('<td>').text(dateString)
-        );
+            $('<td>').text(deviceName),
+            $('<td>').text(deviceType),
+            $('<td>').text(deviceStatus),
+            $('<td>').text(deviceRegisteredOn)
+            );
+            // Append the new row to the devices table body
+            $('#devicesTable tbody').append(tr);
+            console.log('lenght of device table', $('#devicesTable tbody tr').length)
+                    // Check if the table is currently hidden and show it
+            if ($('#devicesTable').is(':hidden')) {
+                $('#devicesTable').show();
+                $('.no-devices-message').remove(); // Remove the 'no devices' message if it exists
+            }
+            var message = 'Device registered successfully!';
         
-        // Append the new row to the devices table body
-        $('#devicesTable tbody').append(newRow);
-        
-        // Check if the table is currently hidden and show it
-        if ($('#devicesTable').is(':hidden')) {
-            $('#devicesTable').show();
-            $('.no-devices-message').remove(); // Remove the 'no devices' message if it exists
-        }
-        var message = 'Device registered successfully!';
-        
-        var messageElement = $('<div>').addClass('text-red-500').text(message);
-        $('#registrationStatus').html(messageElement);
-        $('#registrationStatus').show()
-        console.log(response);
-    })
-    
+            var messageElement = $('<div>').addClass('text-red-500').text(message);
+            $('#registrationStatus').html(messageElement);
+            $('#registrationStatus').show()
+            console.log(response);
+        }).fail(function(jqXHR){
+            console.log('An error occurred:', jqXHR);
+            // Extract and display the error message
+            var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
+            console.log(errorMessage);
+        });
+    }) 
     .fail(function(jqXHR) {
         console.log('An error occurred:', jqXHR);
         // Extract and display the error message
@@ -137,4 +188,8 @@ function registerDevice(e) {
         $('#registrationStatus').html(errorElement);
         $('#registrationStatus').show()
     });
+}
+function getDeviceInfo(deviceId){
+    
+    
 }
