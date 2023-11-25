@@ -3,7 +3,8 @@ var router = express.Router();
 var SensorData = require('../models/sensorData');
 var Device = require('../models/device');
 
-router.post('/', function(req, res) {
+router.post('/store', function(req, res) {
+
     console.log(req.body);
 
     // Parse the JSON string in req.body.data into an object
@@ -28,6 +29,7 @@ router.post('/', function(req, res) {
 
     newData.save()
         .then(data => {
+            
             console.log({'Incoming-data saved to db': data});
             let msgStr = `${req.body.event} from ${req.body.coreid} has been saved`;
             res.status(201).json({ message: msgStr });

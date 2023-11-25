@@ -56,6 +56,9 @@ function dropdownItemClickListener(e) {
     
     // get the text of the clicked element
     var deviceId = $(this).text();
+    if (deviceId === 'Add new device') {
+        window.location.href = '/manage-devices.html';
+    }
     // update the text of the selected device
     updateSelectedDeviceText(deviceId);
     console.log('selected device: ', getSelectedDeviceId());
@@ -327,12 +330,12 @@ function populateWeeklySummary(response){
     var minOxygenSaturation = Math.min(...spo2Data);
 
     // Update the weekly summary cards
-    $("#avg-hr").text(avgHeartRate.toFixed(1));
-    $("#max-hr").text(maxHeartRate);
-    $("#min-hr").text(minHeartRate);
-    $("#avg-o2").text(avgOxygenSaturation.toFixed(1));
-    $("#max-o2").text(maxOxygenSaturation);
-    $("#min-o2").text(minOxygenSaturation);
+    $("#avg-hr").text(avgHeartRate.toFixed(1) + ' bpm');
+    $("#max-hr").text(maxHeartRate + ' bpm');
+    $("#min-hr").text(minHeartRate  + ' bpm');
+    $("#avg-o2").text(avgOxygenSaturation.toFixed(1) + ' %');
+    $("#max-o2").text(maxOxygenSaturation + ' %');
+    $("#min-o2").text(minOxygenSaturation + ' %');
 
     console.log('heartrate in weekly', heartrateData);
 

@@ -4,7 +4,7 @@
  * Author: Natnael Daba
  * Date: October 3, 2023
  */
-int light = D7; // This is where your LED is plugged in. The other side goes to a resistor connected to GND.
+int light = D4; // This is where your LED is plugged in. The other side goes to a resistor connected to GND.
 // setup() runs once, when the device is first turned on.
 SYSTEM_THREAD(ENABLED);
 
