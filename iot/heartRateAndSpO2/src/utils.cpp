@@ -16,7 +16,7 @@ void flashLED(byte ledPin, int count, int delayMillis) {
 int flashGreenLED(String dataStoredInDbSuccessfully) {
     
     if(dataStoredInDbSuccessfully == "true") {
-        flashLED(D7, 4, 200);
+        flashLED(D4, 4, 200);
         return 1;
     } else if(dataStoredInDbSuccessfully == "false") {
         Serial.println("Data not stored in db");
