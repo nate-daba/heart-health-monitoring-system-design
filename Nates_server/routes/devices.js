@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Device = require('../models/device');
+var AccessToken = require('../models/accessToken');
 const axios = require('axios');
 const qs = require('qs');
 const e = require('express');
@@ -22,15 +23,10 @@ router.post('/register', async function(req, res){
       return res.status(400).json({ message: 'Bad request: Device ID and email are required.' });
     }
 
-    // Retrieve the access token from the Particle Cloud
-    const responseToAccessTokenRequest = await axios.post('https://api.particle.io/oauth/token', qs.stringify({
-      grant_type: 'password', // The grant type you are using (e.g., 'password')
-      username: 'ndaba@arizona.edu', // Your Particle Cloud username
-      password: '^nDr0id1x', // Your Particle Cloud password
-      client_id: 'particle', // Your Particle Cloud OAuth client ID
-      client_secret: 'particle' // Your Particle Cloud OAuth client secret
-    }));
-    var accessToken = responseToAccessTokenRequest.data.access_token;
+    // Retrieve the access token using an async function
+    const accessToken = await getAccessTokenFromParticleCloud();
+    console.log('Access token retrieved:', accessToken);
+    
     // Check if the access token exists
     if (!accessToken) {
       return res.status(404).json({ message: "Can not create access token on Particle Cloud." });
@@ -138,6 +134,50 @@ router.get('/read', async function(req, res) {
   }
 });
 
+// UPDATE: create route for updating a device
+router.put('/update', async function(req, res) {
+  try {
+    // Check if the deviceId body parameter is provided
+    if (!req.body.deviceId) {
+      return res.status(400).json({ message: "Bad request: Device ID is required." });
+    }
+
+    // Find the device by deviceId
+    const device = await Device.findOne({ deviceId: req.body.deviceId });
+
+    // Check if the device exists
+    if (!device) {
+      return res.status(404).json({ message: "Device not found." });
+    }
+
+    // Update the device with new values. Exclude fields that should not be updated.
+    // req.body will contain the fields you want to update.
+    const updateData = req.body;
+
+    // Apply the updates to the device document
+    for (const key in updateData) {
+      if (updateData.hasOwnProperty(key)) {
+        device[key] = updateData[key];
+      }
+    }
+
+    // Save the updated device
+    await device.save();
+
+    res.status(200).json({ message: "Device updated successfully.", device: device });
+
+  } catch (err) {
+    console.error("An error occurred while updating the device:", err);
+
+    // Handle possible errors
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: "Validation error: " + err.message });
+    }
+
+    res.status(500).json({ message: "An error occurred while updating the device." });
+  }
+});
+
 // This route gets the device status from the Particle Cloud
 router.get('/info', async function(req, res) {
   try {
@@ -174,14 +214,17 @@ router.get('/info', async function(req, res) {
       },
     });
     console.log('product info response', productInfoResponse.data)
+    
     // Check if the response is successful (status code 200)
     if (deviceInfoResponse.status === 200) {
       // Send the device status and device name to the client
       let data = {
-        deviceName: deviceInfoResponse.data.name,
+        deviceName: device.deviceName ? device.deviceName : deviceInfoResponse.data.name,
         deviceStatus: deviceInfoResponse.data.online ? 'online' : 'offline',
         productName: productInfoResponse.data.product.name, // Add the product name to the response
         registeredOn: device.registeredOn,
+        measurementFrequency: device.measurementFrequency,
+        timeOfDayRangeOfMeasurements: device.timeOfDayRangeOfMeasurements,
       }
       return res.status(200).json({ message : data });
     } else {
@@ -200,5 +243,53 @@ router.get('/info', async function(req, res) {
     res.status(500).json({ message: "An error occurred while retrieving device status." });
   }
 });
+
+async function getAccessTokenFromParticleCloud() {
+  const currentTime = new Date();
+
+  // Try to retrieve the current token from the database
+  let tokenRecord = await AccessToken.findOne({ name: 'particleAccessToken' });
+
+  // Check if the token exists and is still valid
+  if (tokenRecord && tokenRecord.expiresAt > currentTime) {
+      return tokenRecord.value;
+  }
+
+  try {
+      // Request a new access token from the Particle Cloud API
+      const responseToAccessTokenRequest = await axios.post('https://api.particle.io/oauth/token', qs.stringify({
+          grant_type: 'password',
+          username: process.env.PARTICLE_USERNAME, // Use environment variable
+          password: process.env.PARTICLE_PASSWORD, // Use environment variable
+          client_id: process.env.PARTICLE_CLIENT_ID, // Use environment variable
+          client_secret: process.env.PARTICLE_CLIENT_SECRET // Use environment variable
+        }));
+
+      const tokenData = responseToAccessTokenRequest.data;
+
+      // Calculate the expiration date based on the current time and the expires_in duration
+      const expiresAt = new Date(currentTime.getTime() + tokenData.expires_in * 1000);
+
+      // Update the token record in the database or create a new one if it doesn't exist
+      if (tokenRecord) {
+          tokenRecord.value = tokenData.access_token;
+          tokenRecord.expiresAt = expiresAt;
+          await tokenRecord.save();
+      } else {
+          tokenRecord = new AccessToken({
+              name: 'particleAccessToken',
+              value: tokenData.access_token,
+              expiresAt: expiresAt
+          });
+          await tokenRecord.save();
+      }
+
+      return tokenData.access_token;
+  } catch (error) {
+      // Handle errors when requesting a new access token
+      console.error('Error requesting new access token:', error);
+      throw new Error('Failed to retrieve access token from Particle Cloud.');
+  }
+}
 
 module.exports = router;

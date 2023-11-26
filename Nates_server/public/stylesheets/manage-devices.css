@@ -1,0 +1,4 @@
+#devicesTable tbody tr:hover {
+    background-color: #ecf0f3; /* This is a light grey color; you can use any color you prefer */
+    cursor: pointer; /* Change the cursor to indicate the row is clickable */
+}

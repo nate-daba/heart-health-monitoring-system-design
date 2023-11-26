@@ -5,6 +5,10 @@ $(document).ready(function() {
     getALLDevices();
     
     $('#addDeviceBtn').on('click', registerDevice);
+
+    $('#devicesTable tbody').on('click', 'tr', rowClickListner);
+
+    $('#saveDeviceSettings').on('click', saveListener);
 });
 
 function toggleDeviceTableVisibility() {
@@ -62,13 +66,16 @@ function getALLDevices(e) {
                 dataType: 'json',
             }).done(function(response){
                 console.log('device info', response.message);
-                let deviceName = response.message.deviceName;
-                let deviceStatus = response.message.deviceStatus;
-                let deviceType = response.message.productName;
-                let deviceRegisteredOn =  new Date(response.message.registeredOn).toLocaleString();
+                var deviceName = response.message.deviceName;
+                var deviceStatus = response.message.deviceStatus;
+                var deviceType = response.message.productName;
+                var deviceRegisteredOn =  new Date(response.message.registeredOn).toLocaleString();
+                var measurementFrequency = response.message.measurementFrequency;
+                var startTime = response.message.timeOfDayRangeOfMeasurements.startTime;
+                var endTime = response.message.timeOfDayRangeOfMeasurements.endTime;
                 // Create a row for each device
                 console.log('added on', deviceRegisteredOn)
-                var tr = $('<tr>').append(
+                var tr = $('<tr>').data('device-id', deviceId).append(
                 $('<td>').text(device.deviceId),
                 $('<td>').text(deviceName),
                 $('<td>').text(deviceType),
@@ -80,6 +87,20 @@ function getALLDevices(e) {
                 console.log('lenght of device table', $('#devicesTable tbody tr').length)
                 toggleDeviceTableVisibility();
                 console.log(response);
+
+                // Make the row clickable
+                tr.css('cursor', 'pointer');
+                tr.click(function() {
+                // Trigger the modal here
+                $('#editDeviceModal').modal('show');
+                // You can also populate the form with existing device settings
+                $('#deviceName').val(deviceName);
+                $('#measurementFrequency').val(measurementFrequency); // This should be retrieved from your device settings
+                $('#startTime').val(startTime); // This should be retrieved from your device settings
+                $('#endTime').val(endTime); // This should be retrieved from your device settings
+                });
+
+                $('#devicesTable tbody').append(tr);
             }).fail(function(jqXHR){
                 console.log('An error occurred:', jqXHR);
                 // Extract and display the error message
@@ -104,6 +125,7 @@ function getALLDevices(e) {
         toggleDeviceTableVisibility();
     });
 }
+
 function registerDevice(e) {
     e.preventDefault();
     $('#registrationStatus').hide()
@@ -121,7 +143,7 @@ function registerDevice(e) {
 
     var data = {
         deviceId: deviceId,
-        email: email
+        email: email,
     };
 
     $.ajax({
@@ -135,7 +157,8 @@ function registerDevice(e) {
     .done(function(response) {
         // Store deviceId in localStorage
         localStorage.setItem("deviceId", deviceId);
-        // get device info of the device just registered
+        // get device info of the device just registered to populate the Devices table
+        // with the device info
         $.ajax({
             url: '/devices/info',
             method: 'GET',
@@ -145,10 +168,10 @@ function registerDevice(e) {
             dataType: 'json',
         }).done(function(response){
             console.log('device info', response.message);
-            let deviceName = response.message.deviceName;
-            let deviceStatus = response.message.deviceStatus;
-            let deviceType = response.message.productName;
-            let deviceRegisteredOn =  response.message.registeredOn;
+            var deviceName = response.message.deviceName;
+            var deviceStatus = response.message.deviceStatus;
+            var deviceType = response.message.productName;
+            var deviceRegisteredOn =  response.message.registeredOn;
             // Create a row for each device
             console.log('added on', deviceRegisteredOn)
             var tr = $('<tr>').append(
@@ -172,6 +195,7 @@ function registerDevice(e) {
             $('#registrationStatus').html(messageElement);
             $('#registrationStatus').show()
             console.log(response);
+            
         }).fail(function(jqXHR){
             console.log('An error occurred:', jqXHR);
             // Extract and display the error message
@@ -189,7 +213,51 @@ function registerDevice(e) {
         $('#registrationStatus').show()
     });
 }
-function getDeviceInfo(deviceId){
-    
-    
+
+
+function rowClickListner() {
+    var deviceId = $(this).data('device-id');
+    $('#editDeviceModal').data('device-id', deviceId); // Store deviceId in the modal
+    // Fetch the current settings and populate the form fields
+    // ...
+    $('#editDeviceModal').modal('show');
+}
+
+function saveListener() {
+    var deviceId = $('#editDeviceModal').data('device-id'); // Retrieve the stored deviceId
+    var deviceName = $('#deviceName').val();
+    var measurementFrequency = $('#measurementFrequency').val();
+    var startTime = $('#startTime').val();
+    var endTime = $('#endTime').val();
+
+    // Perform validation if necessary
+    // ... (validation code)
+
+    // Make an AJAX call to update device settings
+    $.ajax({
+        url: '/devices/update', 
+        method: 'PUT', // 
+        contentType: 'application/json',
+        data: JSON.stringify({
+            deviceId: deviceId, // deviceId is used to identify the device but not to update it
+            deviceName: deviceName,
+            measurementFrequency: measurementFrequency,
+            timeOfDayRangeOfMeasurements: {
+                startTime: startTime,
+                endTime: endTime
+            }
+        }),
+        headers: { 'x-auth': window.localStorage.getItem("token") },
+        dataType: 'json',
+    }).done(function(response) {
+        // Handle successful update
+        $('#editDeviceModal').modal('hide');
+        alert('Device settings updated successfully.');
+        // Refresh the device table or update the specific row
+        // ...
+    }).fail(function(jqXHR) {
+        // Handle error
+        var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'An unknown error occurred.';
+        alert('Error updating device settings: ' + errorMessage);
+    });
 }

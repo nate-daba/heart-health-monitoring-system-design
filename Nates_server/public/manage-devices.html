@@ -20,6 +20,8 @@
     <!-- Custom styles for this template-->
     <link href="stylesheets/sb-admin-2.min.css" rel="stylesheet">
 
+    <link href="stylesheets/manage-devices.css" rel="stylesheet">
+
 </head>
 
 <body id="page-top">
@@ -362,11 +364,51 @@
                             </div>
                             <!-- End of Devices Table -->
                         </div>
+                        <!-- Bootstrap Modal for Editing Device Settings -->
+                        <div class="modal fade" id="editDeviceModal" tabindex="-1" role="dialog" aria-labelledby="editDeviceModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editDeviceModalLabel">Edit Device Settings</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Form for editing device settings goes here -->
+                                        <form id="editDeviceForm">
+                                            <div class="form-group">
+                                                <label for="deviceName">Device Name</label>
+                                                <input type="text" class="form-control" id="deviceName" placeholder="Enter device name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="measurementFrequency">Measurement Frequency (minutes)</label>
+                                                <input type="number" class="form-control" id="measurementFrequency" placeholder="Enter frequency">
+                                            </div>
+                                            <div class="form-group">
+                                                <p>Take Measurements Between:</p>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col">
+                                                    <label for="startTime">Start Time</label>
+                                                    <input type="time" class="form-control" id="startTime">
+                                                </div>
+                                                <div class="col">
+                                                    <label for="endTime">End Time</label>
+                                                    <input type="time" class="form-control" id="endTime">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="saveDeviceSettings">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    
                     <!-- ... [Rest of the new content] ... -->
-    
                 </div>
                 <!-- /.container-fluid -->
             </div>
