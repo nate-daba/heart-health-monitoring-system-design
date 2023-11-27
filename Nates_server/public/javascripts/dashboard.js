@@ -370,12 +370,43 @@ function extractData(response){
     response.forEach(function(data){
         heartrateData.push(data.data.heartrate);
         spo2Data.push(data.data.spo2);
-        var date = new Date(data.published_at);
+        var date = new Date(data.measurementTime);
         var time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         timeData.push(time); // wrap published_at in new Date() to convert it to a date object
     });
+    var data = [heartrateData, spo2Data, timeData];
+
+    // Sort the data by measurement time
+    [heartrateData, spo2Data, timeData] = sortByMeasurementTime(data);
 
     return [heartrateData, spo2Data, timeData];
 
+}
+
+// Function to sort data by measurement time
+function sortByMeasurementTime(data) {
+    // Unpack the data
+    const [heartrateData, spo2Data, time] = data;
+    // Create an array of objects that include the time and both data points
+    const combinedArray = time.map((time, index) => ({
+    time,
+    heartrate: heartrateData[index],
+    spo2: spo2Data[index]
+    }));
+  
+    // Sort the combined array based on the time string
+    combinedArray.sort((a, b) => {
+        // Convert time strings to date objects
+        const timeA = new Date('1970/01/01 ' + a.time);
+        const timeB = new Date('1970/01/01 ' + b.time);
+        return timeA - timeB;
+    });
+    
+    // Separate the sorted data back into individual arrays
+    const sortedTime = combinedArray.map(item => item.time);
+    const sortedHeartrateData = combinedArray.map(item => item.heartrate);
+    const sortedSpo2Data = combinedArray.map(item => item.spo2);
+
+    return [sortedHeartrateData, sortedSpo2Data, sortedTime];
 }
 // ==================== End of Helper Functions ====================
