@@ -30,10 +30,11 @@ function registerDevice(e) {
         window.location.href = 'sensorData.html';
     })
     .fail(function(jqXHR) {
+        console.log('An error occurred:', jqXHR);
         // Extract and display the error message
         var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
         var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
-        $('#registerDeviceForm').append(errorElement);
+        $('#registrationStatus').html(errorElement);
     });
 }
 
