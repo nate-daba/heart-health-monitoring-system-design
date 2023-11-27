@@ -41,8 +41,6 @@ unsigned long lastSync = millis();
 unsigned long lastUnixTime = 0; // Initialize with a known Unix time
 unsigned long lastMillis = 0;
 
-
-
 void setup()
 {
   Particle.function("flashGreenLED", flashGreenLED);
@@ -62,7 +60,7 @@ void setup()
 
   byte ledBrightness = 60;
   byte sampleAverage = 4;
-  byte ledMode = 3; // 2 = Red only, 3 = Red + IR, 7 = Red + IR + Green
+  byte ledMode = 2; // 2 = Red only, 3 = Red + IR, 7 = Red + IR + Green
   byte sampleRate = 100;
   int pulseWidth = 411;
   int adcRange = 4096;
@@ -154,17 +152,18 @@ void loop()
       
       // prepare data to publish
       String currentTime = Time.format(TIME_FORMAT_ISO8601_FULL);
-      String data = String::format("{\"heartrate\":%d,\"spo2\":%d,\"measurementTime\":\"%s\"}",
-                                   heartRate, spo2, currentTime.c_str());
+      String data = String::format("{\"heartrate\":%d,\"spo2\":%d", heartRate, spo2);
       // Check if Wi-Fi is connected
       if (Particle.connected()) 
       {
         // If connected to Wi-Fi, publish the data immediately
+        data = String::format("%s,\"measurementTime\":%s\"}", data.c_str(), Time.format(TIME_FORMAT_ISO8601_FULL).c_str());
         publishData(data);
       } else 
       {
         // Not connected to Wi-Fi, store the data locally
-        storeDataLocallyToFile(data, yellowLED);
+        data = String::format("%s%s", data.c_str(), "}");
+        storeDataLocallyToFile(data, millis(), yellowLED);
         connectedToCloud = false; // Update Wi-Fi connection status
       }
       takeMeasurement = false;

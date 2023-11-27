@@ -29,25 +29,25 @@ int flashGreenLED(String dataStoredInDbSuccessfully) {
 
 void publishData(String data) {
   Particle.publish("sensorData", data, PRIVATE);
-  Serial.println("published !!");
+  Serial.println(" published !!");
 }
 
-// Function to store data locally to a file
-void storeDataLocallyToFile(const String &data, const int ledPin) {
-  Serial.println();
-  Serial.println("Storing data locally to file...");
+// Function to store data locally to a file, with millis value
+void storeDataLocallyToFile(const String &data, unsigned long measurementMillis, const int ledPin) {
+  Serial.println("\nStoring data locally to file...");
+  String dataWithMillis = String::format("%s,%lu\n", data.c_str(), measurementMillis); // Append millis to the data string
+
   int fd = open("/data.txt", O_RDWR | O_CREAT | O_APPEND);
   if (fd < 0) {
     Serial.println("Failed to open file");
     return;
   }
 
-  int bytesWritten = write(fd, data.c_str(), data.length());
-  write(fd, "\n", 1); // Add a newline character to separate entries
+  int bytesWritten = write(fd, dataWithMillis.c_str(), dataWithMillis.length());
   flashLED(ledPin, 4, 200); // Flash LED to indicate data stored locally
   close(fd);
 
-  if (bytesWritten < static_cast<int>(data.length())) {
+  if (bytesWritten < static_cast<int>(dataWithMillis.length())) {
     Serial.println("Failed to write data completely");
   } else {
     Serial.println("Data stored locally to file.");
@@ -95,16 +95,26 @@ void publishStoredDataFromFile() {
 
   storedData[bytesRead] = '\0'; // Null-terminate the dataInEEPROM array
 
-  // Split the dataInEEPROM into lines and process each line
   char *line = strtok(storedData, "\n");
-
   while (line != NULL) {
-    
-    Serial.println("Publishing data...");
-    // Print the line to serial for debugging (optional)
-    Serial.println(line);
-    
-    publishData(line);
+    // Parse the line to separate data and millis
+    String dataLine = String(line);
+    int commaIndex = dataLine.lastIndexOf(',');
+    String data = dataLine.substring(0, commaIndex);
+    unsigned long storedMillis = dataLine.substring(commaIndex + 1).toInt();
+
+    // Compute the actual measurement time
+    String actualTime = computeActualTime(storedMillis);
+    int closingBraceIndex = data.lastIndexOf('}');
+    data = data.substring(0, closingBraceIndex);
+    // Format the data with the actual time
+    String formattedData = String::format("%s,\"measurementTime\":\"%s\"}",
+                                          data.c_str(), actualTime.c_str());
+
+    Serial.printlnf("Publishing formatted data: %s", formattedData.c_str());
+
+    // Publish the data
+    publishData(formattedData);
 
     // Move to the next line
     line = strtok(NULL, "\n");
@@ -118,3 +128,12 @@ void publishStoredDataFromFile() {
 
   Serial.println("Stored data published and file cleared.");
 }
+
+// Helper function to compute actual time from stored millis
+String computeActualTime(unsigned long storedMillis) {
+  unsigned long currentTime = millis();
+  time_t now = Time.now();
+  time_t adjustedTime = now - ((currentTime - storedMillis) / 1000);
+  return Time.format(adjustedTime, TIME_FORMAT_ISO8601_FULL);
+}
+

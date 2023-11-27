@@ -9,12 +9,14 @@
 // Function to publish data and flash an LED to indicate data published
 void publishData(String data);
 
-void storeDataLocallyToFile(const String &data, const int ledPin);
+void storeDataLocallyToFile(const String &data, unsigned long measurementMillis, const int ledPin);
 
 void publishStoredDataFromFile();
 
 int flashGreenLED(String dataStoredInDbSuccessfully);
 
 bool storageFileHasContents(const char* filename);
+
+String computeActualTime(unsigned long storedMillis);
 
 #endif

@@ -6,6 +6,7 @@ var AccessToken = require('../models/accessToken');
 const axios = require('axios');
 const qs = require('qs');
 
+// CREATE
 router.post('/store', async function(req, res) {
 
     console.log(req.body);
@@ -19,7 +20,7 @@ router.post('/store', async function(req, res) {
         return res.status(400).json({ message: "Bad request: JSON data is malformed." });
     }
 
-    // Now you can use sensorDataObj to access heartrate and spo2
+    // Now you can use sensorDataObj to access heartrate, spo2, and measurementTime
     const newData = new SensorData({
         eventName: req.body.event,
         data: {
@@ -27,7 +28,8 @@ router.post('/store', async function(req, res) {
             spo2: sensorDataObj.spo2
         },
         deviceId: req.body.coreid,
-        published_at: new Date(req.body.published_at)
+        published_at: new Date(req.body.published_at),
+        measurementTime: new Date(sensorDataObj.measurementTime) // Parse and store measurementTime
     });
 
     try {
