@@ -157,7 +157,7 @@ void loop()
       if (Particle.connected()) 
       {
         // If connected to Wi-Fi, publish the data immediately
-        data = String::format("%s,\"measurementTime\":%s\"}", data.c_str(), Time.format(TIME_FORMAT_ISO8601_FULL).c_str());
+        data = String::format("%s,\"measurementTime\":\"%s\"}", data.c_str(), Time.format(TIME_FORMAT_ISO8601_FULL).c_str());
         publishData(data);
       } else 
       {
