@@ -24,6 +24,7 @@ export class RegisterDevicePageComponent implements OnInit {
 
   ngOnInit(): void{
     this.registerForm = this.formBuilder.group({
+      name: ['', [Validators.required, Validators.minLength(1)]],
       deviceId: ['', [Validators.required, Validators.minLength(1)]], // empty by default, required, and min 1 chars
       email: ['', [Validators.required, Validators.email]]
     },{
@@ -43,6 +44,7 @@ export class RegisterDevicePageComponent implements OnInit {
 
     const fv = this.registerForm.value; // fv = form values
     const device : IDeviceRegister = {
+      name: fv.name,
       deviceId: fv.deviceId,
       email: fv.email
     };

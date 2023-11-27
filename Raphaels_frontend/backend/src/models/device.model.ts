@@ -1,11 +1,13 @@
 import {Schema, model} from 'mongoose';
 
 export interface Device{
+    name:string;
     deviceId:string;
     email:string;
 }
 
 export const DeviceSchema = new Schema<Device>({
+    name: {type: String, required: true},
     deviceId: {type: String, required: true},
     email: {type: String, required: true}
 }, {

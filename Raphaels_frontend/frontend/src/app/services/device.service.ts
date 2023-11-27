@@ -28,7 +28,7 @@ export class DeviceService {
           this.setDeviceToLocalStorage(device); // TODO: this might not be needed
           this.deviceSubject.next(device);
           this.toastrService.success(
-            `Your device was registered successfully!`
+            `Your device was successfully registered!`
           )
         },
         error: (errorResponse) => {

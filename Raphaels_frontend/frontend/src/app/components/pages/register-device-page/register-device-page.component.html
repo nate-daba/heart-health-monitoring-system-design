@@ -3,6 +3,11 @@
         <h1>Register Device</h1>
         <form [formGroup]="registerForm" (ngSubmit)="submit()">
             <text-input
+                [control]="fc['name']"
+                [showErrorsWhen]="isSubmitted"
+                label="Give it a name">
+            </text-input>
+            <text-input
                 [control]="fc['deviceId']"
                 [showErrorsWhen]="isSubmitted"
                 label="Device ID">

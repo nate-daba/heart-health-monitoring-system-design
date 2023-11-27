@@ -17,10 +17,10 @@ router.post('/register', asyncHandler(
     async (req, res) => {
         try {
             // Destructure the body for better readability
-            const {deviceId, email} = req.body;
+            const {name, deviceId, email} = req.body;
         
             // Validate the input
-            if (!deviceId || !email) {
+            if (!name || !deviceId || !email) {
                res.status(400).json({ message: 'Bad request: Device ID and email are required.' });
                return;
             }
@@ -33,8 +33,9 @@ router.post('/register', asyncHandler(
 
             // Initialize the new device
             const newDevice = new DeviceModel ({
-              deviceId, // if 'deviceId: deviceId', you can just write 'deviceId'
-              email
+                name,
+                deviceId, // if 'deviceId: deviceId', you can just write 'deviceId'
+                email
             });
         
             // Save the new device to the database
