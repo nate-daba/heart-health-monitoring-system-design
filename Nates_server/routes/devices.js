@@ -154,6 +154,9 @@ router.put('/update', async function(req, res) {
     // req.body will contain the fields you want to update.
     const updateData = req.body;
 
+    // remove deviceId from updateData
+    delete updateData.deviceId;
+    
     // Apply the updates to the device document
     for (const key in updateData) {
       if (updateData.hasOwnProperty(key)) {
@@ -177,6 +180,35 @@ router.put('/update', async function(req, res) {
     res.status(500).json({ message: "An error occurred while updating the device." });
   }
 });
+
+// DELETE: create route for deleting a device
+router.delete('/delete/:deviceId', async function(req, res) {
+  console.log(req.params)
+  try {
+    const deviceId = req.params.deviceId;
+    // Assuming authorization middleware ensures only authorized deletions
+    const result = await Device.deleteOne({ deviceId: deviceId });
+
+    if (result.deletedCount === 1) {
+      // No content to send back
+      return res.status(204).end();
+    } else {
+      // Device not found
+      return res.status(404).json({ message: "Device not found." });
+    }
+  } catch (err) {
+    console.error("An error occurred while deleting the device:", err);
+
+    // Handle possible errors
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: "Bad request: Invalid Device ID format." });
+    }
+
+    // Internal Server Error for other cases
+    return res.status(500).json({ message: "An error occurred while deleting the device." });
+  }
+});
+
 
 // This route gets the device status from the Particle Cloud
 router.get('/info', async function(req, res) {

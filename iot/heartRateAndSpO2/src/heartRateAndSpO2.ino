@@ -30,12 +30,20 @@ const int EEPROM_SIZE = 512; // Define the size of EEPROM for data storage
 char dataInEEPROM[EEPROM_SIZE]; // Declare a character array to store the data
 
 unsigned long measurementPeriod = 60000;
+struct MeasurementTime {
+  unsigned long startTime; // minutes since midnight
+  unsigned long endTime;   // minutes since midnight
+} measurementTimeOfDay;
+
 bool takeMeasurement = false;
 unsigned long lastMeasurementPrompted = 0;
 unsigned long timeout = 5 * 60 * 1000;
 unsigned long lastBlinkMillis = 0;
 const long blinkInterval = 500;
 unsigned long lastSync = millis();
+static bool connectedToCloud = false; // Variable to track Wi-Fi connection status
+static bool waitingForFinger = false;
+static unsigned long startWaitingTime = 0;
 
 
 unsigned long lastUnixTime = 0; // Initialize with a known Unix time
@@ -44,6 +52,8 @@ unsigned long lastMillis = 0;
 void setup()
 {
   Particle.function("flashGreenLED", flashGreenLED);
+  Particle.function("updateMeasurementPeriod", updateMeasurementPeriod);
+  Particle.function("updateMeasurementTimeofDay", updateMeasurementTimeofDay);
 
   Serial.begin(115200);
   Serial.println("Initializing...");
@@ -73,105 +83,139 @@ void setup()
 
 void loop()
 {
-  static bool connectedToCloud = false; // Variable to track Wi-Fi connection status
-  static bool waitingForFinger = false;
-  static unsigned long startWaitingTime = 0;
 
-  // Check if Wi-Fi is connected
-  if (Particle.connected() && !connectedToCloud)
+  // Get the current hour and minute
+  int currentHour = Time.hour();
+  int currentMinute = Time.minute();
+  unsigned long currentTimeInMinutes = currentHour * 60 + currentMinute;
+  
+  // Check if current time is within the measurement window
+  if (currentTimeInMinutes >= measurementTimeOfDay.startTime && currentTimeInMinutes < measurementTimeOfDay.endTime) 
   {
-    Serial.println("Wi-Fi connected.");
-    if (storageFileHasContents("/data.txt")) {
-      Serial.println("Publishing stored data from file...");
-      // Publish any stored data from the file
-      publishStoredDataFromFile();
+    // Check if Wi-Fi is connected
+    if (Particle.connected() && !connectedToCloud)
+    {
+      Serial.println("Wi-Fi connected.");
+      if (storageFileHasContents("/data.txt")) {
+        Serial.println("Publishing stored data from file...");
+        // Publish any stored data from the file
+        publishStoredDataFromFile();
+      }
+      else {
+        Serial.println("No stored data in file.");
+      }
+      connectedToCloud = true; // Update Wi-Fi connection status
     }
-    else {
-      Serial.println("No stored data in file.");
+    if (!takeMeasurement && ((lastMeasurementPrompted == 0) || (millis() - lastMeasurementPrompted > measurementPeriod))) 
+    {
+      takeMeasurement = true;
+      waitingForFinger = true;
+      startWaitingTime = millis();
+      Serial.println("Please place your index finger on the sensor.");
+      lastMeasurementPrompted = millis();
     }
-    connectedToCloud = true; // Update Wi-Fi connection status
-  }
-  if (!takeMeasurement && ((lastMeasurementPrompted == 0) || (millis() - lastMeasurementPrompted > measurementPeriod))) {
-    takeMeasurement = true;
-    waitingForFinger = true;
-    startWaitingTime = millis();
-    Serial.println("Please place your index finger on the sensor.");
-    lastMeasurementPrompted = millis();
-  }
 
-  if (waitingForFinger) {
-    if (millis() - startWaitingTime >= timeout) {
-      Serial.println("Timeout: 5 minutes elapsed without a measurement.");
-      takeMeasurement = false;
-      waitingForFinger = false;
-    } else {
-      long irValue = particleSensor.getIR();
-      if (irValue >= 50000) {
+    if (waitingForFinger) 
+    {
+      if (millis() - startWaitingTime >= timeout) 
+      {
+        Serial.println("Timeout: 5 minutes elapsed without a measurement.");
+        takeMeasurement = false;
         waitingForFinger = false;
-        Serial.println("Taking measurement now ...");
-        digitalWrite(takeMeasurementLED, LOW);
-        // proceed with measurement code
-      } else {
-        if (millis() - lastBlinkMillis > blinkInterval) {
-          digitalWrite(takeMeasurementLED, !digitalRead(takeMeasurementLED));
-          lastBlinkMillis = millis();
+        digitalWrite(takeMeasurementLED, LOW); // Ensure the LED is turned off after timeout
+        lastMeasurementPrompted = millis(); // Reset the lastMeasurementPrompted to current time to wait for next measurement period
+      } else 
+      {
+        long irValue = particleSensor.getIR();
+        if (irValue >= 50000) 
+        {
+          waitingForFinger = false;
+          Serial.println("Taking measurement now ...");
+          digitalWrite(takeMeasurementLED, LOW);
+          // proceed with measurement code
+        } else {
+          if (millis() - lastBlinkMillis > blinkInterval) 
+          {
+            digitalWrite(takeMeasurementLED, !digitalRead(takeMeasurementLED));
+            lastBlinkMillis = millis();
+          }
         }
       }
     }
-  }
 
-  if (takeMeasurement && !waitingForFinger) 
-  {
-    bufferLength = 100;
-
-    for (byte i = 0; i < bufferLength; i++) 
+    if (takeMeasurement && !waitingForFinger) 
     {
-      while (particleSensor.available() == false)
-        particleSensor.check();
+      bufferLength = 100;
 
-      redBuffer[i] = particleSensor.getRed();
-      irBuffer[i] = particleSensor.getIR();
-      particleSensor.nextSample();
-    }
-
-    maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
-
-    if (validSPO2 && validHeartRate) 
-    {
-      Serial.print(F("HR="));
-      Serial.print(heartRate, DEC);
-
-      Serial.print(F(", HRvalid="));
-      Serial.print(validHeartRate, DEC);
-
-      Serial.print(F(", SPO2="));
-      Serial.print(spo2, DEC);
-
-      Serial.print(F(", SPO2Valid="));
-      Serial.print(validSPO2, DEC);
-      
-      // prepare data to publish
-      String currentTime = Time.format(TIME_FORMAT_ISO8601_FULL);
-      String data = String::format("{\"heartrate\":%d,\"spo2\":%d", heartRate, spo2);
-      // Check if Wi-Fi is connected
-      if (Particle.connected()) 
+      for (byte i = 0; i < bufferLength; i++) 
       {
-        // If connected to Wi-Fi, publish the data immediately
-        data = String::format("%s,\"measurementTime\":\"%s\"}", data.c_str(), Time.format(TIME_FORMAT_ISO8601_FULL).c_str());
-        publishData(data);
+        while (particleSensor.available() == false)
+          particleSensor.check();
+
+        redBuffer[i] = particleSensor.getRed();
+        irBuffer[i] = particleSensor.getIR();
+        particleSensor.nextSample();
+      }
+      Serial.printf("New measurement period: %lu ms\n", measurementPeriod); 
+      maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
+
+
+      if (validSPO2 && validHeartRate) 
+      {
+        printSensorData(heartRate, validHeartRate, spo2, validSPO2);
+        // prepare data to publish
+        String currentTime = Time.format(TIME_FORMAT_ISO8601_FULL);
+        String data = String::format("{\"heartrate\":%d,\"spo2\":%d", heartRate, spo2);
+        // Check if Wi-Fi is connected
+        if (Particle.connected()) 
+        {
+          // If connected to Wi-Fi, publish the prepared data immediately
+          data = String::format("%s,\"measurementTime\":\"%s\"}", data.c_str(), Time.format(TIME_FORMAT_ISO8601_FULL).c_str());
+          publishData(data);
+        } else 
+        {
+          // Not connected to Wi-Fi, store the prepared data locally
+          data = String::format("%s%s", data.c_str(), "}");
+          storeDataLocallyToFile(data, millis(), yellowLED);
+          connectedToCloud = false; // Update Wi-Fi connection status
+        }
+        takeMeasurement = false;
       } else 
       {
-        // Not connected to Wi-Fi, store the data locally
-        data = String::format("%s%s", data.c_str(), "}");
-        storeDataLocallyToFile(data, millis(), yellowLED);
-        connectedToCloud = false; // Update Wi-Fi connection status
+        Serial.println(F("Invalid reading. Please ensure your finger is properly placed on the sensor and remain still."));
       }
-      takeMeasurement = false;
-    } else 
-    {
-      Serial.println(F("Invalid reading. Please ensure your finger is properly placed on the sensor and remain still."));
-      lastMeasurementPrompted = millis();
+      lastMeasurementPrompted = millis(); // Reset the lastMeasurementPrompted to current time to wait for next measurement period
     }
   }
 }
+
+int updateMeasurementPeriod(String period) {
+  unsigned long measurementPeriodInt = period.toInt(); // Convert String to unsigned long
+  measurementPeriod = measurementPeriodInt * 60 * 1000; // Update the global variable
+  Serial.println("Updating measurement period...");
+  Serial.printf("New measurement period: %lu ms\n", measurementPeriod); // Use the global variable
+
+  return 1; // Indicate success
+}
+
+// Function to update the measurement time of day
+int updateMeasurementTimeofDay(String jsonString) {
+  // Parse the JSON string manually (since it's a simple format)
+  int startTimePos = jsonString.indexOf("startTime\": \"") + 13;
+  int endTimePos = jsonString.indexOf("endTime\": \"") + 11;
+  
+  String startTimeStr = jsonString.substring(startTimePos, startTimePos + 5);
+  String endTimeStr = jsonString.substring(endTimePos, endTimePos + 5);
+  Serial.printf("Start Time: %s, End Time: %s\n", startTimeStr.c_str(), endTimeStr.c_str());
+  // Convert the time to minutes since midnight
+  measurementTimeOfDay.startTime = parseTimeToMinutes(startTimeStr);
+  measurementTimeOfDay.endTime = parseTimeToMinutes(endTimeStr);
+
+  Serial.println("Measurement Time of Day updated:");
+  Serial.printf("Start Time: %lu minutes, End Time: %lu minutes\n", 
+                measurementTimeOfDay.startTime, measurementTimeOfDay.endTime);
+
+  return 1; // Indicate success
+}
+
 

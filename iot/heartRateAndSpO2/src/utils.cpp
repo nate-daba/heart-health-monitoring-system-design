@@ -28,8 +28,14 @@ int flashGreenLED(String dataStoredInDbSuccessfully) {
 }
 
 void publishData(String data) {
-  Particle.publish("sensorData", data, PRIVATE);
-  Serial.println(" published !!");
+  bool success = Particle.publish("sensorData", data, PRIVATE);
+  if (!success) {
+    Serial.println("Failed to publish data.");
+  }
+  else {
+    Serial.println(" published !!");
+  }
+  
 }
 
 // Function to store data locally to a file, with millis value
@@ -111,7 +117,7 @@ void publishStoredDataFromFile() {
     String formattedData = String::format("%s,\"measurementTime\":\"%s\"}",
                                           data.c_str(), actualTime.c_str());
 
-    Serial.printlnf("Publishing formatted data: %s", formattedData.c_str());
+    Serial.printf("Publishing formatted data: %s", formattedData.c_str());
 
     // Publish the data
     publishData(formattedData);
@@ -136,4 +142,31 @@ String computeActualTime(unsigned long storedMillis) {
   time_t adjustedTime = now - ((currentTime - storedMillis) / 1000);
   return Time.format(adjustedTime, TIME_FORMAT_ISO8601_FULL);
 }
+
+// Function to print sensor data
+void printSensorData(int32_t heartRate, int8_t validHeartRate, int32_t spo2, int8_t validSPO2) {
+  Serial.print(F("HR="));
+  Serial.print(heartRate, DEC);
+
+  Serial.print(F(", HRvalid="));
+  Serial.print(validHeartRate, DEC);
+
+  Serial.print(F(", SPO2="));
+  Serial.print(spo2, DEC);
+
+  Serial.print(F(", SPO2Valid="));
+  Serial.print(validSPO2, DEC);
+  
+}
+
+// Function to parse the time in HH:MM format and convert it to minutes since midnight
+unsigned long parseTimeToMinutes(String timeStr) {
+  int hour = timeStr.substring(0, 2).toInt();
+  int minute = timeStr.substring(3, 5).toInt();
+  return hour * 60 + minute;
+}
+
+
+
+
 

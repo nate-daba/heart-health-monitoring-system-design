@@ -19,4 +19,12 @@ bool storageFileHasContents(const char* filename);
 
 String computeActualTime(unsigned long storedMillis);
 
+void printSensorData(int32_t heartRate, int8_t validHeartRate, int32_t spo2, int8_t validSPO2);
+
+int updateMeasurementPeriod(String measurementPeriod);
+
+unsigned long parseTimeToMinutes(String timeStr);
+
+int updateMeasurementTimeofDay(String jsonString);
+
 #endif

@@ -351,6 +351,10 @@
                                                             <th>Type</th>
                                                             <th>Status</th>
                                                             <th>Added On</th>
+                                                            <th>Measurement Frequency </th>
+                                                            <th>Start Time</th>
+                                                            <th>End Time</th>   
+                                                            <th></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -383,8 +387,8 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="measurementFrequency">Measurement Frequency (minutes)</label>
-                                                <input type="number" class="form-control" id="measurementFrequency" placeholder="Enter frequency">
-                                            </div>
+                                                <input type="number" class="form-control" id="measurementFrequency" placeholder="Enter frequency" min="1" max="5040">
+                                            </div>                            
                                             <div class="form-group">
                                                 <p>Take Measurements Between:</p>
                                             </div>
@@ -407,6 +411,47 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Confirmation Modal -->
+                        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="deleteMessage">Are you sure you want to remove device with device ID: <strong><span id="deviceToDelete"></span></strong>?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                        <button type="button" class="btn btn-primary" id="confirmDelete">Yes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Success Modal -->
+                        <!-- Generic Modal For Displaying Any Message -->
+                        <div class="modal fade" id="genericModal" tabindex="-1" role="dialog" aria-labelledby="genericModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="genericModalLabel">Title</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="genericMessage">Message</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <!-- ... [Rest of the new content] ... -->
                 </div>
@@ -417,7 +462,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your Website 2021</span>
+                        <span>Copyright &copy; HeartO2Monitor 2023</span>
                     </div>
                 </div>
             </footer>
