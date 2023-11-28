@@ -1,101 +1,91 @@
 // sign up callback function
 function signUp(e) {
     e.preventDefault();
+    $('.errorDiv p').empty();                         // clear previous error messages
     $('.errorDiv').hide();
 
-    let email = $(`#email`);
-    let password = $(`#password`);
-    let firstName = $(`#firstName`);
-    let lastName = $(`#lastName`);
+    let firstName = $('#firstName');
+    let lastName = $('#lastName');
+    let email = $('#email');
+    let password = $('#password');
+    let confirmPassword = $('#confirmPassword');
 
-    // email is not empty
-    if (email.val() === "") {
-        $('.errorDiv p').text("Email cannot be empty.");
-        $('.errorDiv').show();
-        //window.alert("Email can not be empty.");
-        return;
+    // store validation errors
+    let validationErrors = [];
+
+    // validate first name
+    if (firstName.val().length < 1) {
+        validationErrors.append("First name cannot be empty.<br>");
+        firstName.css('border', '2px solid red');
+    } else {
+        firstName.css('border', '1px solid #ccc');
     }
 
-    // new - email is valid
+    // validate last name
+    if (lastName.val().length < 1) {
+        validationErrors.push("Last name cannot be empty.<br>");
+        lastName.css('border', '2px solid red');
+    } else {
+        lastName.css('border', '1px solid #ccc');
+    }
+
+    // validate email
     let emailReq = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,5}$/;
-    if ((!(email.match(emailReq)))) {
-        //window.alert("Invalid email address.");
-        $('.errorDiv p').text("Invalid email address.");
-        $('.errorDiv').show();
-        return;
+    if (email.val().length < 1) {
+        validationErrors.push("Email cannot be empty.<br>");
+        email.css('border', '2px solid red');
+    } else if (!email.val().match(emailReq)) {
+        validationErrors.push("Invalid email address.<br>");
+        email.css('border', '2px solid red');
+    } else {
+        email.css('border', '1px solid #ccc');
     }
-
-    // password is not empty
-    if (password.val() === "") {
-        window.alert("Password can not be empty.");
-        $('.errorDiv p').text("Password can not be empty.");
-        $('.errorDiv').show();
-        return;
-    }
-
-    // new - password is between 10 and 20 characters
-    if (!((password.length < 10) || (password.length > 20))) {             
-        window.alert("Password must be between 10 and 20 characters in length.");
-        $('.errorDiv p').text("Password must be between 10 and 20 characters in length.");
-        $('.errorDiv').show();
-    }
-
-    // new - password contains a lowercase character
-    let lowCase = /[a-z]/;
-    if (!(password.match(lowCase))) {
-        window.alert("Password must contain at least one lowercase character.");
-        $('.errorDiv p').text("Password must contain at least one lowercase character.");
-        $('.errorDiv').show();
-    }
-
-    // new - password contains an uppercase character
-    let upCase = /A-Z/;
-    if (!(password.match(upCase))) {
-        window.alert("Password must contain at least one uppercase character.");
-        $('.errorDiv p').text("Password must contain at least one uppercase character.");
-        $('.errorDiv').show();
-    }
-
-    // new - password contains a digit
-    let digitCheck = /[0-9]/;
-    if ((!(password.match(digitCheck)))) {
-        window.alert("Password must contain at least one digit.");
-        $('.errorDiv p').text("Password must contain at least one digit.");
-        $('.errorDiv').show();
-    }
-
-    // passwrod and confirmation password match
-    if(password.val() !== $('#confirmPassword').val()) {
-        window.alert("Password and confirmation password do not match.");
-        $('.errorDiv p').text("Passwrd and confirmation password do not match.");
-        $('.errorDiv').show();
-        return;
-    }
-
-    // first name field is not empty
-    if (firstName.val() === "") {
-        window.alert("First name can not be empty.");
-        $('.errorDiv p').text("First name can not be empty.");
-        $('.errorDiv').show();
-        return;
-    }
-
-    // last name field is not empty
-    if (lastName.val() === "") {
-        window.alert("Last name can not be empty.");
-        $('.errorDiv p').text("Last name can not be empty.");
-        $('.errorDiv').show();
-        return;
-    }
-
-    // add more validations to check if the email is valid, etc.
     
+    // validate password confirmation
+    if (password.val() !== confirmPassword.val()) {
+        validationErrors.push("Password and confirmation password do not match.");
+        confirmPassword.css('border', '2px solid red');
+    } else {
+        confirmPassword.css('border', '1px solid #ccc');
+    }
+
+    // validate password
+    if (password.val().length < 1) {
+        validationErrors.push("Password cannot be empty.<br>");
+        password.css('border', '2px solid red');
+    } else if (password.val().length < 10 || password.val().length > 20) {
+        validationErrors.push("Password must be between 10 and 20 characters in length.<br>");
+        password.css('border', '2px solid red');
+    } 
+    if (!password.val().match(/[a-z]/)) {
+        validationErrors.push("Password must contain at least one lowercase character.<br>");
+        password.css('border', '2px solid red');
+    } 
+    if (!password.val().match(/[A-Z]/)) {
+        validationErrors.push("Password must contain at least one uppercase character.<br>");
+        password.css('border', '2px solid red');
+    }
+    if (!password.val().match(/[0-9]/)) {
+        validationErrors.push("Password must contain at least one digit.<br>");
+        password.css('border', '2px solid red');
+    } else {
+        password.css('border', '1px solid #ccc');
+    }
+
+    // display validation errors
+    if (validationErrors !== 0) {
+        for (let error in validationErrors) {
+            $('.errorDiv p').append(validationErrors[error] + '<br>');
+        }
+        $('.errorDiv').show();
+        return;
+    }
 
     let newUserData = {
-        firstName: $('#firstName').val(),
-        lastName: $('#lastName').val(),
-        email: $('#email').val(),
-        password: $('#password').val()
+        firstName: firstName.val(),
+        lastName: lastName.val(),
+        email: email.val(),
+        password: password.val()
     };
 
     $.ajax({
@@ -105,24 +95,22 @@ function signUp(e) {
         data: JSON.stringify(newUserData),
         dataType: 'json'
     })
+    
     .done(function(data) {
         console.log(data);
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("email", newUserData.email);
         window.location.href = '/dashboard.html'; // Redirect to the device registration page
     })
+
     .fail(function(err) {
         console.log(err.responseJSON.message);
-        if(err.status === 409) {
-            $('.errorDiv p').text(err.responseJSON.message);
-            $('.errorDiv').show();
+        if (err.status === 409) {
+            handleValidationError(email, err.responseJSON.message);
         }
     });
-};
-
-// document ready function
+}
 
 $(document).ready(function() {
-    
     $('#signUpForm').on('submit', signUp);
 });
