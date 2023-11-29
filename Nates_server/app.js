@@ -14,6 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var physiciansRouter = require('./routes/physicians');
 var sensorDataRouter = require('./routes/sensorData'); 
 var devicesRouter = require('./routes/devices');
 var integrationsRouter = require('./routes/integrations');
@@ -34,6 +35,7 @@ app.use(function (req, res, next) {
 // Routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/physicians', physiciansRouter);
 app.use('/sensorData', sensorDataRouter); 
 app.use('/devices', devicesRouter);
 app.use('/integrations', integrationsRouter);

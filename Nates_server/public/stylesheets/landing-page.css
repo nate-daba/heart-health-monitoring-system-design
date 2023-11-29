@@ -1,0 +1,117 @@
+html {
+    height: 100%;
+    /* Interactive background gradient */
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+  }
+  
+  @keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden; /* Hide scrollbars if not necessary */
+  }
+
+  /* Reset default margin and padding */
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the navigation bar */
+.navbar {
+  background-color: transparent; /* Set transparent background */
+  position: fixed; /* Fixed positioning */
+  width: 100%;
+  z-index: 1000; /* Set a high z-index to keep it above other content */
+}
+
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent; /* Set transparent background for list items */
+}
+
+.navbar ul li {
+  float: left;
+}
+
+.navbar ul li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.navbar ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent background on hover */
+}
+
+/* Style the content */
+.content {
+  padding-top: 60px; /* Add padding to content to prevent it from being hidden by the fixed navbar */
+}
+
+  h1 {
+    color: white;
+    margin-bottom: 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #selection {
+    width: 300px;
+    padding: 16px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    /* Additional styles to ensure form is above the animated background */
+    position: relative;
+    z-index: 2;
+    
+  }
+  
+  button {
+    background-color: #008CBA;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.9;
+    border-radius: 10px;
+  }
+  
+  button:hover {
+    opacity: 1;
+  }
+  
+ 
