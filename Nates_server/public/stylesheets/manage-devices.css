@@ -76,4 +76,14 @@
     padding-left: 7%; /* Adjust as needed for alignment */
 }
 
+/* This will remove the default caret that Bootstrap adds to a dropdown */
+.dropdown-toggle::after {
+    display: none;
+}
+
+.custom-width {
+    max-width: 100px; /* Adjust as needed */
+}
+
+
 

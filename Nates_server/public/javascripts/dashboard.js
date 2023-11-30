@@ -4,7 +4,8 @@ Chart.defaults.global.defaultFontColor = '#858796';
 // ====================  Event Listeners =========================
 // Event listener for the document ready event
 $(document).ready(function() {
-
+    // Set the default timezone to Phoenix
+    moment.tz.setDefault("America/Phoenix");
     // Initialize the dropdown
     $('.dropdown-toggle').dropdown();
 
@@ -15,15 +16,22 @@ $(document).ready(function() {
     // Attach the change event listener to the datepicker input
     $('#datepicker-input').on('change', dateChangeListener);
 
+    getUserInfo();
     // populate the dropdown with the list of devices registered to the user
     populateDeviceSelectorDropdown();
 
     // Register log out button click event listener
     $('#logout').on('click', logoutEventListener);
+
+    $('#datepicker').datepicker({
+        // This ensures the date is set to the current date in Arizona time zone
+        defaultDate: moment().tz("America/Phoenix").format('MM-DD-YYYY')
+    });
 });
+
 // Event listener for the datepicker input
 function dateChangeListener(e) {
-    e.preventDefault();
+    // e.preventDefault();
     var selectedDate = $('#datepicker-input').val();
     
     // Parse the selected date as a JavaScript Date object
@@ -47,12 +55,14 @@ function dateChangeListener(e) {
     var selectedDeviceId = getSelectedDeviceId();
 
     getSensorData(selectedDeviceId, formattedDate, 'day');
+    getSensorData(selectedDeviceId, formattedDate, 'week');
 
 }
 // Event listener for the dropdown items in the device selector
 function dropdownItemClickListener(e) {
     // prevent the default behavior of the link
     e.preventDefault();
+    
     
     // get the text of the clicked element
     var deviceId = $(this).text();
@@ -62,6 +72,7 @@ function dropdownItemClickListener(e) {
     // update the text of the selected device
     updateSelectedDeviceText(deviceId);
     console.log('selected device: ', getSelectedDeviceId());
+    console.log('selected date: ', getSelectedDate());
     // get current selected date and selected device
     var selectedDate = getSelectedDate();
     var selectedDeviceId = getSelectedDeviceId();
@@ -80,14 +91,14 @@ function logoutEventListener(e) {
 
 // ====================  Helper Functions =========================
 // Function to populate the dropdown with the list of devices registered to the user update the chart
+var deviceIdToDeviceName = {};
+var deviceNameToDeviceId = {};
+
 function populateDeviceSelectorDropdown() {
     var email = localStorage.getItem("email");
-
     console.log('Getting all devices registered to', email);
 
-    var data = {
-        email: email
-    };
+    var data = { email: email };
 
     $.ajax({
         url: '/devices/read',
@@ -100,17 +111,22 @@ function populateDeviceSelectorDropdown() {
     .done(function(response) {
         console.log('response from server', response);
         response.forEach(function(device){
-            var option = $('<a>').addClass('dropdown-item').text(device.deviceId);
+            // Populate the maps
+            deviceIdToDeviceName[device.deviceId] = device.deviceName;
+            deviceNameToDeviceId[device.deviceName] = device.deviceId;
+            console.log('device name being added to dropdown: ', device.deviceName)
+            // Add device name to the dropdown
+            console.log('device  being added to dropdown: ', device)
+            var option = $('<a>').addClass('dropdown-item').text(device.deviceName);
             $('#deviceList').prepend(option);
+            $('.dropdown-toggle').dropdown();
         });
-        
-        // Set the default device ID (the first device from the list)
+        // $('.dropdown-toggle').dropdown();
         if (response.length > 0) {
-            selectedDeviceId = response[0].deviceId;
-            updateSelectedDeviceText(selectedDeviceId);
-            // console.log('selected device id (in populate): ', $('#selectedDeviceText').text());
-
-            // Now that the dropdown is populated, you can log the values
+            // Use device name instead of ID
+            var defaultDeviceName = deviceIdToDeviceName[response[0].deviceId];
+            updateSelectedDeviceText(defaultDeviceName);
+            
             var selectedDate = getSelectedDate();
             var selectedDeviceId = getSelectedDeviceId();
             console.log('selected device id (in populate): ', selectedDeviceId);
@@ -118,16 +134,21 @@ function populateDeviceSelectorDropdown() {
             getSensorData(selectedDeviceId, selectedDate, 'day');
             getSensorData(selectedDeviceId, selectedDate, 'week');
         }
-        // else hide the entire content of the page and display "No devices registered"
     })
     .fail(function(error) {
         console.log(error);
     });
-
 }
+
 // Function to get the selected device ID
 function getSelectedDeviceId() {
-    return $('#selectedDeviceText').text(); // returns the text of the selected device  
+    var selectedDeviceName = $('#selectedDeviceText').text();
+    return deviceNameToDeviceId[selectedDeviceName]; // returns the deviceId corresponding to the selected device name  
+}
+
+function getSelectedDeviceName() {
+    var selectedDeviceName = $('#selectedDeviceText').text();
+    return selectedDeviceName;
 }
 // Function to get the selected date
 function getSelectedDate(){
@@ -151,8 +172,8 @@ function getSelectedDate(){
     return formattedDate;
 }
 // Function to update the selected device text
-function updateSelectedDeviceText(deviceId) {
-    $('#selectedDeviceText').text(deviceId);
+function updateSelectedDeviceText(deviceName) {
+    $('#selectedDeviceText').text(deviceName);
 }
 // Function to get the sensor data for the selected device and date and plot it
 function getSensorData(deviceId, selectedDate, span){
@@ -319,7 +340,7 @@ function clearOldData()
 // Function to populate the weekly summary cards
 function populateWeeklySummary(response){
     const [heartrateData, spo2Data, timeData] = extractData(response);
-
+    console.log('populating weekly summary: ', response)
     // Calculate stats for the week
     const average = array => array.reduce((a, b) => a + b) / array.length;
     var avgHeartRate = average(heartrateData);
@@ -408,5 +429,28 @@ function sortByMeasurementTime(data) {
     const sortedSpo2Data = combinedArray.map(item => item.spo2);
 
     return [sortedHeartrateData, sortedSpo2Data, sortedTime];
+}
+
+// Function to get the user info
+function getUserInfo() {
+    var email = localStorage.getItem("email");
+    var data = {
+        email: email
+    };
+
+    $.ajax({
+        url: '/users/read/' + email,
+        method: 'GET',
+        contentType: 'application/json',
+        headers: { 'x-auth': window.localStorage.getItem("token") },
+        dataType: 'json',
+    })
+    .done(function(response) {
+        console.log('response from server', response);
+        $('#userFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+    })
+    .fail(function(error) {
+        console.log(error);
+    });
 }
 // ==================== End of Helper Functions ====================

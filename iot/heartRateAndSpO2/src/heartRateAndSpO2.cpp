@@ -210,22 +210,34 @@ int updateMeasurementPeriod(String period) {
 
 // Function to update the measurement time of day
 int updateMeasurementTimeofDay(String jsonString) {
-  // Parse the JSON string manually (since it's a simple format)
-  int startTimePos = jsonString.indexOf("startTime\": \"") + 13;
-  int endTimePos = jsonString.indexOf("endTime\": \"") + 11;
-  
-  String startTimeStr = jsonString.substring(startTimePos, startTimePos + 5);
-  String endTimeStr = jsonString.substring(endTimePos, endTimePos + 5);
-  Serial.printf("Start Time: %s, End Time: %s\n", startTimeStr.c_str(), endTimeStr.c_str());
-  // Convert the time to minutes since midnight
-  measurementTimeOfDay.startTime = parseTimeToMinutes(startTimeStr);
-  measurementTimeOfDay.endTime = parseTimeToMinutes(endTimeStr);
+    JSONValue outerObj = JSONValue::parseCopy(jsonString);
+    JSONObjectIterator iter(outerObj);
+    Serial.println("received JSON string: " + jsonString);
+    String startTimeStr;
+    String endTimeStr;
 
-  Serial.println("Measurement Time of Day updated:");
-  Serial.printf("Start Time: %lu minutes, End Time: %lu minutes\n", 
-                measurementTimeOfDay.startTime, measurementTimeOfDay.endTime);
+    while (iter.next()) {
+        if (iter.name() == "startTime") {
+            startTimeStr = (const char *)iter.value().toString();
+        } else if (iter.name() == "endTime") {
+            endTimeStr = (const char *)iter.value().toString();
+        }
+    }
 
-  return 1; // Indicate success
+    if (startTimeStr != "" && endTimeStr != "") {
+        measurementTimeOfDay.startTime = parseTimeToMinutes(startTimeStr);
+        measurementTimeOfDay.endTime = parseTimeToMinutes(endTimeStr);
+
+        Serial.println("Measurement Time of Day updated:");
+        Serial.printf("Start Time: %lu minutes, End Time: %lu minutes\n", 
+                    measurementTimeOfDay.startTime, measurementTimeOfDay.endTime);
+
+        return 1; // Indicate success
+    } else {
+        Serial.println("Invalid JSON format");
+        return -1; // Indicate failure
+    }
 }
+
 
 

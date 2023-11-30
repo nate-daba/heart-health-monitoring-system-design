@@ -5,6 +5,8 @@ var Device = require('../models/device');
 var AccessToken = require('../models/accessToken');
 const axios = require('axios');
 const qs = require('qs');
+const moment = require('moment-timezone');
+
 
 // CREATE
 router.post('/store', async function(req, res) {
@@ -133,7 +135,9 @@ router.get('/read/:span', async function(req, res) {
     try {
         const deviceId = req.query.deviceId;
         const selectedDate = new Date(req.query.selectedDate); // Parse the selected date string into a Date object
-
+        // Convert to UTC by adding 7 hours (for UTC-7)
+        selectedDate.setHours(selectedDate.getHours() + 7);
+        console.log('selectedDate', selectedDate);
         if (span === 'day') {
             // Fetch data for the specified date only
             const startDate = new Date(selectedDate);
@@ -163,9 +167,12 @@ router.get('/read/:span', async function(req, res) {
             const startDate = new Date(endDate);
             startDate.setDate(endDate.getDate() - 6); // Calculate the start date for the last 7 days
             console.log('start date', startDate, 'end date', endDate)
+            // Convert to UTC by adding 7 hours (for UTC-7)
+            startDate.setHours(startDate.getHours() + 7);
+            endDate.setHours(endDate.getHours() + 7);
             const sensorDocs = await SensorData.find({
                 deviceId: deviceId,
-                published_at: {
+                measurementTime: {
                     $gte: startDate,
                     $lte: endDate
                 }

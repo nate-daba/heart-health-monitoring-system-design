@@ -1,5 +1,7 @@
 $(document).ready(function() {
-    getALLDevices();  // Populate the table when the page loads
+    // Populate the table when the page loads
+    getALLDevices();  
+    getUserInfo();
     $('#addDeviceBtn').on('click', registerDevice);
     $('#saveDeviceSettings').on('click', saveDeviceSettingsListener);
 
@@ -8,34 +10,12 @@ $(document).ready(function() {
     $('#devicesTable').on('click', '.remove-device', removeDeviceListener);
     $('#confirmDelete').on('click', confirmDeleteListener);
 
-    // Only trigger row click event when not clicking on dropdown or its children
-    $('#devicesTable tbody').on('click', 'tr', function(e) {
-        if (!$(e.target).closest('.dropdown').length) {
-            rowClickListener.call(this, e);
-        }
-    });
+    // Register row click listener
+    $('#devicesTable tbody').on('click', 'tr', rowClickListener);
+
+    // Register modal shown event listener
+    $('#editDeviceModal').on('shown.bs.modal', onModalShown);
 });
-
-function toggleDeviceTableVisibility() {
-    // Check if the tbody has any tr (table rows)
-    if ($('#devicesTable tbody tr').length === 0) {
-        // Hide the table
-        $('#devicesTable').hide();
-
-        // Create a div to hold the 'no devices' message
-        var noDevicesDiv = $('<div/>', {
-            'class': 'no-devices-message', // Add a class for potential styling
-            'text': 'You have no devices registered currently',
-            'css': {
-                'text-align': 'center', // Center the text
-                'margin-top': '20px' // Add some space at the top
-            }
-        });
-
-        // Append the 'no devices' message div after the table's parent div
-        $('#devicesTable').parent().append(noDevicesDiv);
-    }
-}
 
 function getALLDevices(e) {
     // stopped here
@@ -102,6 +82,7 @@ function getALLDevices(e) {
                 tr.css('cursor', 'pointer');
                 tr.click(function() {
                 // You can also populate the form with existing device settings
+                console.log('received device name: ', deviceName);
                 $('#deviceName').val(deviceName);
                 $('#measurementFrequency').val(measurementFrequency); // This should be retrieved from your device settings
                 $('#startTime').val(startTime); // This should be retrieved from your device settings
@@ -109,6 +90,7 @@ function getALLDevices(e) {
                 });
 
                 $('#devicesTable tbody').append(tr);
+                $(`#dropdownMenuLink-${deviceId}`).dropdown();
             }).fail(function(jqXHR){
                 console.log('An error occurred:', jqXHR);
                 // Extract and display the error message
@@ -143,7 +125,7 @@ function registerDevice(e) {
         // var errorElement = $('<div>').addClass('text-red-500').text('Device ID can not be empty.');
         // $('#registrationStatus').html(errorElement);
         // $('#registrationStatus').show()
-        showModal('Error', 'Device ID can not be empty.', 'error');
+        showMessageModal('Error', 'Device ID can not be empty.', 'error');
         return;
     }
     var email = localStorage.getItem("email");
@@ -177,7 +159,7 @@ function registerDevice(e) {
             dataType: 'json',
         }).done(function(response){
             console.log('device info', response.message);
-            showModal('Device Registration', 'The device was registered successfully.', 'success');
+            showMessageModal('Device Registration', 'The device was registered successfully.', 'success');
             var deviceName = response.message.deviceName;
             var deviceStatus = response.message.deviceStatus;
             var deviceType = response.message.productName;
@@ -222,7 +204,7 @@ function registerDevice(e) {
             console.log('An error occurred:', jqXHR);
             // Extract and display the error message
             var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
-            showModal('Device Registration', errorMessage, 'error');
+            showMessageModal('Device Registration', errorMessage, 'error');
             console.log(errorMessage);
         });
     }) 
@@ -234,19 +216,27 @@ function registerDevice(e) {
         // var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
         // $('#registrationStatus').html(errorElement);
         // $('#registrationStatus').show()
-        showModal('Device Registration', errorMessage, 'error');
+        showMessageModal('Device Registration', errorMessage, 'error');
     });
 }
 
 
 function rowClickListener(e) {
-    e.stopPropagation(); // Stop the event from propagating up to the table
+    e.preventDefault();
+    
+    
+    if (!$(e.target).closest('.dropdown').length) {
+        // store the device id in the modal
+        var deviceId = $(this).closest('tr').data('device-id');
+        $('#editDeviceModal').data('device-id', deviceId);
 
-    var deviceId = $(this).data('device-id');
-    $('#editDeviceModal').data('device-id', deviceId);
-    // Fetch the current settings and populate the form fields
-    // ...
-    $('#editDeviceModal').modal('show');
+        // Retrieve the row that was clicked
+        var row = $(this).closest('tr');
+        // update contents of modal with current content of row
+        $('#editDeviceModal').data('row', row);
+        // Show the modal
+        $('#editDeviceModal').modal('show');
+    }
 }
 
 function saveDeviceSettingsListener() {
@@ -259,7 +249,7 @@ function saveDeviceSettingsListener() {
     var startTime = $('#startTime').val();
     var endTime = $('#endTime').val();
     var errorMessages = [];
-
+    console.log('startTime', startTime, 'endTime', endTime);
     // Reset previous error states
     $('#editDeviceForm .form-control').removeClass('is-invalid');
 
@@ -270,11 +260,20 @@ function saveDeviceSettingsListener() {
     }
 
     // Validation for Measurement Frequency
-    if (measurementFrequency < 1 || measurementFrequency > 48) {
+    if (measurementFrequency < 1 || measurementFrequency > 10080) {
         errorMessages.push("Measurement Frequency must be between 1 and 48.");
         $('#measurementFrequency').addClass('is-invalid');
     }
 
+    // Validation for Start and End Times
+    // Validation for Start and End Times
+    var startDate = new Date('1970-01-01T' + startTime + ':00');
+    var endDate = new Date('1970-01-01T' + endTime + ':00');
+
+    if (startDate >= endDate) {
+        errorMessages.push("End Time must be later than Start Time.");
+        $('#startTime, #endTime').addClass('is-invalid');
+    }
     // If there are any errors, display them and abort the save operation
     if (errorMessages.length > 0) {
         var errorList = $('<ul>').attr('id', 'errorList').addClass('errorList');
@@ -287,62 +286,72 @@ function saveDeviceSettingsListener() {
         $('#editDeviceModal .modal-footer').prepend(errorContainer);
         return; // Abort the save operation
     }
-    // Proceed with AJAX call if validation passes
-    $.ajax({
-        url: '/devices/update',
-        method: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            deviceId: deviceId,
-            deviceName: deviceName,
-            measurementFrequency: measurementFrequency,
-            timeOfDayRangeOfMeasurements: {
+    var originalValues = $('#editDeviceModal').data('originalValues');
+
+    // No validation errors, proceed with update
+    if (errorMessages.length === 0) {
+        
+        var updateData = {};
+        if (deviceName !== originalValues.deviceName) {
+            updateData.deviceName = deviceName;
+        }
+        if (measurementFrequency.toString() !== originalValues.measurementFrequency) {
+            updateData.measurementFrequency = measurementFrequency;
+        }
+        if (startTime !== originalValues.startTime || endTime !== originalValues.endTime) {
+            updateData.timeOfDayRangeOfMeasurements = {
                 startTime: startTime,
                 endTime: endTime
-            }
-        }),
-        headers: { 'x-auth': window.localStorage.getItem("token") },
-        dataType: 'json',
-    }).done(function(response) {
-        // Handle successful update
-        $('#editDeviceModal').modal('hide');
-        alert('Device settings updated successfully.');
-        // Refresh the device table or update the specific row
-        // ...
-    }).fail(function(jqXHR) {
-        // Handle error
-        var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'An unknown error occurred.';
-        alert('Error updating device settings: ' + errorMessage);
-    });
-}
+            };
+        }
 
-function createDropdown() {
-    return `
-        <div class="dropdown">
-            <a class="dropdown-toggle" href="#" role="button" 
-               id="rowDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" width="20" height="20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                    <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
-                </svg>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="rowDropdownMenuLink">
-                <a class="dropdown-item remove-device" href="#">Remove device</a>
-                <a class="dropdown-item edit-device-settings" href="#">Edit device settings</a>
-            </div>
-
-
-        </div>
-    `;
+        // Only proceed if there is something to update
+        // console.log('updateData', updateData)
+        if (Object.keys(updateData).length > 0) {
+            updateData.deviceId = deviceId; // Always send deviceId for identification
+            console.log('updateData', updateData)
+            $.ajax({
+                url: '/devices/update',
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(updateData),
+                headers: { 'x-auth': window.localStorage.getItem("token") },
+                dataType: 'json',
+                // ... AJAX success and failure handlers ...
+            }).done(function(response) {
+                // Handle successful update
+                $('#editDeviceModal').modal('hide');
+                var row = $('#editDeviceModal').data('row');
+                updateDeviceTableRow(row, deviceName, measurementFrequency, startTime, endTime);
+                $('#editDeviceModal').modal('hide');
+                showMessageModal('Updating Device Setting', response.message, 'success');
+                // Refresh the device table or update the specific row
+        
+                // ...
+            }).fail(function(jqXHR) {
+                // Handle error
+                var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'An unknown error occurred.';
+                // alert('Error updating device settings: ' + errorMessage);
+                showMessageModal('Updating Device Setting', errorMessage, 'success');
+            });
+        }
+    }
 }
 
 function editDeviceSettingsListener(e) {
     e.preventDefault();
-    e.stopPropagation();
-
+    // e.stopPropagation();
+    
+    // store the device id in the modal
     var deviceId = $(this).closest('tr').data('device-id');
     $('#editDeviceModal').data('device-id', deviceId);
-    // Fetch the current settings and populate the form fields
-    // ...
+
+    // Retrieve the row that was clicked
+    var row = $(this).closest('tr');
+    // update contents of modal with current content of row
+    updateDeviceSettingsModal(row, $('#editDeviceModal'));
+    $('#editDeviceModal').data('row', row);
+    // Show the modal
     $('#editDeviceModal').modal('show');
 }
 
@@ -376,7 +385,7 @@ function removeDeviceListener(e) {
         console.log('Elements to remove:', $('tr[data-device-id="' + deviceId + '"]').length);
         $('tr[data-device-id="' + deviceId + '"]').remove();
         $('#confirmDeleteModal').modal('hide'); // Hide the confirmation modal
-        showModal('Device removed', 'The device was removed successfully.', 'success');
+        showMessageModal('Device removed', 'The device was removed successfully.', 'success');
 
         // Check if there are no more rows after deletion
         if ($('#devicesTable tbody tr').length === 0) {
@@ -389,11 +398,11 @@ function removeDeviceListener(e) {
     .fail(function(jqXHR) {
         var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'An unknown error occurred.';
         $('#confirmDeleteModal').modal('hide'); // Hide the confirmation modal
-        showModal('Error', 'An error occurred while deleting the device.', 'error');
+        showMessageModal('Error', 'An error occurred while deleting the device.', 'error');
     });
 }
 
-function showModal(title, message, type) {
+function showMessageModal(title, message, type) {
     var modal = $('#genericModal');
     modal.find('.modal-title').text(title);
     modal.find('.modal-body #genericMessage').text(message);
@@ -417,6 +426,128 @@ function convertTo12Hour(time) {
     }
     return ''; // Return empty string if the time format is incorrect
 }
+
+function updateDeviceTableRow(row, deviceName, frequency, startTime, endTime) {
+    $(row).find('td').eq(1).text(deviceName); // Assuming name is in the second column
+    $(row).find('td').eq(5).text(frequency + ' mins'); // Update measurement frequency
+    $(row).find('td').eq(6).text(convertTo12Hour(startTime)); // Update start time
+    $(row).find('td').eq(7).text(convertTo12Hour(endTime)); // Update end time
+    // Update other columns as needed
+}
+
+function updateDeviceSettingsModal(row, modal) {
+    var startTime24hr = convertTo24Hour(row.find('td').eq(6).text());
+    var endTime24hr = convertTo24Hour(row.find('td').eq(7).text());
+    var frequency = row.find('td').eq(5).text().match(/\d+/)[0]; // Extracts only the digits from the frequency string
+
+    modal.find('#deviceName').val(row.find('td').eq(1).text());
+    modal.find('#measurementFrequency').val(frequency);
+    modal.find('#startTime').val(startTime24hr);
+    modal.find('#endTime').val(endTime24hr);
+}
+
+function convertTo24Hour(time) {
+    var timeParts = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+    if (!timeParts) {
+        // If time doesn't have AM/PM, it's assumed to be in 24-hour format already
+        return time;
+    }
+
+    var hours = Number(timeParts[1]);
+    var minutes = Number(timeParts[2]);
+    var AMPM = timeParts[3];
+
+    if (AMPM) {
+        if (AMPM.toUpperCase() === "PM" && hours < 12) hours += 12;
+        if (AMPM.toUpperCase() === "AM" && hours === 12) hours = 0;
+    }
+
+    var sHours = hours.toString().padStart(2, '0');
+    var sMinutes = minutes.toString().padStart(2, '0');
+    return sHours + ":" + sMinutes;
+}
+
+
+
+function createDropdown(deviceId) {
+    return `
+        <div class="dropdown">
+            <a class="dropdown-toggle" href="#" role="button" 
+               id="dropdownMenuLink-${deviceId}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <!-- SVG icon here -->
+               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/>
+               </svg>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink-${deviceId}">
+                <a class="dropdown-item remove-device" href="#">Remove device</a>
+                <a class="dropdown-item edit-device-settings" href="#">Edit device settings</a>
+            </div>
+        </div>
+    `;
+}
+
+
+function toggleDeviceTableVisibility() {
+    // Check if the tbody has any tr (table rows)
+    if ($('#devicesTable tbody tr').length === 0) {
+        // Hide the table
+        $('#devicesTable').hide();
+
+        // Create a div to hold the 'no devices' message
+        var noDevicesDiv = $('<div/>', {
+            'class': 'no-devices-message', // Add a class for potential styling
+            'text': 'You have no devices registered currently',
+            'css': {
+                'text-align': 'center', // Center the text
+                'margin-top': '20px' // Add some space at the top
+            }
+        });
+
+        // Append the 'no devices' message div after the table's parent div
+        $('#devicesTable').parent().append(noDevicesDiv);
+    }
+}
+
+function onModalShown() {
+    var row = $('#editDeviceModal').data('row');
+    updateDeviceSettingsModal(row, $('#editDeviceModal'));
+
+    // Store original values
+    var originalValues = {
+        deviceName: $('#deviceName').val(),
+        measurementFrequency: $('#measurementFrequency').val(),
+        startTime: $('#startTime').val(),
+        endTime: $('#endTime').val(),
+        status: row.find('td').eq(3).text()
+    };
+
+    $('#editDeviceModal').data('originalValues', originalValues);
+}
+
+// Function to get the user info
+function getUserInfo() {
+    var email = localStorage.getItem("email");
+    var data = {
+        email: email
+    };
+
+    $.ajax({
+        url: '/users/read/' + email,
+        method: 'GET',
+        contentType: 'application/json',
+        headers: { 'x-auth': window.localStorage.getItem("token") },
+        dataType: 'json',
+    })
+    .done(function(response) {
+        console.log('response from server', response);
+        $('#userFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+    })
+    .fail(function(error) {
+        console.log(error);
+    });
+}
+
 
 
 

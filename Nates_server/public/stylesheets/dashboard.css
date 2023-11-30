@@ -90,3 +90,48 @@
 #selectDateText{
     margin-right: 8px;
 }
+
+/* Custom CSS to match the height of the date picker to h6 headers */
+#datepicker-input {
+    height: calc(0.8em + .75rem + 2px); /* Adjust the calc() formula as needed */
+    padding: .375rem .75rem; /* Adjust padding as needed to match h6 */
+}
+
+.input-group-text {
+    height: calc(0.8em + .75rem + 2px); /* Adjust the calc() formula as needed */
+    
+}
+
+.custom-dropdown-width {
+    width: auto; /* Start with auto width */
+    min-width: 150px; /* Adjust this value based on your needs */
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
+#selectedDeviceText {
+    border: 3px solid rgba(241, 236, 236, 0.5); /* Thicker and more transparent border */
+    border-radius: 10px; /* Slightly rounded corners */
+    padding: 5px; /* Padding inside the border */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transition for hover effect */
+}
+
+#selectedDeviceText:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for floating effect */
+    transform: translateY(-2px); /* Slightly raise the element */
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(153, 153, 153, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(153, 153, 153, 0.5);
+    }
+}
+
+#selectedDeviceText:active {
+    animation: glow 1s ease-in-out infinite;
+}
+
+
+

@@ -136,6 +136,7 @@ router.get('/read', async function(req, res) {
 
 // UPDATE: create route for updating a device
 router.put('/update', async function(req, res) {
+  console.log('req.body', req.body)
   try {
     // Check if the deviceId body parameter is provided
     if (!req.body.deviceId) {
@@ -152,11 +153,19 @@ router.put('/update', async function(req, res) {
 
     // Update the device with new values. Exclude fields that should not be updated.
     // req.body will contain the fields you want to update.
+
+    // Retrieve the device status from the Particle Cloud to check if the device is online
+    const accessToken = await getAccessTokenFromParticleCloud();
+    const deviceInfoResponse = await axios.get(`https://api.particle.io/v1/devices/${req.body.deviceId}/?access_token=${accessToken}`);
+
+    if (!deviceInfoResponse.data.online) {
+      return res.status(400).json({ message: "Device is offline. Please try again later." });
+    }
     const updateData = req.body;
 
     // remove deviceId from updateData
     delete updateData.deviceId;
-    
+
     // Apply the updates to the device document
     for (const key in updateData) {
       if (updateData.hasOwnProperty(key)) {
@@ -167,6 +176,25 @@ router.put('/update', async function(req, res) {
     // Save the updated device
     await device.save();
 
+    
+    
+    for (const key in updateData) {
+      if (updateData.hasOwnProperty(key)) {
+        if (key === 'measurementFrequency') {
+          var parameterValue = String(updateData[key]);
+          var cloudFunctionName = 'updateMeasurementPeriod';
+        }
+        if (key === 'timeOfDayRangeOfMeasurements') {
+          console.log('updateData[key]', updateData[key])
+          var timeObject = {"startTime":updateData[key].startTime,"endTime": updateData[key].endTime};
+          var jsonString = JSON.stringify(timeObject);
+          console.log('jsonString', jsonString)
+          var parameterValue = jsonString;
+          var cloudFunctionName = 'updateMeasurementTimeofDay';
+        }
+        sendParmeterUpdateRequestToDevice(device.deviceId, parameterValue, cloudFunctionName);
+      }
+    }
     res.status(200).json({ message: "Device updated successfully.", device: device });
 
   } catch (err) {
@@ -248,16 +276,19 @@ router.get('/info', async function(req, res) {
     console.log('product info response', productInfoResponse.data)
     
     // Check if the response is successful (status code 200)
+    var deviceName = device.deviceName ? device.deviceName : deviceInfoResponse.data.name
     if (deviceInfoResponse.status === 200) {
       // Send the device status and device name to the client
       let data = {
-        deviceName: device.deviceName ? device.deviceName : deviceInfoResponse.data.name,
+        deviceName: deviceName,
         deviceStatus: deviceInfoResponse.data.online ? 'online' : 'offline',
         productName: productInfoResponse.data.product.name, // Add the product name to the response
         registeredOn: device.registeredOn,
         measurementFrequency: device.measurementFrequency,
         timeOfDayRangeOfMeasurements: device.timeOfDayRangeOfMeasurements,
       }
+      device.deviceName = deviceName;
+      await device.save();
       return res.status(200).json({ message : data });
     } else {
       // Handle other status codes as needed
@@ -323,5 +354,34 @@ async function getAccessTokenFromParticleCloud() {
       throw new Error('Failed to retrieve access token from Particle Cloud.');
   }
 }
+
+async function sendParmeterUpdateRequestToDevice(deviceId, parameterValue, cloudFunctionName){
+  const accessToken = await getAccessTokenFromParticleCloud();
+  console.log('Access token retrieved:', accessToken);
+  let data = qs.stringify({
+    'arg': parameterValue
+  });
+  
+  let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: `https://api.particle.io/v1/devices/${deviceId}/${cloudFunctionName}`,
+    headers: { 
+      'Content-Type': 'application/x-www-form-urlencoded', 
+      'Authorization': 'Bearer ' + accessToken //
+    },
+    data : data
+  };
+
+  try {
+    const response = await axios.request(config);
+    console.log(JSON.stringify(response.data));
+  }
+  catch (error) {
+    console.log(error);
+  }
+
+}
+
 
 module.exports = router;
