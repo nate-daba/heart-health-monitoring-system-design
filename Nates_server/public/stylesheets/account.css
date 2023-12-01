@@ -1,0 +1,83 @@
+/* Profile Picture Wrapper */
+.profile-pic-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Circle Image - Ensure width and height are equal for a perfect circle */
+.profile-pic-wrapper .rounded-circle {
+    width: 150px;  /* Adjust as needed */
+    height: 150px; /* Adjust as needed */
+    border-radius: 50%; /* This creates the circle */
+    border: 3px solid #ddd; /* Light grey border */
+    transition: all 0.3s ease; /* Smooth transition */
+}
+
+/* Overlay Effect */
+.profile-pic-wrapper .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Black background with opacity */
+    overflow: hidden;
+    width: 100%;
+    height: 0;
+    transition: 0.5s ease;
+}
+
+/* Icon and Text */
+.profile-pic-wrapper .icon {
+    color: white;
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Hover Effects */
+.profile-pic-wrapper:hover .overlay {
+    height: 100%;
+}
+
+.profile-pic-wrapper:hover .rounded-circle {
+    border-color: #007bff; /* Change border color on hover */
+}
+
+/* Custom styles for Account Details and Manage Physicians cards */
+.card-body .form-group {
+    display: flex;
+    align-items: center;
+}
+
+/* Right-align labels in both cards */
+.card-body .form-group label {
+    text-align: right;
+    flex: 0 0 30%; /* Adjusted to 40% for better alignment */
+    margin-right: 10px; /* Spacing between label and input/dropdown */
+}
+
+/* Input fields in Account Details card */
+.card-body .form-group input {
+    width: 60%;
+    margin-right: 3px;
+}
+
+/* Label and dropdown in Manage Physicians card */
+.card-body .form-group select {
+    flex: 0 0 60%; /* Adjusted to 60% to match with the label width */
+}
+
+/* Styles for Change Password Section */
+.password-change-section .form-group {
+    margin-bottom: 15px; /* Spacing between form groups */
+}
+/* Additional styles for buttons alignment */
+.text-right {
+    text-align: right;
+    margin-top: 10px;
+}

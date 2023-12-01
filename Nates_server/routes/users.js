@@ -51,7 +51,7 @@ router.post('/signUp', async function(req, res) {
 
 // READ
 router.get('/read/:email', async function(req, res) {
-
+  console.log('req params: ', req.params);
   var email = req.params.email;
   if(!email){
     return res.status(400).json({ message: 'Missing email parameter.' });
@@ -108,4 +108,5 @@ router.post("/logIn", async function (req, res)
   }
 });
 
+// UPDATE
 module.exports = router;
