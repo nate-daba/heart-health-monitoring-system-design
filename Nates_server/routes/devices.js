@@ -240,6 +240,7 @@ router.delete('/delete/:deviceId', async function(req, res) {
 
 // This route gets the device status from the Particle Cloud
 router.get('/info', async function(req, res) {
+
   try {
     // Check if the deviceId query parameter is provided
     if (!req.query.deviceId) {
@@ -255,8 +256,8 @@ router.get('/info', async function(req, res) {
     }
 
     // Retrieve the access token from the database
-    const accessToken = device.accessToken;
-
+    const accessToken = await getAccessTokenFromParticleCloud();
+    console.log('Access token retrieved:', accessToken);
     // Check if the access token exists
     if (!accessToken) {
       return res.status(404).json({ message: "Device not found." });

@@ -15,6 +15,8 @@ $(document).ready(function() {
 
     // Register modal shown event listener
     $('#editDeviceModal').on('shown.bs.modal', onModalShown);
+
+    $('#logout').on('click', logoutEventListener);
 });
 
 function getALLDevices(e) {
@@ -114,6 +116,12 @@ function getALLDevices(e) {
         }
         toggleDeviceTableVisibility();
     });
+}
+
+function logoutEventListener(e) {
+    e.preventDefault();
+    window.localStorage.removeItem("token");
+    window.location.href = '/login.html';
 }
 
 function registerDevice(e) {

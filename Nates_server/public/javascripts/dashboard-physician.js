@@ -1,6 +1,9 @@
 Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#858796';
 
+var currentSelectedDeviceId = null;
+var currentSelectedDate = null;
+
 // ====================  Event Listeners =========================
 // Event listener for the document ready event
 $(document).ready(function() {
@@ -11,14 +14,18 @@ $(document).ready(function() {
 
     // Attach the click event listener to a parent element
     // and delegate it to the dynamic dropdown items
-    $('#deviceList').on('click', '.dropdown-item', dropdownItemClickListener);
+    $('#patientList').on('click', '.dropdown-item', patientDropdownItemClickListener);
+    $('#deviceList').on('click', '.dropdown-item', deviceDropdownItemClickListener);
+    $('#updateFreqBtn').on('click', updateFreqListener);
 
     // Attach the change event listener to the datepicker input
     $('#datepicker-input').on('change', dateChangeListener);
 
-    getUserInfo();
+    getPhysicianInfo();
     // populate the dropdown with the list of devices registered to the user
-    populateDeviceSelectorDropdown();
+    populatePatientSelectorDropdown();
+    // populateDeviceSelectorDropdown();
+    
 
     // Register log out button click event listener
     $('#logout').on('click', logoutEventListener);
@@ -27,7 +34,9 @@ $(document).ready(function() {
         // This ensures the date is set to the current date in Arizona time zone
         defaultDate: moment().tz("America/Phoenix").format('MM-DD-YYYY')
     });
+    
 });
+
 
 // Event listener for the datepicker input
 function dateChangeListener(e) {
@@ -53,39 +62,96 @@ function dateChangeListener(e) {
     
     var selectedDate = getSelectedDate();
     var selectedDeviceId = getSelectedDeviceId();
-
-    getSensorData(selectedDeviceId, formattedDate, 'day');
-    getSensorData(selectedDeviceId, formattedDate, 'week');
+    var selectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
+    console.log('selected device ID (in date change listener): ', currentSelectedDeviceId);
+    console.log('selected Date (in date change listener): ', selectedDate);
+    getSensorData(currentSelectedDeviceId, formattedDate, 'day');
+    getSensorData(currentSelectedDeviceId, formattedDate, 'week');
 
 }
 // Event listener for the dropdown items in the device selector
-function dropdownItemClickListener(e) {
+function patientDropdownItemClickListener(e) {
+    e.preventDefault();
+
+    var selectedPatientEmail = $(this).data('patientemail');
+    var selectedPatientName = $(this).text();
+
+    updateSelectedPatientText(selectedPatientName);
+
+    populateDeviceSelectorDropdown(selectedPatientEmail, selectedPatientName, function() {
+        var selectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
+        var selectedDeviceName = $('#deviceList .dropdown-item.selected').text();
+        var selectedDate = getSelectedDate();
+
+        console.log('current selected device name: ', selectedDeviceName);
+        console.log('selected patient email: ', selectedPatientEmail);
+        console.log('selected device ID: ', selectedDeviceId);
+        console.log('selected Date: ', selectedDate);
+
+        getSensorData(selectedDeviceId, selectedDate, 'day');
+        getSensorData(selectedDeviceId, selectedDate, 'week');
+    });
+}
+
+// Event listener for the dropdown items in the device selector
+function deviceDropdownItemClickListener(e) {
     // prevent the default behavior of the link
     e.preventDefault();
     
-    
-    // get the text of the clicked element
-    var deviceId = $(this).text();
-    if (deviceId === 'Add new device') {
-        window.location.href = '/manage-devices.html';
-    }
+    var selectedDeviceId = $(this).data('deviceid');
+    currentSelectedDeviceId = selectedDeviceId;
+    var selectedDeviceName = $(this).text();
+    $.ajax({
+        url: '/devices/info',
+        method: 'GET',
+        contentType: 'application/json',
+        data: {deviceId: currentSelectedDeviceId},
+        headers: { 'x-auth': window.localStorage.getItem("token") },
+        dataType: 'json',
+    }).done(function(response){
+        console.log('response from server', response);
+        $('#measurementFrequency').val(response.message.measurementFrequency);
+    }).fail(function(jqXHR){
+        console.log('An error occurred:', jqXHR);
+        // Extract and display the error message
+        var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
+        console.log(errorMessage);
+    });
+    console.log('device dropdown item clicked');
+    console.log('Selected device ID:', selectedDeviceId);
+    console.log('Selected device Name:', selectedDeviceName);
+
     // update the text of the selected device
-    updateSelectedDeviceText(deviceId);
-    console.log('selected device: ', getSelectedDeviceId());
-    console.log('selected date: ', getSelectedDate());
-    // get current selected date and selected device
+    updateSelectedDeviceText(selectedDeviceName);
+
     var selectedDate = getSelectedDate();
-    var selectedDeviceId = getSelectedDeviceId();
-    
+
     // get the sensor data for the selected device and date
     getSensorData(selectedDeviceId, selectedDate, 'day');
     getSensorData(selectedDeviceId, selectedDate, 'week');
 }
+
+function updateFreqListener(e){
+    var newValue = $('#measurementFrequency').val();
+    $.ajax({
+        url: '/devices/update',
+        method: 'PUT', // Adjust method as per your API requirement
+        contentType: 'application/json',
+        data: JSON.stringify({ frequency: newValue }), // Adjust data format as per your API requirement
+        headers: { 'x-auth': window.localStorage.getItem("token") }, // Include other headers if necessary
+        success: function(response) {
+            console.log('Update successful', response);
+            originalValue = newValue; // Update the original value
+        },
+        error: function(error) {
+            console.log('Error in updating', error);
+        }
+    });
+}
 function logoutEventListener(e) {
     e.preventDefault();
     window.localStorage.removeItem("token");
-    window.localStorage.removeItem("email");
-    window.location.href = '/login.html';
+    window.location.href = '/login-physician.html';
 }
 // ==================== End of Event Listeners ====================
 
@@ -95,11 +161,11 @@ function logoutEventListener(e) {
 var deviceIdToDeviceName = {};
 var deviceNameToDeviceId = {};
 
-function populateDeviceSelectorDropdown() {
-    var email = localStorage.getItem("email");
-    console.log('Getting all devices registered to', email);
+function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
+    console.log('patient name: ', patientName);
+    console.log('Getting all devices registered to', patientEmail + ' for patient ' + patientName);
 
-    var data = { email: email };
+    var data = { email: patientEmail };
 
     $.ajax({
         url: '/devices/read',
@@ -111,30 +177,103 @@ function populateDeviceSelectorDropdown() {
     })
     .done(function(response) {
         console.log('response from server', response);
-        response.forEach(function(device){
-            // Populate the maps
-            deviceIdToDeviceName[device.deviceId] = device.deviceName;
-            deviceNameToDeviceId[device.deviceName] = device.deviceId;
-            console.log('device name being added to dropdown: ', device.deviceName)
-            // Add device name to the dropdown
-            console.log('device  being added to dropdown: ', device)
-            var option = $('<a>').addClass('dropdown-item').text(device.deviceName);
-            $('#deviceList').prepend(option);
-            $('.dropdown-toggle').dropdown();
+        $('#deviceList').empty();
+
+        var isFirstItem = true;
+
+        response.forEach(function(device) {
+            var option = $('<a>')
+                .addClass('dropdown-item')
+                .text(device.deviceName)
+                .attr('data-deviceid', device.deviceId);
+
+            if (isFirstItem) {
+                option.addClass('selected');
+                $('#selectedDeviceText').text(device.deviceName);
+                console.log('measurement frequency: ', device.measurementFrequency);
+                $('#measurementFrequency').val(device.measurementFrequency);
+                currentSelectedDeviceId = device.deviceId;
+                isFirstItem = false;
+            }
+
+            $('#deviceList').append(option);
         });
-        // $('.dropdown-toggle').dropdown();
-        if (response.length > 0) {
-            // Use device name instead of ID
-            var defaultDeviceName = deviceIdToDeviceName[response[0].deviceId];
-            updateSelectedDeviceText(defaultDeviceName);
-            
-            var selectedDate = getSelectedDate();
-            var selectedDeviceId = getSelectedDeviceId();
-            console.log('selected device id (in populate): ', selectedDeviceId);
-            console.log('selected date (in populate): ', selectedDate);
-            getSensorData(selectedDeviceId, selectedDate, 'day');
-            getSensorData(selectedDeviceId, selectedDate, 'week');
+        
+
+        /// Listener for input change
+        var originalValue = $('#measurementFrequency').val();
+        $('#measurementFrequency').on('change', function() {
+            var currentValue = $(this).val();
+            // Check if the current value is different from the original value
+            console.log('current value: ', currentValue);
+            console.log('original value: ', originalValue);
+            if(currentValue !== originalValue){
+                $('#updateFreqBtn').prop('disabled', false);
+            } else {
+                $('#updateFreqBtn').prop('disabled', true);
+            }
+        });
+        $('.dropdown-toggle').dropdown();
+        var selectedDeviceId = getSelectedDeviceId();
+        var selectedDate = getSelectedDate();
+        console.log('selected device ID (in pop patient selector): ', selectedDeviceId);
+        console.log('selected Date (in pop patient selector): ', selectedDate);
+        getSensorData(selectedDeviceId, selectedDate, 'day');
+        getSensorData(selectedDeviceId, selectedDate, 'week');
+        if (typeof callback === "function") {
+            callback();
         }
+    })
+    .fail(function(error) {
+        console.log(error);
+    });
+}
+
+function populatePatientSelectorDropdown() {
+    var email = localStorage.getItem("physician-email");
+    console.log('Getting all patients assigned to', email);
+
+    $.ajax({
+        url: '/physicians/read/' + email,
+        method: 'GET',
+        contentType: 'application/json',
+        headers: { 'x-auth': window.localStorage.getItem("token") },
+        dataType: 'json'
+    })
+    .done(function(response) {
+        var patients = response.physicianInfo.patients;
+        var isFirstItem = true;
+
+        patients.forEach(function(patient) {
+            var option = $('<a>')
+                .addClass('dropdown-item')
+                .text(patient.firstName + ' ' + patient.lastName)
+                .attr('data-patientid', patient._id) // Existing attribute for patient ID
+                .attr('data-patientemail', patient.email); // New attribute for patient email
+        
+            if (isFirstItem) {
+                // Set the first item as the default selected item
+                option.addClass('selected');
+                isFirstItem = false;
+        
+                // Optionally, set the default selected item text somewhere in your UI
+                $('#selectedPatientText').text(patient.firstName + ' ' + patient.lastName);
+            }
+        
+            $('#patientList').prepend(option);
+        });
+        
+        $('.dropdown-toggle').dropdown();
+
+        // Retrieve the ID of the default selected item
+        var defaultSelectedPatientId = $('#patientList .dropdown-item.selected').data('patientid');
+        console.log('Default selected patient ID:', defaultSelectedPatientId);
+        var defaultSelectedPatientEmail = $('#patientList .dropdown-item.selected').data('patientemail');
+        console.log('Default selected patient email:', defaultSelectedPatientEmail);
+        var defaultSelectedPatientName = $('#patientList .dropdown-item.selected').text();
+        populateDeviceSelectorDropdown(defaultSelectedPatientEmail, defaultSelectedPatientName);
+        // get sensor data based on selected device id and date
+
     })
     .fail(function(error) {
         console.log(error);
@@ -143,11 +282,21 @@ function populateDeviceSelectorDropdown() {
 
 // Function to get the selected device ID
 function getSelectedDeviceId() {
+    
+    return $('#deviceList .dropdown-item.selected').data('deviceid'); // returns the deviceId corresponding to the selected device name
+}
+
+function getSelectedDeviceName() {
+    var selectedDeviceName = $('#selectedDeviceText').text();
+    return selectedDeviceName;
+}
+// Function to get the selected device ID
+function getSelectedPatientId() {
     var selectedDeviceName = $('#selectedDeviceText').text();
     return deviceNameToDeviceId[selectedDeviceName]; // returns the deviceId corresponding to the selected device name  
 }
 
-function getSelectedDeviceName() {
+function getSelectedPatientName() {
     var selectedDeviceName = $('#selectedDeviceText').text();
     return selectedDeviceName;
 }
@@ -171,6 +320,10 @@ function getSelectedDate(){
         console.log('Invalid Date:', selectedDate);
     }
     return formattedDate;
+}
+// Function to update the selected device text
+function updateSelectedPatientText(patientName) {
+    $('#selectedPatientText').text(patientName);
 }
 // Function to update the selected device text
 function updateSelectedDeviceText(deviceName) {
@@ -433,22 +586,22 @@ function sortByMeasurementTime(data) {
 }
 
 // Function to get the user info
-function getUserInfo() {
-    var email = localStorage.getItem("email");
+function getPhysicianInfo() {
+    var email = localStorage.getItem("physician-email");
     var data = {
         email: email
     };
 
     $.ajax({
-        url: '/users/read/' + email,
+        url: '/physicians/read/' + email,
         method: 'GET',
         contentType: 'application/json',
         headers: { 'x-auth': window.localStorage.getItem("token") },
         dataType: 'json',
     })
     .done(function(response) {
-        console.log('response from server', response);
-        $('#userFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+        console.log('response from server (in get physician info)', response);
+        $('#physicianFullName').text(response.physicianInfo.firstName + ' ' + response.physicianInfo.lastName);
     })
     .fail(function(error) {
         console.log(error);

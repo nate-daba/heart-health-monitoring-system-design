@@ -126,40 +126,50 @@ async function getAccessTokenFromParticleCloud() {
 
 router.get('/read/:span', async function(req, res) {
     const span = req.params.span;
-
+    console.log('span', span);
+    console.log('req.query', req.query);
     // Check if the deviceId and selectedDate query parameters are provided
-    if (!req.query.deviceId || !req.query.selectedDate) {
-        return res.status(400).json({ message: "Bad request: Both device ID and selected date are required." });
+    if (!req.query.deviceId) {
+        return res.status(400).json({ message: "Bad request: Device ID is required." });
     }
 
     try {
         const deviceId = req.query.deviceId;
-        const selectedDate = new Date(req.query.selectedDate); // Parse the selected date string into a Date object
-        // Convert to UTC by adding 7 hours (for UTC-7)
-        selectedDate.setHours(selectedDate.getHours() + 7);
-        console.log('selectedDate', selectedDate);
+        
         if (span === 'day') {
-            // Fetch data for the specified date only
-            const startDate = new Date(selectedDate);
-            startDate.setHours(0, 0, 0, 0); // Set time to midnight
+            console.log('fetching data for the selected date')
+            console.log('req.query.selectedDate', req.query.selectedDate)
+            if (req.query.selectedDate) {
+                console.log('in if')
+                const selectedDate = new Date(req.query.selectedDate); // Parse the selected date string into a Date object
+                // Convert to UTC by adding 7 hours (for UTC-7)
+                selectedDate.setHours(selectedDate.getHours() + 7);
+                console.log('selectedDate', selectedDate);
+                // Fetch data for the specified date only
+                const startDate = new Date(selectedDate);
+                startDate.setHours(0, 0, 0, 0); // Set time to midnight
 
-            const endDate = new Date(selectedDate);
-            endDate.setHours(23, 59, 59, 999); // Set time to end of the day
+                const endDate = new Date(selectedDate);
+                endDate.setHours(23, 59, 59, 999); // Set time to end of the day
 
-            const sensorDocs = await SensorData.find({
-                deviceId: deviceId,
-                published_at: {
-                    $gte: startDate,
-                    $lte: endDate
+                const sensorDocs = await SensorData.find({
+                    deviceId: deviceId,
+                    published_at: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                });
+
+                if (sensorDocs.length === 0) {
+                    return res.status(404).json({ message: "No data found for the provided Device ID and selected date." });
                 }
-            });
 
-            if (sensorDocs.length === 0) {
-                return res.status(404).json({ message: "No data found for the provided Device ID and selected date." });
+                console.log('Data retrieved successfully:', sensorDocs);
+                res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
+            } else {
+                console.log('in else')
+                return res.status(400).json({ message: "Bad request: 'selectedDate' query parameter is required for 'day' span." });
             }
-
-            console.log('Data retrieved successfully:', sensorDocs);
-            res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
         } else if (span === 'week') {
             // Fetch data for the last 7 days
             console.log('fetching data for the last 7 days')

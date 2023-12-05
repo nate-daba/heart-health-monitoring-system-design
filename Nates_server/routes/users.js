@@ -4,6 +4,7 @@ var User = require('../models/user');
 const jwt = require("jwt-simple");
 const bcrypt = require("bcryptjs");
 const fs = require('fs');
+const Physician = require('../models/physician');
 
 // Read the secret key from a file
 const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
@@ -69,6 +70,94 @@ router.get('/read/:email', async function(req, res) {
   }
   
 });
+
+// UPDATE: route for updating user information
+router.put('/update', async (req, res) => {
+  console.log('req body: ', req.body)
+  console.log('req body email: ', req.body.email)
+  console.log('req body currentPassword: ', req.body.currentPassword)
+  console.log('req body newPassword: ', req.body.newPassword)
+  try {
+    // Validate that email and currentPassword are provided
+    if (!req.body.email) {
+      return res.status(400).json({ message: "Bad request: Email is required" });
+    }
+
+    const email = req.body.email;
+    delete req.body.email;
+    // Find the user by email
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    console.log('user: ', user)
+    // Handle physician update
+    if(req.body.physicianEmail){
+      const physicianEmail = req.body.physicianEmail;
+      user.physicianEmail = physicianEmail;
+      // Update physician of the patient
+      await user.save();
+      console.log('User physician updated successfully')
+
+      const selectedPhysician = await Physician.findOne({ email: physicianEmail });
+      
+      if (!selectedPhysician) {
+        return res.status(404).json({ message: "Physician not found." });
+      }
+      console.log('selectedPhysician: ', selectedPhysician)
+      // Update the list of patients of the physician
+      selectedPhysician.patients.push(user._id);
+      await selectedPhysician.save();
+      res.status(200).json({ message: "Physician updated successfully.", user: user });
+      return;
+    }
+    // Handle password update
+    else if(req.body.newPassword){
+      const currentPassword = req.body.currentPassword;
+      console.log('currentPassword(in if): ', currentPassword)
+      if (!bcrypt.compareSync(currentPassword, user.hashedPassword)) {
+        return res.status(401).json({ message: "Unauthorized: Incorrect current password." });
+      }
+      const newPassword = req.body.newPassword;
+      console.log('newPassword: ', newPassword)
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      user.hashedPassword = newHashedPassword;
+      delete req.body.newPassword;
+      delete req.body.currentPassword;
+      // Save the updated user
+      await user.save();
+      res.status(200).json({ message: "Password updated successfully.", user: user });
+    }
+    else{
+      // Loop through the request body to update the user's information
+      var message = ''
+      for (const key in req.body) {
+        if (req.body.hasOwnProperty(key)) { 
+          // Only update the user's information if the request body contains the key
+          if (user[key] && req.body[key]){
+            // Update the user's information
+            user[key] = req.body[key];
+          }
+        }
+      }
+
+      // Save the updated user
+      await user.save();
+      res.status(200).json({ message: "User updated successfully.", user: user });
+    }
+  } catch (err) {
+    console.error("An error occurred while updating the user:", err);
+
+    // Handle validation errors
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: "Validation error: " + err.message });
+    }
+
+    // Handle other errors
+    res.status(500).json({ message: "An error occurred while updating the user." });
+  }
+});
+
 router.post("/logIn", async function (req, res) 
 {
   console.log('req body: ', req.body);
@@ -108,5 +197,6 @@ router.post("/logIn", async function (req, res)
   }
 });
 
-// UPDATE
+
+
 module.exports = router;
