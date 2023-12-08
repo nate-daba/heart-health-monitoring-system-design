@@ -33,9 +33,9 @@ router.post('/signup', async function(req, res) {
       specialty,
       hashedPassword
     });
-
+    const token = jwt.encode({ email: email }, secret);
     await newPhysician.save();
-    return res.status(201).json({ message: 'Physician account created successfully.' });
+    return res.status(201).json({ message: 'Physician account created successfully.', token: token });
 
   } catch (err) {
     console.error('Error during sign up:', err);
@@ -44,7 +44,6 @@ router.post('/signup', async function(req, res) {
     if (err instanceof mongoose.Error.ValidationError) {
       return res.status(400).json({ message: 'Your request contains invalid data or missing fields. Please correct and try again.', errors: err.errors });
     }
-
     // Catch any other unhandled errors as a server error
     return res.status(500).json({ message: 'An unexpected error occurred on the server while processing your request.' });
   }
@@ -52,14 +51,18 @@ router.post('/signup', async function(req, res) {
 
 
 // READ
-router.get('/read/:email', async function(req, res) {
-  console.log('req params: ', req.params);
-  var email = req.params.email;
-  if (!email) {
-    return res.status(400).json({ message: 'Missing email parameter.' });
-  }
+router.get('/read', async function(req, res) {
 
   try {
+    console.log('req headers: ', req.headers['x-auth']);
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the physicians email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+
     var physicianInfo = await Physician.findOne({ email: email }).lean(); // Use .lean() for performance if you don't need a mongoose document
     if (!physicianInfo) {
       return res.status(404).json({ message: 'Physician not found.' });
@@ -86,73 +89,96 @@ router.get('/read/:email', async function(req, res) {
   }
 });
 
+// READ ALL Physicians
+router.get('/readAll', async function(req, res) {
+  try {
+      
+      // Fetch all physician documents from the database
+      const allPhysicians = await Physician.find({}).lean(); // Using .lean() for better performance
 
-// // UPDATE: route for updating user information
-// router.put('/update', async (req, res) => {
-//   console.log('req body: ', req.body)
-//   console.log('req body email: ', req.body.email)
-//   console.log('req body currentPassword: ', req.body.currentPassword)
-//   console.log('req body newPassword: ', req.body.newPassword)
-//   try {
-//     // Validate that email and currentPassword are provided
-//     if (!req.body.email) {
-//       return res.status(400).json({ message: "Bad request: Email is required" });
-//     }
+      if (!allPhysicians || allPhysicians.length === 0) {
+          return res.status(404).json({ message: 'No physicians found.' });
+      }
 
-//     const email = req.body.email;
-//     delete req.body.email;
-//     // Find the user by email
-//     const user = await User.findOne({ email: email });
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found." });
-//     }
-//     console.log('user: ', user)
-//     // Handle password update
-//     if(req.body.newPassword){
-//       const currentPassword = req.body.currentPassword;
-//       console.log('currentPassword(in if): ', currentPassword)
-//       if (!bcrypt.compareSync(currentPassword, user.hashedPassword)) {
-//         return res.status(401).json({ message: "Unauthorized: Incorrect current password." });
-//       }
-//       const newPassword = req.body.newPassword;
-//       console.log('newPassword: ', newPassword)
-//       const newHashedPassword = await bcrypt.hash(newPassword, 10);
-//       user.hashedPassword = newHashedPassword;
-//       delete req.body.newPassword;
-//       delete req.body.currentPassword;
-//       // Save the updated user
-//       await user.save();
-//       res.status(200).json({ message: "Password updated successfully.", user: user });
-//     }
-//     else{
-//       // Loop through the request body to update the user's information
-//       var message = ''
-//       for (const key in req.body) {
-//         if (req.body.hasOwnProperty(key)) { 
-//           // Only update the user's information if the request body contains the key
-//           if (user[key] && req.body[key]){
-//             // Update the user's information
-//             user[key] = req.body[key];
-//           }
-//         }
-//       }
+      return res.status(200).json({ message: 'Physicians retrieved successfully.', physicians: allPhysicians });
 
-//       // Save the updated user
-//       await user.save();
-//       res.status(200).json({ message: "User updated successfully.", user: user });
-//     }
-//   } catch (err) {
-//     console.error("An error occurred while updating the user:", err);
+  } catch (err) {
+      console.error('Error during fetching all physicians:', err);
+      
+      // Handle database connection errors or other internal server errors
+      return res.status(500).json({ message: 'An unexpected error occurred on the server while processing your request.' });
+  }
+});
 
-//     // Handle validation errors
-//     if (err.name === 'ValidationError') {
-//       return res.status(400).json({ message: "Validation error: " + err.message });
-//     }
+// UPDATE: route for updating user information
+router.put('/update', async (req, res) => {
+  console.log('req body: ', req.body)
+  console.log('req body email: ', req.body.email)
+  console.log('req body currentPassword: ', req.body.currentPassword)
+  console.log('req body newPassword: ', req.body.newPassword)
+  try {
 
-//     // Handle other errors
-//     res.status(500).json({ message: "An error occurred while updating the user." });
-//   }
-// });
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the physicians email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+
+    // Find the user by email
+    const physician = await Physician.findOne({ email: email });
+    if (!physician) {
+      return res.status(404).json({ message: "Physician not found." });
+    }
+    console.log('user: ', physician)
+    // Handle password update
+    if(req.body.newPassword){
+      const currentPassword = req.body.currentPassword;
+      console.log('currentPassword(in if): ', currentPassword)
+      if (!bcrypt.compareSync(currentPassword, physician.hashedPassword)) {
+        return res.status(401).json({ message: "Unauthorized: Incorrect current password." });
+      }
+      const newPassword = req.body.newPassword;
+      console.log('newPassword: ', newPassword)
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
+      physician.hashedPassword = newHashedPassword;
+      delete req.body.newPassword;
+      delete req.body.currentPassword;
+      // Save the updated user
+      await physician.save();
+      res.status(200).json({ message: "Password updated successfully.", physician: physician });
+    }
+    else{
+      // Loop through the request body to update the user's information
+      var message = ''
+      for (const key in req.body) {
+        if (req.body.hasOwnProperty(key)) { 
+          // Only update the user's information if the request body contains the key
+          if (physician[key] && req.body[key]){
+            // Update the user's information
+            physician[key] = req.body[key];
+          }
+        }
+      }
+
+      // Save the updated user
+      console.log('got here')
+      await physician.save();
+      res.status(200).json({ message: "User updated successfully.", user: physician });
+    }
+  } catch (err) {
+    console.error("An error occurred while updating the user:", err);
+
+    // Handle validation errors
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: "Validation error: " + err.message });
+    }
+
+    // Handle other errors
+    res.status(500).json({ message: "An error occurred while updating the user." });
+  }
+});
 
 router.post("/login", async function (req, res) {
   if (!req.body.email || !req.body.password) {

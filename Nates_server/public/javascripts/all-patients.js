@@ -1,25 +1,6 @@
 $(document).ready(function() {
-    getPhysicianInfo();
-    var physicianEmail = localStorage.getItem("physician-email");    
+    getPhysicianInfo();   
     // make an ajax call to get all patients registered to this physician
-    $.ajax({
-        url: '/physicians/read/' + physicianEmail,
-        method: 'GET',
-        contentType: 'application/json',
-        headers: { 'x-auth': window.localStorage.getItem("token") },
-        dataType: 'json'
-    })
-    .done(function(response) {
-        var allPatients = response.physicianInfo.patients;
-        allPatients.forEach(function(patient) {
-            console.log(patient.email);
-            getDevicesRegisteredToPatient(patient.email, patient.firstName, patient.lastName);
-        });
-    }).fail(function(err) {
-        console.log("error getting patients");
-    });
-
-    
 });
 
 // Function to get the sensor data for the selected device and date and plot it
@@ -33,7 +14,7 @@ function getSensorData(deviceId, span, patientFirstName, patientLastName){
         method: 'GET',
         contentType: 'application/json',
         data: data,
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
         dataType: 'json',
     })
     .done(function(response) {
@@ -57,11 +38,11 @@ function getDevicesRegisteredToPatient(patientEmail, patientFirstName, patientLa
     };
 
     $.ajax({
-        url: '/devices/read',
+        url: '/devices/physicianRead',
         method: 'GET',
         contentType: 'application/json',
         data: data,
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
         dataType: 'json',
     })
     .done(function(response) {
@@ -179,21 +160,21 @@ function populateSummaryCards(patientFirstName, patientLastName, deviceId, stats
 
 // Function to get the user info
 function getPhysicianInfo() {
-    var email = localStorage.getItem("physician-email");
-    var data = {
-        email: email
-    };
-
     $.ajax({
-        url: '/physicians/read/' + email,
+        url: '/physicians/read/',
         method: 'GET',
         contentType: 'application/json',
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
         dataType: 'json',
     })
     .done(function(response) {
         console.log('response from server (in get physician info)', response);
-        $('#physicianFullName').text(response.physicianInfo.firstName + ' ' + response.physicianInfo.lastName);
+        $('#physicianFullName').text('Dr. ' + response.physicianInfo.firstName + ' ' + response.physicianInfo.lastName);
+        var allPatients = response.physicianInfo.patients;
+        allPatients.forEach(function(patient) {
+            console.log(patient.email);
+            getDevicesRegisteredToPatient(patient.email, patient.firstName, patient.lastName);
+        });
     })
     .fail(function(error) {
         console.log(error);

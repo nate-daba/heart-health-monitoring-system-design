@@ -2,21 +2,32 @@ var express = require('express');
 var router = express.Router();
 var Device = require('../models/device');
 var AccessToken = require('../models/accessToken');
+var Physician = require('../models/physician');
 const axios = require('axios');
 const qs = require('qs');
-const e = require('express');
+const jwt = require("jwt-simple");
+const fs = require('fs');
 
+// Read the secret key from a file
+const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
-// CRUD operations for devices
 
 // CREATE: this route attaches a device to a user account
 router.post('/register', async function(req, res){
+  
   try {
-    // Destructure the body for better readability
-    const { deviceId, email } = req.body;
+    // Retrieve the email from the token
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+
+    const deviceId = req.body.deviceId;
 
     // Validate the input
     if (!deviceId || !email) {
@@ -29,7 +40,7 @@ router.post('/register', async function(req, res){
     
     // Check if the access token exists
     if (!accessToken) {
-      return res.status(404).json({ message: "Can not create access token on Particle Cloud." });
+      return res.status(404).json({ message: "Can not obtain access token for Particle Cloud." });
     }
     else{
       console.log('access token (in registration)', accessToken)
@@ -100,17 +111,60 @@ router.post('/register', async function(req, res){
   }
 });
 
-
-
 // READ: create route for retrieving devices for a user with a given email
 router.get('/read', async function(req, res) {
   // console.log('email received at backend', req.query)
+
   try {
-    // Check if the email query parameter is provided
-    if (!req.query.email) {
-      return res.status(400).json({ message: "Bad request: user email is required." });
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
     }
+    // Decode the token to get the user's email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
     
+    // Retrieve the devices for the user with the given email
+    const deviceDocs = await Device.find({ email: email });
+
+    // Check if any documents were found
+    if (deviceDocs.length === 0) {
+      return res.status(404).json({ message: "No devices found for the provided email." });
+    }
+
+    console.log('Devices retrieved successfully:', deviceDocs);
+    res.status(200).json(deviceDocs); // Use 200 OK for a successful operation
+  } catch (err) {
+    console.error("An error occurred while retrieving devices:", err); // Log the error so you can inspect it in your server logs
+
+    // If this is a known error type, you can handle it accordingly
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: "Bad request: Invalid email format." });
+    }
+
+    // For other types of errors, return a 500 Internal Server Error
+    res.status(500).json({ message: "An error occurred while retrieving devices." });
+  }
+});
+
+// READ: create route for retrieving devices for a user with a given email
+router.get('/physicianRead', async function(req, res) {
+  // console.log('email received at backend', req.query)
+
+  try {
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the physician's email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+    
+    const physician = await Physician.findOne({ email: email });
+    if (!physician) {
+      return res.status(404).json({ message: "Physician not found." });
+    }
+
     // Retrieve the devices for the user with the given email
     const deviceDocs = await Device.find({ email: req.query.email });
 
@@ -133,11 +187,19 @@ router.get('/read', async function(req, res) {
     res.status(500).json({ message: "An error occurred while retrieving devices." });
   }
 });
-
 // UPDATE: create route for updating a device
 router.put('/update', async function(req, res) {
   console.log('req.body', req.body)
   try {
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the user's email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+    
+
     // Check if the deviceId body parameter is provided
     if (!req.body.deviceId) {
       return res.status(400).json({ message: "Bad request: Device ID is required." });
@@ -150,7 +212,15 @@ router.put('/update', async function(req, res) {
     if (!device) {
       return res.status(404).json({ message: "Device not found." });
     }
-
+    // Check if the email is either the device's email or a physician's email
+    if (device.email !== email) {
+      const physician = await Physician.findOne({ email: email });
+      if (!physician) {
+        // The email is neither the device's email nor a physician's email
+        return res.status(401).json({ message: "Unauthorized: Email not authorized to access this device." });
+      }
+      console.log('physician', physician)
+    }
     // Update the device with new values. Exclude fields that should not be updated.
     // req.body will contain the fields you want to update.
 
@@ -176,8 +246,6 @@ router.put('/update', async function(req, res) {
     // Save the updated device
     await device.save();
 
-    
-    
     for (const key in updateData) {
       if (updateData.hasOwnProperty(key)) {
         if (key === 'measurementFrequency') {
@@ -192,7 +260,10 @@ router.put('/update', async function(req, res) {
           var parameterValue = jsonString;
           var cloudFunctionName = 'updateMeasurementTimeofDay';
         }
-        sendParmeterUpdateRequestToDevice(device.deviceId, parameterValue, cloudFunctionName);
+        var success = sendParmeterUpdateRequestToDevice(device.deviceId, parameterValue, cloudFunctionName);
+        if (!success) {
+          return res.status(400).json({ message: "Parameter update failed." })
+        }
       }
     }
     res.status(200).json({ message: "Device updated successfully.", device: device });
@@ -213,7 +284,21 @@ router.put('/update', async function(req, res) {
 router.delete('/delete/:deviceId', async function(req, res) {
   console.log(req.params)
   try {
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the user's email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+
     const deviceId = req.params.deviceId;
+    // check if device is registered to user
+    // Find the device by deviceId
+    const device = await Device.findOne({ deviceId: req.params.deviceId });
+    if (device.email !== email) {
+      return res.status(401).json({ message: "Unauthorized: Device not registered to this user." });
+    }
     // Assuming authorization middleware ensures only authorized deletions
     const result = await Device.deleteOne({ deviceId: deviceId });
 
@@ -237,11 +322,17 @@ router.delete('/delete/:deviceId', async function(req, res) {
   }
 });
 
-
 // This route gets the device status from the Particle Cloud
 router.get('/info', async function(req, res) {
 
   try {
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the user's email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
     // Check if the deviceId query parameter is provided
     if (!req.query.deviceId) {
       return res.status(400).json({ message: "Bad request: Device ID is required." });
@@ -254,7 +345,15 @@ router.get('/info', async function(req, res) {
     if (!device) {
       return res.status(404).json({ message: "Device not found." });
     }
-
+    // Check if the email is either the device's email or a physician's email
+    if (device.email !== email) {
+      const physician = await Physician.findOne({ email: email });
+      if (!physician) {
+        // The email is neither the device's email nor a physician's email
+        return res.status(401).json({ message: "Unauthorized: Email not authorized to access this device." });
+      }
+      console.log('physician', physician)
+    }
     // Retrieve the access token from the database
     const accessToken = await getAccessTokenFromParticleCloud();
     console.log('Access token retrieved:', accessToken);
@@ -316,6 +415,7 @@ async function getAccessTokenFromParticleCloud() {
 
   // Check if the token exists and is still valid
   if (tokenRecord && tokenRecord.expiresAt > currentTime) {
+      console.log('Access token retrieved from database:', tokenRecord.value)
       return tokenRecord.value;
   }
 
@@ -377,6 +477,14 @@ async function sendParmeterUpdateRequestToDevice(deviceId, parameterValue, cloud
   try {
     const response = await axios.request(config);
     console.log(JSON.stringify(response.data));
+    if (response.data.return_value === 1) {
+      console.log('Parameter updated successfully.');
+      return true;
+    }
+    else{
+      console.log('Parameter update failed.');
+      return false;
+    }
   }
   catch (error) {
     console.log(error);

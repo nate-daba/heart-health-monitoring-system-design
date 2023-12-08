@@ -7,13 +7,15 @@
 // void flashLED(byte ledPin, int count, int delayMillis);
 
 // Function to publish data and flash an LED to indicate data published
-void publishData(String data);
+bool publishData(String data);
 
 void storeDataLocallyToFile(const String &data, unsigned long measurementMillis, const int ledPin);
 
 void publishStoredDataFromFile();
 
 int flashGreenLED(String dataStoredInDbSuccessfully);
+
+void cleanUpDataFile();
 
 bool storageFileHasContents(const char* filename);
 
@@ -26,5 +28,9 @@ int updateMeasurementPeriod(String measurementPeriod);
 unsigned long parseTimeToMinutes(String timeStr);
 
 int updateMeasurementTimeofDay(String jsonString);
+
+void cleanUpDataFile();
+
+unsigned long getCurrentTime();
 
 #endif

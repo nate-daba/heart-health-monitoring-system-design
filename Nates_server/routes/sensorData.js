@@ -7,12 +7,20 @@ const axios = require('axios');
 const qs = require('qs');
 const moment = require('moment-timezone');
 
-
 // CREATE
 router.post('/store', async function(req, res) {
 
     console.log(req.body);
-
+    console.log('api key valid ', process.env.VALID_API_KEYS.includes(req.headers['x-api-key']));
+    console.log('api key', req.headers['x-api-key']);
+    // Check if the API key is valid
+    if (!req.headers['x-api-key']) {
+        res.status(401).json({ message: "Unauthorized: API key is missing." });
+    } 
+    else if (!process.env.VALID_API_KEYS.includes(req.headers['x-api-key'])) {
+        res.status(401).json({ message: "Unauthorized: API key is invalid." });
+    }
+    console.log('api key valid ', process.env.VALID_API_KEYS.includes(req.headers['x-api-key']));
     // Parse the JSON string in req.body.data into an object
     let sensorDataObj;
     try {
@@ -69,6 +77,7 @@ router.post('/store', async function(req, res) {
 
         // Send the response to the client after saving the data and attempting to blink the LED
         res.status(201).json({ message: msgStr });
+    
     } catch (err) {
         // Handle any errors from the whole process
         console.error('An error occurred:', err);
@@ -76,53 +85,7 @@ router.post('/store', async function(req, res) {
     }
 });
 
-async function getAccessTokenFromParticleCloud() {
-    const currentTime = new Date();
 
-    // Try to retrieve the current token from the database
-    let tokenRecord = await AccessToken.findOne({ name: 'particleAccessToken' });
-
-    // Check if the token exists and is still valid
-    if (tokenRecord && tokenRecord.expiresAt > currentTime) {
-        return tokenRecord.value;
-    }
-
-    try {
-        // Request a new access token from the Particle Cloud API
-        const responseToAccessTokenRequest = await axios.post('https://api.particle.io/oauth/token', qs.stringify({
-            grant_type: 'password',
-            username: process.env.PARTICLE_USERNAME, // Use environment variable
-            password: process.env.PARTICLE_PASSWORD, // Use environment variable
-            client_id: process.env.PARTICLE_CLIENT_ID, // Use environment variable
-            client_secret: process.env.PARTICLE_CLIENT_SECRET // Use environment variable
-          }));
-
-        const tokenData = responseToAccessTokenRequest.data;
-
-        // Calculate the expiration date based on the current time and the expires_in duration
-        const expiresAt = new Date(currentTime.getTime() + tokenData.expires_in * 1000);
-
-        // Update the token record in the database or create a new one if it doesn't exist
-        if (tokenRecord) {
-            tokenRecord.value = tokenData.access_token;
-            tokenRecord.expiresAt = expiresAt;
-            await tokenRecord.save();
-        } else {
-            tokenRecord = new AccessToken({
-                name: 'particleAccessToken',
-                value: tokenData.access_token,
-                expiresAt: expiresAt
-            });
-            await tokenRecord.save();
-        }
-
-        return tokenData.access_token;
-    } catch (error) {
-        // Handle errors when requesting a new access token
-        console.error('Error requesting new access token:', error);
-        throw new Error('Failed to retrieve access token from Particle Cloud.');
-    }
-}
 
 router.get('/read/:span', async function(req, res) {
     const span = req.params.span;
@@ -154,7 +117,7 @@ router.get('/read/:span', async function(req, res) {
 
                 const sensorDocs = await SensorData.find({
                     deviceId: deviceId,
-                    published_at: {
+                    measurementTime: {
                         $gte: startDate,
                         $lte: endDate
                     }
@@ -210,5 +173,84 @@ router.get('/read/:span', async function(req, res) {
     }
 });
 
+// DELETE route for sensor data
+router.delete('/delete', async function(req, res) {
+    const { deviceId, startDate, endDate } = req.body;
+
+    if (!deviceId || !startDate || !endDate) {
+        return res.status(400).json({ message: "Bad request: Device ID, start date, and end date are required." });
+    }
+
+    try {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: "Bad request: Invalid date format." });
+        }
+
+        const result = await SensorData.deleteMany({
+            deviceId: deviceId,
+            measurementTime: { $gte: start, $lte: end }
+        });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "No data found for the specified criteria." });
+        }
+
+        res.status(200).json({ message: "Data successfully deleted.", deletedCount: result.deletedCount });
+    } catch (err) {
+        console.error('Error during data deletion:', err);
+        res.status(500).json({ message: "Internal server error." });
+    }
+});
+
+async function getAccessTokenFromParticleCloud() {
+    const currentTime = new Date();
+
+    // Try to retrieve the current token from the database
+    let tokenRecord = await AccessToken.findOne({ name: 'particleAccessToken' });
+
+    // Check if the token exists and is still valid
+    if (tokenRecord && tokenRecord.expiresAt > currentTime) {
+        return tokenRecord.value;
+    }
+
+    try {
+        // Request a new access token from the Particle Cloud API
+        const responseToAccessTokenRequest = await axios.post('https://api.particle.io/oauth/token', qs.stringify({
+            grant_type: 'password',
+            username: process.env.PARTICLE_USERNAME, // Use environment variable
+            password: process.env.PARTICLE_PASSWORD, // Use environment variable
+            client_id: process.env.PARTICLE_CLIENT_ID, // Use environment variable
+            client_secret: process.env.PARTICLE_CLIENT_SECRET // Use environment variable
+          }));
+
+        const tokenData = responseToAccessTokenRequest.data;
+
+        // Calculate the expiration date based on the current time and the expires_in duration
+        const expiresAt = new Date(currentTime.getTime() + tokenData.expires_in * 1000);
+
+        // Update the token record in the database or create a new one if it doesn't exist
+        if (tokenRecord) {
+            tokenRecord.value = tokenData.access_token;
+            tokenRecord.expiresAt = expiresAt;
+            await tokenRecord.save();
+        } else {
+            tokenRecord = new AccessToken({
+                name: 'particleAccessToken',
+                value: tokenData.access_token,
+                expiresAt: expiresAt
+            });
+            await tokenRecord.save();
+        }
+
+        return tokenData.access_token;
+    } catch (error) {
+        // Handle errors when requesting a new access token
+        console.error('Error requesting new access token:', error);
+        throw new Error('Failed to retrieve access token from Particle Cloud.');
+    }
+}
 
 module.exports = router;

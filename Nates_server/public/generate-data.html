@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Sensor Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <form id="dataForm">
+        <label for="deviceId">Device ID:</label>
+        <input type="text" id="deviceId" name="deviceId" required><br><br>
+
+        <label for="startDate">Start Date & Time:</label>
+        <input type="datetime-local" id="startDate" name="startDate" required><br><br>
+
+        <label for="endDate">End Date & Time:</label>
+        <input type="datetime-local" id="endDate" name="endDate" required><br><br>
+
+        <label for="interval">Measurement Interval (minutes):</label>
+        <input type="number" id="interval" name="interval" required><br><br>
+
+        <input type="submit" value="Generate and Send Data">
+        <span id="createMessageDisplay"></span> <!-- Element to display creation messages -->
+    </form>
+    <br>
+    <input type="button" value="Clear Data" id="clearDataBtn">
+    <span id="clearMessageDisplay"></span> <!-- Element to display clear messages -->
+
+    <script src="/javascripts/generate-data.js"></script>
+</body>
+</html>

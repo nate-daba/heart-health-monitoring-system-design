@@ -24,7 +24,7 @@ router.post('/signUp', async function(req, res) {
     if (existingUser) {
       return res.status(409).json({ message: 'A user with this email address already exists. Please use a different email address.' });
     }
-
+    const token = jwt.encode({ email: email }, secret);
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       firstName,
@@ -34,7 +34,7 @@ router.post('/signUp', async function(req, res) {
     });
 
     await newUser.save();
-    return res.status(201).json({ message: 'User account created successfully.' });
+    return res.status(201).json({ message: 'User account created successfully.', token: token });
 
   } catch (err) {
     console.error('Error during sign up:', err);
@@ -50,41 +50,50 @@ router.post('/signUp', async function(req, res) {
 });
 
 
-// READ
-router.get('/read/:email', async function(req, res) {
-  console.log('req params: ', req.params);
-  var email = req.params.email;
-  if(!email){
-    return res.status(400).json({ message: 'Missing email parameter.' });
-  }
+// READ User and associated Physician
+router.get('/read', async function(req, res) {
+
   try {
+    console.log('req headers: ', req.headers['x-auth']);
+    const token = req.headers['x-auth'];
+    if (!token) {
+        return res.status(401).json({ message: 'Missing X-Auth header.' });
+    }
+    // Decode the token to get the user's email
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
+
+    // Find the user by email
     var userInfo = await User.findOne({ email: email });
-    if(!userInfo){
-      return res.status(404).json({ message: 'User not found.' });
+    if (!userInfo) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+    // If userInfo has a physicianEmail, fetch the corresponding physician document
+    if (userInfo.physicianEmail) {
+        var physicianInfo = await Physician.findOne({ email: userInfo.physicianEmail });
+        if (physicianInfo) {
+            // Add the physician document to userInfo
+            userInfo = userInfo.toObject(); // Convert Mongoose document to a plain object
+            userInfo.physicianDoc = physicianInfo;
+        }
     }
     console.log('User found: ', userInfo);
     return res.status(200).json({ message: 'User found.', userInfo: userInfo });
   } catch (err) {
-    console.error('Error during user lookup:', err);
-    return res.status(500).json({ message: 'An unexpected error occurred on the server while processing your request.' });
+      console.error('Error during user lookup:', err);
+      return res.status(500).json({ message: 'An unexpected error occurred on the server while processing your request.' });
   }
-  
 });
+
 
 // UPDATE: route for updating user information
 router.put('/update', async (req, res) => {
-  console.log('req body: ', req.body)
-  console.log('req body email: ', req.body.email)
-  console.log('req body currentPassword: ', req.body.currentPassword)
-  console.log('req body newPassword: ', req.body.newPassword)
   try {
-    // Validate that email and currentPassword are provided
-    if (!req.body.email) {
-      return res.status(400).json({ message: "Bad request: Email is required" });
-    }
+    // Decode the token to get the user's email
+    const token = req.headers['x-auth'];
+    const decoded = jwt.decode(token, secret);
+    const email = decoded.email;
 
-    const email = req.body.email;
-    delete req.body.email;
     // Find the user by email
     const user = await User.findOne({ email: email });
     if (!user) {
@@ -93,6 +102,14 @@ router.put('/update', async (req, res) => {
     console.log('user: ', user)
     // Handle physician update
     if(req.body.physicianEmail){
+      // Get the old physician if it exists and remove the user's ID
+      if(user.physicianEmail) {
+        const oldPhysician = await Physician.findOne({ email: user.physicianEmail });
+        if(oldPhysician) {
+            oldPhysician.patients = oldPhysician.patients.filter(patientId => !patientId.equals(user._id));
+            await oldPhysician.save();
+        }
+      }
       const physicianEmail = req.body.physicianEmail;
       user.physicianEmail = physicianEmail;
       // Update physician of the patient
@@ -116,7 +133,7 @@ router.put('/update', async (req, res) => {
       const currentPassword = req.body.currentPassword;
       console.log('currentPassword(in if): ', currentPassword)
       if (!bcrypt.compareSync(currentPassword, user.hashedPassword)) {
-        return res.status(401).json({ message: "Unauthorized: Incorrect current password." });
+        return res.status(401).json({ message: "Incorrect current password." });
       }
       const newPassword = req.body.newPassword;
       console.log('newPassword: ', newPassword)
@@ -183,7 +200,7 @@ router.post("/logIn", async function (req, res)
           console.log("User's LastAccess has been updated.");
         });
         // Send back a token that contains the user's username
-        res.status(201).json({ success: true, token: token, message: "Login success" });
+        res.status(201).json({ success: true, patientToken: token, message: "Login success" });
       }
       else {
         // The line below should be  changed (i.e. status code should be 401 and not 201) once I figure out how to

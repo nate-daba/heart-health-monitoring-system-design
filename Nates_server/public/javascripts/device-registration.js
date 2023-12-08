@@ -6,7 +6,7 @@ function registerDevice(e) {
     e.preventDefault();
 
     var deviceId = $('#deviceId').val();
-    var email = localStorage.getItem("email");
+    var email = window.localStorage.getItem("email");
 
     console.log('Device ID:', deviceId, 'Email:', email);
 
@@ -24,8 +24,8 @@ function registerDevice(e) {
         dataType: 'json',
     })
     .done(function(response) {
-        // Store deviceId in localStorage
-        localStorage.setItem("deviceId", deviceId);
+        // Store deviceId in window.localStorage
+        window.localStorage.setItem("deviceId", deviceId);
         // Redirect to sensorData.html
         window.location.href = 'sensorData.html';
     })
@@ -89,7 +89,7 @@ function listDevices(e){
 
 function deviceTable() {
     var deviceIdToRegister = $(this).data('device-id');
-    localStorage.setItem("deviceId", deviceIdToRegister);
+    window.localStorage.setItem("deviceId", deviceIdToRegister);
     // First AJAX call to claim the device
     $.ajax({
         url: '/devices/register',
@@ -118,7 +118,7 @@ function deviceTable() {
     .done(function(response) {
         console.log('Webhook created successfully!');
         // Both actions are done, redirect to the new page
-        localStorage.setItem('comingFrom', 'deviceRegistration');
+        window.localStorage.setItem('comingFrom', 'deviceRegistration');
         window.location.href = '/sensorData.html'; // Replace with the actual URL
     })
     .fail(function(error) {

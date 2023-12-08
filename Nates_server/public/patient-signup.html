@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Monitoring Dashboard - Sign Up</title>
+    <link rel="stylesheet" href="./stylesheets/patient-signup.css">
+</head>
+<body>
+    <h1>Register as Patient</h1>
+    <form id="signUpForm">
+        <label for="firstName"><b>First Name</b></label>
+        <input type="text" placeholder="Enter first name" name="firstName" id="firstName" required>
+
+        <label for="lastName"><b>Last Name</b></label>
+        <input type="text" placeholder="Enter last name" name="lastName" id="lastName" required>
+
+        <label for="email"><b>Email</b></label>
+        <input type="email" placeholder="Enter email" name="email" id="email" required>
+
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter password" name="password" id="password" required>
+
+        <label for="confirmPassword"><b>Confirm Password</b></label>
+        <input type="password" placeholder="Confirm password" name="confirmPassword" id="confirmPassword" required>
+
+        <button type="submit" id="signUpButton">Sign Up</button>
+        <div class="errorDiv" style="display:none">
+            <p class="errorMessage">Invalid email or password</p>
+        </div>
+        <p>Already have an account? <a href="patient-login.html">Login here</a></p>
+    </form>
+    <!-- <p></p> -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <script src="./javascripts/patient-signup.js"></script>
+</body>
+</html>

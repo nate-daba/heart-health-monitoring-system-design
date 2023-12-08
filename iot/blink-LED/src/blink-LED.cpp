@@ -13,7 +13,7 @@
 void setup();
 void loop();
 #line 7 "/Users/natnaeldaba/Documents/Documents/Academia/UofA/Third_semester/ECE_513_Web_dev_and_IoT/final_project/heart-rate-monitoring-system-design/iot/blink-LED/src/blink-LED.ino"
-int light = D4; // This is where your LED is plugged in. The other side goes to a resistor connected to GND.
+int light = D7; // This is where your LED is plugged in. The other side goes to a resistor connected to GND.
 // setup() runs once, when the device is first turned on.
 SYSTEM_THREAD(ENABLED);
 

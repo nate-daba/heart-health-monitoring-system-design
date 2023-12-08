@@ -21,7 +21,7 @@ SYSTEM_THREAD(ENABLED);
 MAX30105 particleSensor;
 
 #define MAX_BRIGHTNESS 255
-#define ONE_DAY_MILLIS 5000 // (24 * 60 * 60 * 1000)
+#define ONE_DAY_MILLIS 24 * 60 * 60 * 1000 // (24 * 60 * 60 * 1000)
 
 uint32_t irBuffer[100];
 uint32_t redBuffer[100];
@@ -41,12 +41,15 @@ char dataInEEPROM[EEPROM_SIZE]; // Declare a character array to store the data
 
 unsigned long measurementPeriod = 60000;
 struct MeasurementTime {
-  unsigned long startTime; // minutes since midnight
-  unsigned long endTime;   // minutes since midnight
+  unsigned long startTime = 360; // minutes since midnight
+  unsigned long endTime = 1320;   // minutes since midnight
 } measurementTimeOfDay;
 
 bool takeMeasurement = false;
+bool validRange = false;
 unsigned long lastMeasurementPrompted = 0;
+unsigned long dataAge = 0;
+unsigned long timeOfLastStoredMeasurement = 0; // Variable to keep track of the last data save time
 unsigned long timeout = 5 * 60 * 1000;
 unsigned long lastBlinkMillis = 0;
 const long blinkInterval = 500;
@@ -54,6 +57,7 @@ unsigned long lastSync = millis();
 static bool connectedToCloud = false; // Variable to track Wi-Fi connection status
 static bool waitingForFinger = false;
 static unsigned long startWaitingTime = 0;
+
 
 
 unsigned long lastUnixTime = 0; // Initialize with a known Unix time
@@ -87,22 +91,33 @@ void setup()
 
   particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange);
 
-  Time.zone(-7);  // setup a time zone, which is part of the ISO8601 format
+  // Clear stale data from file
+  void cleanUpDataFile();
+
+  // setup a time zone, which is part of the ISO8601 format
+  Time.zone(-7);  
 
 }
 
 void loop()
 {
 
-  // Get the current hour and minute
-  int currentHour = Time.hour();
-  int currentMinute = Time.minute();
-  unsigned long currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+  unsigned long currentTimeInMinutes = getCurrentTime();
   
   // Check if current time is within the measurement window
   if (currentTimeInMinutes >= measurementTimeOfDay.startTime && currentTimeInMinutes < measurementTimeOfDay.endTime) 
   {
-    // Check if Wi-Fi is connected
+    // Check if stored data is older than 24 hours
+    dataAge = millis() - timeOfLastStoredMeasurement;
+    if (dataAge >= ONE_DAY_MILLIS) 
+    {
+      // Clear stale data from file
+      Serial.println("Stored data is older than 24 hours. Clearing stale data from file...");
+      cleanUpDataFile();
+      timeOfLastStoredMeasurement = millis();
+    }
+    // Check if device is connected to Particle cloud 
     if (Particle.connected() && !connectedToCloud)
     {
       Serial.println("Wi-Fi connected.");
@@ -169,8 +184,8 @@ void loop()
       Serial.printf("New measurement period: %lu ms\n", measurementPeriod); 
       maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
 
-
-      if (validSPO2 && validHeartRate) 
+      validRange = (spo2 > 50) && (spo2 < 101) && (heartRate > 30 ) && (heartRate < 300);
+      if (validSPO2 && validHeartRate && validRange) 
       {
         printSensorData(heartRate, validHeartRate, spo2, validSPO2);
         // prepare data to publish
@@ -188,6 +203,8 @@ void loop()
           data = String::format("%s%s", data.c_str(), "}");
           storeDataLocallyToFile(data, millis(), yellowLED);
           connectedToCloud = false; // Update Wi-Fi connection status
+          // Update the last data save time
+          timeOfLastStoredMeasurement = millis();
         }
         takeMeasurement = false;
       } else 

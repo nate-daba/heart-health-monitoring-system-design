@@ -10226,12 +10226,12 @@
 		 *   } );
 		 *
 		 * @example
-		 *   // Get the data from localStorage (could interface with a form for
+		 *   // Get the data from window.localStorage (could interface with a form for
 		 *   // adding, editing and removing rows).
 		 *   $('#example').dataTable( {
 		 *     "ajax": function (data, callback, settings) {
 		 *       callback(
-		 *         JSON.parse( localStorage.getItem('dataTablesData') )
+		 *         JSON.parse( window.localStorage.getItem('dataTablesData') )
 		 *       );
 		 *     }
 		 *   } );
@@ -10688,12 +10688,12 @@
 	
 	
 		/**
-		 * Enable or disable state saving. When enabled HTML5 `localStorage` will be
+		 * Enable or disable state saving. When enabled HTML5 `window.localStorage` will be
 		 * used to save table display information such as pagination information,
 		 * display length, filtering and sorting. As such when the end user reloads
 		 * the page the display display will match what thy had previously set up.
 		 *
-		 * Due to the use of `localStorage` the default state saving is not supported
+		 * Due to the use of `window.localStorage` the default state saving is not supported
 		 * in IE6 or 7. If state saving is required in those browsers, use
 		 * `stateSaveCallback` to provide a storage solution such as cookies.
 		 *  @type boolean
@@ -11018,7 +11018,7 @@
 	
 		/**
 		 * Load the table state. With this function you can define from where, and how, the
-		 * state of a table is loaded. By default DataTables will load from `localStorage`
+		 * state of a table is loaded. By default DataTables will load from `window.localStorage`
 		 * but you might wish to use a server-side database or cookies.
 		 *  @type function
 		 *  @member
@@ -11049,7 +11049,7 @@
 		"fnStateLoadCallback": function ( settings ) {
 			try {
 				return JSON.parse(
-					(settings.iStateDuration === -1 ? sessionStorage : localStorage).getItem(
+					(settings.iStateDuration === -1 ? sessionStorage : window.localStorage).getItem(
 						'DataTables_'+settings.sInstance+'_'+location.pathname
 					)
 				);
@@ -11123,7 +11123,7 @@
 	
 		/**
 		 * Save the table state. This function allows you to define where and how the state
-		 * information for the table is stored By default DataTables will use `localStorage`
+		 * information for the table is stored By default DataTables will use `window.localStorage`
 		 * but you might wish to use a server-side database or cookies.
 		 *  @type function
 		 *  @member
@@ -11152,7 +11152,7 @@
 		 */
 		"fnStateSaveCallback": function ( settings, data ) {
 			try {
-				(settings.iStateDuration === -1 ? sessionStorage : localStorage).setItem(
+				(settings.iStateDuration === -1 ? sessionStorage : window.localStorage).setItem(
 					'DataTables_'+settings.sInstance+'_'+location.pathname,
 					JSON.stringify( data )
 				);

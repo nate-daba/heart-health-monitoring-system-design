@@ -28,7 +28,7 @@ int flashGreenLED(String dataStoredInDbSuccessfully) {
     }
 }
 
-void publishData(String data) {
+bool publishData(String data) {
   bool success = Particle.publish("sensorData", data, PRIVATE);
   if (!success) {
     Serial.println("Failed to publish data.");
@@ -36,7 +36,7 @@ void publishData(String data) {
   else {
     Serial.println(" published !!");
   }
-  
+  return success;
 }
 
 // Function to store data locally to a file, with millis value
@@ -103,6 +103,7 @@ void publishStoredDataFromFile() {
   storedData[bytesRead] = '\0'; // Null-terminate the dataInEEPROM array
 
   char *line = strtok(storedData, "\n");
+  int failureCount = 0;
   while (line != NULL) {
     // Parse the line to separate data and millis
     String dataLine = String(line);
@@ -121,7 +122,10 @@ void publishStoredDataFromFile() {
     Serial.printf("Publishing formatted data: %s", formattedData.c_str());
 
     // Publish the data
-    publishData(formattedData);
+    bool success = publishData(formattedData);
+    if (!success) {
+      failureCount++;
+    }
 
     // Move to the next line
     line = strtok(NULL, "\n");
@@ -129,11 +133,14 @@ void publishStoredDataFromFile() {
 
   close(fd);
 
-  // Clear the contents of the file
-  fd = open("/data.txt", O_TRUNC);
-  close(fd);
+  if (failureCount > 0) {
+    Serial.printf("Failed to publish %d data points. File not cleared.\n", failureCount);
+  } else {
+    Serial.println("All data published successfully.");
+    cleanUpDataFile();
+  }
 
-  Serial.println("Stored data published and file cleared.");
+  
 }
 
 // Helper function to compute actual time from stored millis
@@ -166,6 +173,24 @@ unsigned long parseTimeToMinutes(String timeStr) {
   int minute = timeStr.substring(3, 5).toInt();
   return hour * 60 + minute;
 }
+
+// Function to clear the data file
+void cleanUpDataFile() {
+  // Clear stale data from file
+  int fd = open("/data.txt", O_TRUNC);
+  close(fd);
+  Serial.println("Cleared data from file.");
+}
+
+// function to get current time (return unsigned long)
+unsigned long getCurrentTime() {
+  // Get the current hour and minute
+  int currentHour = Time.hour();
+  int currentMinute = Time.minute();
+  // Convert the current time to minutes since midnight
+  return currentHour * 60 + currentMinute;
+}
+
 
 
 

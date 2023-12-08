@@ -1,7 +1,7 @@
 $(document).ready(function() {
     // Populate the table when the page loads
     getALLDevices();  
-    getUserInfo();
+    getPatientInfo();
     $('#addDeviceBtn').on('click', registerDevice);
     $('#saveDeviceSettings').on('click', saveDeviceSettingsListener);
 
@@ -17,26 +17,23 @@ $(document).ready(function() {
     $('#editDeviceModal').on('shown.bs.modal', onModalShown);
 
     $('#logout').on('click', logoutEventListener);
+
+    $('#refreshDevicesBtn').on('click', function() {
+        getALLDevices(); // Call the function to refresh devices
+    });
 });
 
 function getALLDevices(e) {
     // stopped here
     // will continue by making a get call to backend to get all devices
     // registered to the user and populate the table with the devices info
-    var email = localStorage.getItem("email");
-
-    console.log('Getting all devices registered to', email);
-
-    var data = {
-        email: email
-    };
+    $('#devicesTable tbody').empty();
 
     $.ajax({
         url: '/devices/read',
         method: 'GET',
         contentType: 'application/json',
-        data: data,
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("patient-token") },
         dataType: 'json',
     })
     .done(function(response) {
@@ -49,7 +46,7 @@ function getALLDevices(e) {
                 method: 'GET',
                 contentType: 'application/json',
                 data: {deviceId: deviceId},
-                headers: { 'x-auth': window.localStorage.getItem("token") },
+                headers: { 'x-auth': window.localStorage.getItem("patient-token") },
                 dataType: 'json',
             }).done(function(response){
                 console.log('device info', response.message);
@@ -77,7 +74,7 @@ function getALLDevices(e) {
                 // Append the new row to the devices table body
                 $('#devicesTable tbody').append(tr);
                 console.log('lenght of device table', $('#devicesTable tbody tr').length)
-                toggleDeviceTableVisibility();
+                
                 console.log(response);
 
                 // Make the row clickable
@@ -93,6 +90,7 @@ function getALLDevices(e) {
 
                 $('#devicesTable tbody').append(tr);
                 $(`#dropdownMenuLink-${deviceId}`).dropdown();
+                toggleDeviceTableVisibility();
             }).fail(function(jqXHR){
                 console.log('An error occurred:', jqXHR);
                 // Extract and display the error message
@@ -120,8 +118,9 @@ function getALLDevices(e) {
 
 function logoutEventListener(e) {
     e.preventDefault();
-    window.localStorage.removeItem("token");
-    window.location.href = '/login.html';
+    window.localStorage.removeItem("patient-token");
+    window.localStorage.removeItem("patient-email");
+    window.location.href = '/patient-login.html';
 }
 
 function registerDevice(e) {
@@ -136,13 +135,9 @@ function registerDevice(e) {
         showMessageModal('Error', 'Device ID can not be empty.', 'error');
         return;
     }
-    var email = localStorage.getItem("email");
-
-    console.log('Device ID:', deviceId, 'Email:', email);
 
     var data = {
         deviceId: deviceId,
-        email: email,
     };
 
     $.ajax({
@@ -150,12 +145,12 @@ function registerDevice(e) {
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(data),
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("patient-token") },
         dataType: 'json',
     })
     .done(function(response) {
-        // Store deviceId in localStorage
-        localStorage.setItem("deviceId", deviceId);
+        // Store deviceId in window.localStorage
+        window.localStorage.setItem("deviceId", deviceId);
         // get device info of the device just registered to populate the Devices table
         // with the device info
         $.ajax({
@@ -163,7 +158,7 @@ function registerDevice(e) {
             method: 'GET',
             contentType: 'application/json',
             data: {deviceId: deviceId},
-            headers: { 'x-auth': window.localStorage.getItem("token") },
+            headers: { 'x-auth': window.localStorage.getItem("patient-token") },
             dataType: 'json',
         }).done(function(response){
             console.log('device info', response.message);
@@ -323,7 +318,7 @@ function saveDeviceSettingsListener() {
                 method: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify(updateData),
-                headers: { 'x-auth': window.localStorage.getItem("token") },
+                headers: { 'x-auth': window.localStorage.getItem("patient-token") },
                 dataType: 'json',
                 // ... AJAX success and failure handlers ...
             }).done(function(response) {
@@ -333,9 +328,7 @@ function saveDeviceSettingsListener() {
                 updateDeviceTableRow(row, deviceName, measurementFrequency, startTime, endTime);
                 $('#editDeviceModal').modal('hide');
                 showMessageModal('Updating Device Setting', response.message, 'success');
-                // Refresh the device table or update the specific row
-        
-                // ...
+
             }).fail(function(jqXHR) {
                 // Handle error
                 var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : 'An unknown error occurred.';
@@ -384,7 +377,7 @@ function removeDeviceListener(e) {
         method: 'DELETE',
         contentType: 'application/json',
         data: JSON.stringify({ deviceId: deviceId }),
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("patient-token") },
         dataType: 'json',
     })
     .done(function(response) {
@@ -475,8 +468,6 @@ function convertTo24Hour(time) {
     return sHours + ":" + sMinutes;
 }
 
-
-
 function createDropdown(deviceId) {
     return `
         <div class="dropdown">
@@ -495,25 +486,33 @@ function createDropdown(deviceId) {
     `;
 }
 
-
 function toggleDeviceTableVisibility() {
-    // Check if the tbody has any tr (table rows)
+    // Check if there are no devices (after clearing the table)
     if ($('#devicesTable tbody tr').length === 0) {
         // Hide the table
         $('#devicesTable').hide();
+        $('#devicesTable tbody').empty();
+        // Check if the 'no devices' message div already exists to prevent duplicates
+        if ($('.no-devices-message').length === 0) {
+            // Create a div to hold the 'no devices' message
+            var noDevicesDiv = $('<div/>', {
+                'class': 'no-devices-message', // Add a class for potential styling
+                'text': 'You have no devices registered currently',
+                'css': {
+                    'text-align': 'center', // Center the text
+                    'margin-top': '20px' // Add some space at the top
+                }
+            });
 
-        // Create a div to hold the 'no devices' message
-        var noDevicesDiv = $('<div/>', {
-            'class': 'no-devices-message', // Add a class for potential styling
-            'text': 'You have no devices registered currently',
-            'css': {
-                'text-align': 'center', // Center the text
-                'margin-top': '20px' // Add some space at the top
-            }
-        });
+            // Append the 'no devices' message div after the table's parent div
+            $('#devicesTable').parent().append(noDevicesDiv);
+        }
+    } else {
+        // Show the table if it has rows
+        $('#devicesTable').show();
 
-        // Append the 'no devices' message div after the table's parent div
-        $('#devicesTable').parent().append(noDevicesDiv);
+        // Remove the 'no devices' message if it exists
+        $('.no-devices-message').remove();
     }
 }
 
@@ -534,22 +533,17 @@ function onModalShown() {
 }
 
 // Function to get the user info
-function getUserInfo() {
-    var email = localStorage.getItem("email");
-    var data = {
-        email: email
-    };
-
+function getPatientInfo() {
     $.ajax({
-        url: '/users/read/' + email,
+        url: '/users/read/',
         method: 'GET',
         contentType: 'application/json',
-        headers: { 'x-auth': window.localStorage.getItem("token") },
+        headers: { 'x-auth': window.localStorage.getItem("patient-token") },
         dataType: 'json',
     })
     .done(function(response) {
         console.log('response from server', response);
-        $('#userFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+        $('#patientFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
     })
     .fail(function(error) {
         console.log(error);
