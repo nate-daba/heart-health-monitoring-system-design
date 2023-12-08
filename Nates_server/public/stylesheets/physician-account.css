@@ -118,6 +118,58 @@
 #updatePasswordBtn{
     margin-bottom: 20px;
 } 
+@media screen and (max-width: 768px) {
+    .profile-pic-wrapper .rounded-circle {
+        width: 100px;  /* Smaller width */
+        height: 100px; /* Smaller height */
+    }
+
+    .profile-pic-wrapper {
+        margin-bottom: 20px; /* Extra space below image */
+    }
+}
+@media screen and (max-width: 768px) {
+    .card-body .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card-body .form-group label {
+        flex-basis: 100%;
+        text-align: left;
+        margin-bottom: 10px;
+    }
+
+    .card-body .form-group input,
+    .card-body .form-group .input-group {
+        width: 100%;
+    }
+
+    .card {
+        margin-bottom: 20px; /* Extra space between cards */
+    }
+}
+@media screen and (max-width: 768px) {
+    #updatePasswordBtn, #saveChangesBtn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+@media screen and (max-width: 768px) {
+    #accordionSidebar {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .navbar-expand {
+        flex-direction: column;
+        align-items: start;
+    }
+
+    .navbar-nav {
+        width: 100%;
+    }
+}
 
 
 

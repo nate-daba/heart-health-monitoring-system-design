@@ -10,9 +10,6 @@ const moment = require('moment-timezone');
 // CREATE
 router.post('/store', async function(req, res) {
 
-    console.log(req.body);
-    console.log('api key valid ', process.env.VALID_API_KEYS.includes(req.headers['x-api-key']));
-    console.log('api key', req.headers['x-api-key']);
     // Check if the API key is valid
     if (!req.headers['x-api-key']) {
         res.status(401).json({ message: "Unauthorized: API key is missing." });
@@ -20,7 +17,7 @@ router.post('/store', async function(req, res) {
     else if (!process.env.VALID_API_KEYS.includes(req.headers['x-api-key'])) {
         res.status(401).json({ message: "Unauthorized: API key is invalid." });
     }
-    console.log('api key valid ', process.env.VALID_API_KEYS.includes(req.headers['x-api-key']));
+    
     // Parse the JSON string in req.body.data into an object
     let sensorDataObj;
     try {
@@ -86,40 +83,32 @@ router.post('/store', async function(req, res) {
 });
 
 
-
 router.get('/read/:span', async function(req, res) {
     const span = req.params.span;
     console.log('span', span);
     console.log('req.query', req.query);
-    // Check if the deviceId and selectedDate query parameters are provided
+
     if (!req.query.deviceId) {
         return res.status(400).json({ message: "Bad request: Device ID is required." });
     }
 
     try {
         const deviceId = req.query.deviceId;
-        
-        if (span === 'day') {
-            console.log('fetching data for the selected date')
-            console.log('req.query.selectedDate', req.query.selectedDate)
-            if (req.query.selectedDate) {
-                console.log('in if')
-                const selectedDate = new Date(req.query.selectedDate); // Parse the selected date string into a Date object
-                // Convert to UTC by adding 7 hours (for UTC-7)
-                selectedDate.setHours(selectedDate.getHours() + 7);
-                console.log('selectedDate', selectedDate);
-                // Fetch data for the specified date only
-                const startDate = new Date(selectedDate);
-                startDate.setHours(0, 0, 0, 0); // Set time to midnight
+        const serverTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Dynamically get server's time zone
 
-                const endDate = new Date(selectedDate);
-                endDate.setHours(23, 59, 59, 999); // Set time to end of the day
+        if (span === 'day') {
+            console.log('fetching data for the selected date');
+            if (req.query.selectedDate) {
+                let selectedDate = moment.tz(req.query.selectedDate, serverTimeZone);
+                selectedDate.startOf('day'); // Set time to midnight
+
+                let endDate = moment(selectedDate).endOf('day'); // Set time to end of the day
 
                 const sensorDocs = await SensorData.find({
                     deviceId: deviceId,
                     measurementTime: {
-                        $gte: startDate,
-                        $lte: endDate
+                        $gte: selectedDate.toDate(),
+                        $lte: endDate.toDate()
                     }
                 });
 
@@ -128,26 +117,20 @@ router.get('/read/:span', async function(req, res) {
                 }
 
                 console.log('Data retrieved successfully:', sensorDocs);
-                res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
+                res.status(200).json(sensorDocs);
             } else {
-                console.log('in else')
                 return res.status(400).json({ message: "Bad request: 'selectedDate' query parameter is required for 'day' span." });
             }
         } else if (span === 'week') {
-            // Fetch data for the last 7 days
-            console.log('fetching data for the last 7 days')
-            const endDate = new Date();
-            const startDate = new Date(endDate);
-            startDate.setDate(endDate.getDate() - 6); // Calculate the start date for the last 7 days
-            console.log('start date', startDate, 'end date', endDate)
-            // Convert to UTC by adding 7 hours (for UTC-7)
-            startDate.setHours(startDate.getHours() + 7);
-            endDate.setHours(endDate.getHours() + 7);
+            console.log('fetching data for the last 7 days');
+            let endDate = moment().tz(serverTimeZone);
+            let startDate = moment().tz(serverTimeZone).subtract(6, 'days');
+
             const sensorDocs = await SensorData.find({
                 deviceId: deviceId,
                 measurementTime: {
-                    $gte: startDate,
-                    $lte: endDate
+                    $gte: startDate.toDate(),
+                    $lte: endDate.toDate()
                 }
             });
 
@@ -156,23 +139,18 @@ router.get('/read/:span', async function(req, res) {
             }
 
             console.log('Data retrieved successfully:', sensorDocs);
-            res.status(200).json(sensorDocs); // Use 200 OK for a successful operation
+            res.status(200).json(sensorDocs);
         } else {
             return res.status(400).json({ message: "Bad request: Invalid 'span' parameter. Use 'day' or 'week'." });
         }
     } catch (err) {
         console.error("An error occurred while retrieving data:", err);
-
-        // If this is a known error type, you can handle it accordingly
         if (err.name === 'CastError') {
             return res.status(400).json({ message: "Bad request: Invalid Device ID format." });
         }
-
-        // For other types of errors, return a 500 Internal Server Error
         res.status(500).json({ message: "An error occurred while retrieving data." });
     }
 });
-
 // DELETE route for sensor data
 router.delete('/delete', async function(req, res) {
     const { deviceId, startDate, endDate } = req.body;

@@ -224,3 +224,51 @@
     margin-left: 10px; /* Add some spacing between icon and text */
     min-width: 200px;
 }
+/* General styles (apply to all screen sizes) */
+
+/* ...existing styles... */
+
+/* Styles for tablets and smaller devices (less than 768px) */
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+    }
+    #content-wrapper {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .row {
+        flex-direction: column;
+    }
+    .col-lg-10, .col-lg-2 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .card-body .card {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+}
+
+/* Styles for smartphones (less than 480px) */
+@media (max-width: 480px) {
+    .navbar-expand {
+        flex-direction: column;
+    }
+    .sidebar {
+        display: none;
+    }
+    .navbar {
+        padding: 0;
+    }
+    .card-body {
+        padding: 5px;
+    }
+    #sidebarToggleTop {
+        display: block;
+    }
+}
+
