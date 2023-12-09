@@ -101,8 +101,6 @@ void setup()
 
 void loop()
 {
-
-
   unsigned long currentTimeInMinutes = getCurrentTime();
   
   // Check if current time is within the measurement window
@@ -181,7 +179,7 @@ void loop()
         irBuffer[i] = particleSensor.getIR();
         particleSensor.nextSample();
       }
-      Serial.printf("New measurement period: %lu ms\n", measurementPeriod); 
+       
       maxim_heart_rate_and_oxygen_saturation(irBuffer, bufferLength, redBuffer, &spo2, &validSPO2, &heartRate, &validHeartRate);
 
       validRange = (spo2 > 50) && (spo2 < 101) && (heartRate > 30 ) && (heartRate < 300);
