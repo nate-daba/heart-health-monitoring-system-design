@@ -42,11 +42,29 @@
   <header id="header" class="header fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
 
+      <a href="index.html" class="logo d-flex align-items-center">
+        <img src="images/favicon.png" alt="">
+        <span>HeartO2Monitor</span>
+      </a>
+
       <nav id="navbar" class="navbar">
         <ul>
-          <li></li>
-          <li><li>
-          <li></li>
+          <li><a class="nav-link scrollto active" href="home.html">Home</a></li>
+          <li><a class="nav-link scrollto" href="references.html">References</a></li>
+          <li><a class="nav-link scrollto" href="index.html">Team</a></li>
+          <li class="dropdown"><a href="#"><span>Login</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li><a href="patient-login.html">Patient</a></li>
+              <li><a href="physician-login.html">Physician</a></li>
+            </ul>
+          </li>
+          <li class="dropdown"><a href="#"><span>Sign-up</span> <i class="bi bi-chevron-down"></i></a>
+            <ul>
+              <li><a href="patient-signup.html">Patient</a></li>
+              <li><a href="physician-signup.html">Physician</a></li>
+            </ul>
+          </li>
+          
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
@@ -54,25 +72,9 @@
     </div>
   </header><!-- End Header -->
 
-  <!-- ======= Hero Section ======= -->
-  
-
   <main id="main">
 
-    <!-- ======= Counts Section ======= -->
-    
-
-    <!-- ======= Features Section ======= -->
-    
-
-    <!-- ======= Services Section ======= -->
-    
-    <!-- ======= Pricing Section ======= -->
-
-    <!-- ======= F.A.Q Section ======= -->
-        <!-- ======= Team Section ======= -->
-    <header class="section-header mb-0">
-    </header>
+    <!-- ======= Team Section ======= -->
     <section id="team" class="team ">
 
       <div class="container mt-10" data-aos="fade-up">
@@ -141,12 +143,35 @@
       </div>
 
     </section><!-- End Team Section -->
+    <section id="about" class="about">
 
-    <!-- ======= Clients Section ======= -->
-    
-    <!-- ======= Recent Blog Posts Section ======= -->
-   
-    <!-- ======= Contact Section ======= -->
+      <div class="container" data-aos="fade-up">
+        <div class="row gx-0">
+
+          <div class="col-lg-6 d-flex flex-column justify-content-center" data-aos="fade-up" data-aos-delay="200">
+            <div class="content">
+              <h3>ABOUT OUR PROJECT</h3>
+              <!-- <h2>Expedita voluptas omnis cupiditate totam eveniet nobis sint iste. Dolores est repellat corrupti reprehenderit.</h2> -->
+              <p>
+                The Heart O2 Monitoring App is a web application that allows you to monitor your heart rate as well as your blood oxygen level. This will give you insights into how your body is doing over time and motivate you to keep going as you see your values improve. The co-founders of this device knew that the at-home convenience of the device make the difference between getting infrequent measurement values at the doctor’s office or getting a wide range of daily and hourly values that can be used to observe the progress and make changes to your treatments or lifestyles as needed. We want to make a difference in our customers’ lives, one measurement at a time.
+              </p>
+              <div class="text-center text-lg-start">
+                <a href="https://youtu.be/lyO70vtpfZA" class="btn-read-more d-inline-flex align-items-center justify-content-center align-self-center">
+                  <span>Learn More</span>
+                  <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6 d-flex align-items-center" data-aos="zoom-out" data-aos-delay="200">
+            <img src="/images/dashboard_pic.png" class="img-fluid" alt="">
+          </div>
+
+        </div>
+      </div>
+
+    </section><!-- End About Section -->
     
   </main><!-- End #main -->
 

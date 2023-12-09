@@ -82,7 +82,7 @@ router.post('/store', async function(req, res) {
     }
 });
 
-
+// READ: Retrieve all sensor data in day or week span
 router.get('/read/:span', async function(req, res) {
     const span = req.params.span;
     console.log('span', span);
@@ -151,6 +151,7 @@ router.get('/read/:span', async function(req, res) {
         res.status(500).json({ message: "An error occurred while retrieving data." });
     }
 });
+
 // DELETE route for sensor data
 router.delete('/delete', async function(req, res) {
     const { deviceId, startDate, endDate } = req.body;
@@ -183,6 +184,7 @@ router.delete('/delete', async function(req, res) {
     }
 });
 
+// Function to retrieve an access token from the Particle Cloud API
 async function getAccessTokenFromParticleCloud() {
     const currentTime = new Date();
 

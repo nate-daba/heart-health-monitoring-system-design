@@ -1,6 +1,6 @@
 const db = require("../db");
 
-const userSchema = new db.Schema({
+const patientSchema = new db.Schema({
     firstName:      String,
     lastName:       String,
     email:          String,
@@ -9,6 +9,6 @@ const userSchema = new db.Schema({
     lastAccess:     { type: Date, default: Date.now },
  });
 
- const User = db.model("User", userSchema);
+ const Patient = db.model("Patient", patientSchema);
 
-module.exports = User;
+module.exports = Patient;

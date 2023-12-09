@@ -5,161 +5,221 @@ var currentSelectedDeviceId = null;
 var currentSelectedDate = null;
 
 // ====================  Event Listeners =========================
-// Event listener for the document ready event
+// Event listener for the document ready event.
 $(document).ready(function() {
-    // Set the default timezone to Phoenix
+    // Setting the default timezone for moment.js to Phoenix.
     moment.tz.setDefault("America/Phoenix");
-    // Initialize the dropdown
+
+    // Initializing dropdowns using Bootstrap's dropdown plugin.
     $('.dropdown-toggle').dropdown();
 
-    // Attach the click event listener to a parent element
-    // and delegate it to the dynamic dropdown items
+    // Attaching click event listeners to the patient and device list.
+    // These listeners are set up for dynamic dropdown items using event delegation.
     $('#patientList').on('click', '.dropdown-item', patientDropdownItemClickListener);
     $('#deviceList').on('click', '.dropdown-item', deviceDropdownItemClickListener);
+
+    // Attaching click event listener for the update frequency button.
     $('#updateFreqBtn').on('click', updateFreqListener);
 
-    // Attach the change event listener to the datepicker input
+    // Attaching change event listener to the datepicker input.
     $('#datepicker-input').on('change', dateChangeListener);
 
+    // Function call to get and display the physician's information.
     getPhysicianInfo();
-    // populate the dropdown with the list of devices registered to the user
+
+    // Populating the patient selector dropdown with patients.
     populatePatientSelectorDropdown();
+
+    // Commented out function call to populate device selector dropdown.
     // populateDeviceSelectorDropdown();
     
-
-    // Register log out button click event listener
+    // Attaching click event listener for the logout button.
     $('#logout').on('click', logoutEventListener);
 
+    // Initializing the datepicker with the current date in Arizona time zone.
     $('#datepicker').datepicker({
-        // This ensures the date is set to the current date in Arizona time zone
         defaultDate: moment().tz("America/Phoenix").format('MM-DD-YYYY')
     });
 
+    // Attaching click event listener for the refresh devices button.
     $('#refreshDevicesBtn').on('click', dateChangeListener);
-    
 });
 
-
-// Event listener for the datepicker input
+// Event listener function for the datepicker input change event.
 function dateChangeListener(e) {
-    // e.preventDefault();
+    // e.preventDefault(); // Uncomment if you need to prevent the default form submission behavior.
+
+    // Retrieving the selected date from the datepicker input.
     var selectedDate = $('#datepicker-input').val();
     
-    // Parse the selected date as a JavaScript Date object
+    // Parsing the selected date string into a JavaScript Date object.
     var parsedDate = new Date(selectedDate);
     
-    // Check if the date is valid
+    // Checking if the parsed date is a valid date.
     if (!isNaN(parsedDate.getTime())) {
-        // Format the date as yyyy-mm-dd
+        // Formatting the date into 'yyyy-mm-dd' format.
         var formattedDate = parsedDate.getFullYear() + '-' + 
                             ('0' + (parsedDate.getMonth() + 1)).slice(-2) + '-' + 
                             ('0' + parsedDate.getDate()).slice(-2);
         
+        // Logging the formatted date for debugging.
         console.log('Selected Date (Formatted):', formattedDate);
         
-        // You can now use the formattedDate variable with the "yyyy-mm-dd" format.
+        // You can now use the formattedDate variable in the required 'yyyy-mm-dd' format.
     } else {
+        // Logging an error message if the date is invalid.
         console.log('Invalid Date:', selectedDate);
     }
     
+    // Retrieving additional selections like device ID.
+    // It seems like there are two variables declared for selectedDeviceId; this could be a mistake.
+    // The second declaration of selectedDeviceId should probably be currentSelectedDeviceId.
     var selectedDate = getSelectedDate();
     var selectedDeviceId = getSelectedDeviceId();
-    var selectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
+    var currentSelectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
     console.log('selected device ID (in date change listener): ', currentSelectedDeviceId);
     console.log('selected Date (in date change listener): ', selectedDate);
+
+    // Calling getSensorData function with the selected device ID and date.
+    // These calls seem to fetch sensor data for the day and week of the selected date.
     getSensorData(currentSelectedDeviceId, formattedDate, 'day');
     getSensorData(currentSelectedDeviceId, formattedDate, 'week');
-
 }
-// Event listener for the dropdown items in the device selector
+
+// Event listener function for dropdown items in the patient selector.
 function patientDropdownItemClickListener(e) {
-    e.preventDefault();
+    e.preventDefault(); // Prevents the default action of the event (useful if this is an anchor tag or a submit button).
+
+    // Disabling the update frequency button initially.
     $('#updateFreqBtn').prop('disabled', true);
+
+    // Retrieving the selected patient's email and name from the clicked dropdown item.
     var selectedPatientEmail = $(this).data('patientemail');
     var selectedPatientName = $(this).text();
 
+    // Updating the UI to reflect the selected patient.
     updateSelectedPatientText(selectedPatientName);
 
+    // Populating the device selector dropdown based on the selected patient.
+    // A callback function is provided to execute after the dropdown is populated.
     populateDeviceSelectorDropdown(selectedPatientEmail, selectedPatientName, function() {
+        // Fetching the device ID and name of the currently selected device from the device list.
         var selectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
         var selectedDeviceName = $('#deviceList .dropdown-item.selected').text();
-        var selectedDate = getSelectedDate();
+        var selectedDate = getSelectedDate(); // Function to get the currently selected date.
 
+        // Logging for debugging purposes.
         console.log('current selected device name: ', selectedDeviceName);
         console.log('selected patient email: ', selectedPatientEmail);
         console.log('selected device ID: ', selectedDeviceId);
         console.log('selected Date: ', selectedDate);
 
+        // Fetching sensor data for the selected device and date.
         getSensorData(selectedDeviceId, selectedDate, 'day');
         getSensorData(selectedDeviceId, selectedDate, 'week');
     });
 }
 
-// Event listener for the dropdown items in the device selector
+
+// Event listener function for dropdown items in the device selector.
 function deviceDropdownItemClickListener(e) {
-    // prevent the default behavior of the link
-    e.preventDefault();
-    
+    e.preventDefault(); // Prevents the default action of the event, which is useful for links.
+
+    // Retrieving the selected device ID and name from the clicked dropdown item.
     var selectedDeviceId = $(this).data('deviceid');
-    currentSelectedDeviceId = selectedDeviceId;
+    currentSelectedDeviceId = selectedDeviceId; // Storing the selected device ID in a global variable.
     var selectedDeviceName = $(this).text();
+
+    // AJAX GET request to fetch information about the selected device.
     $.ajax({
         url: '/devices/info',
         method: 'GET',
         contentType: 'application/json',
-        data: {deviceId: currentSelectedDeviceId},
-        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
+        data: { deviceId: currentSelectedDeviceId }, // Sending the selected device ID as a request parameter.
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") }, // Setting authentication header.
         dataType: 'json',
-    }).done(function(response){
+    }).done(function(response) {
+        // Logging the response from the server for debugging.
         console.log('response from server', response);
+
+        // Updating the measurement frequency input field with the data from the server.
         $('#measurementFrequency').val(response.message.measurementFrequency);
-        // disable the update button
+
+        // Disabling the update frequency button initially.
         $('#updateFreqBtn').prop('disabled', true);
-    }).fail(function(jqXHR){
+    }).fail(function(jqXHR) {
+        // Logging errors if the AJAX request fails.
         console.log('An error occurred:', jqXHR);
-        // Extract and display the error message
+
+        // Extracting and displaying the error message.
         var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
         console.log(errorMessage);
     });
+
+    // Logging for debugging purposes.
     console.log('device dropdown item clicked');
     console.log('Selected device ID:', selectedDeviceId);
     console.log('Selected device Name:', selectedDeviceName);
 
-    // update the text of the selected device
+    // Updating the UI to reflect the selected device.
     updateSelectedDeviceText(selectedDeviceName);
 
+    // Retrieving the currently selected date.
     var selectedDate = getSelectedDate();
 
-    // get the sensor data for the selected device and date
+    // Fetching sensor data for the selected device and date.
     getSensorData(selectedDeviceId, selectedDate, 'day');
     getSensorData(selectedDeviceId, selectedDate, 'week');
 }
 
-function updateFreqListener(e){
+
+// Event listener function for updating the measurement frequency.
+function updateFreqListener(e) {
+    // Retrieving the new measurement frequency value from the input field.
     var newMeasurementFrequency = $('#measurementFrequency').val();
-    // console.log('device ID: ', currentSelectedDeviceId);
+
+    // AJAX PUT request to update the measurement frequency on the server.
     $.ajax({
-        url: '/devices/update',
-        method: 'PUT', // Adjust method as per your API requirement
+        url: '/devices/update', // URL to the API endpoint for updating device information.
+        method: 'PUT', // Using PUT method for update operation.
         contentType: 'application/json',
-        data: JSON.stringify({ measurementFrequency: newMeasurementFrequency, deviceId: currentSelectedDeviceId }), // Adjust data format as per your API requirement
-        headers: { 'x-auth': window.localStorage.getItem("physician-token") }, // Include other headers if necessary
+        data: JSON.stringify({ 
+            measurementFrequency: newMeasurementFrequency, 
+            deviceId: currentSelectedDeviceId // Including the current selected device ID.
+        }), // Sending the new measurement frequency and device ID as JSON.
+        headers: { 
+            'x-auth': window.localStorage.getItem("physician-token") // Including authentication header.
+        },
         success: function(response) {
+            // Logging the success response from the server.
             console.log('Update successful', response);
-            originalValue = newMeasurementFrequency; // Update the original value
+            // Updating the original value with the new frequency.
+            originalValue = newMeasurementFrequency;
         },
         error: function(error) {
+            // Logging the error in case the update fails.
             console.log('Error in updating', error);
+            // Showing a modal or alert to inform the user about the error.
+            // This assumes you have a showMessageModal function to display errors.
             showMessageModal('Error', error.responseJSON.message || 'An error occurred', 'error');
         }
     });
 }
+
+// Event listener function for handling the logout event.
 function logoutEventListener(e) {
-    e.preventDefault();
+    e.preventDefault(); // Prevents the default action of the event (e.g., if it's attached to a submit button or a link).
+
+    // Removing the stored physician's token from local storage.
     window.localStorage.removeItem("physician-token");
+
+    // Removing the stored physician's email from local storage.
     window.localStorage.removeItem("physician-email");
+
+    // Redirecting the user to the physician login page.
     window.location.href = '/physician-login.html';
 }
+
 // ==================== End of Event Listeners ====================
 
 
@@ -168,32 +228,41 @@ function logoutEventListener(e) {
 var deviceIdToDeviceName = {};
 var deviceNameToDeviceId = {};
 
+// Function to populate the device selector dropdown based on the patient's email.
 function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
+    // Logging for debugging purposes.
     console.log('patient name: ', patientName);
     console.log('Getting all devices registered to', patientEmail + ' for patient ' + patientName);
 
+    // Data object containing the patient's email.
     var data = { email: patientEmail };
 
+    // AJAX GET request to fetch devices associated with the given patient email.
     $.ajax({
         url: '/devices/physicianRead',
         method: 'GET',
         contentType: 'application/json',
         data: data,
-        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") }, // Authentication header.
         dataType: 'json',
     })
     .done(function(response) {
+        // Logging the response from the server.
         console.log('response from server', response);
+
+        // Emptying the current device list before populating new items.
         $('#deviceList').empty();
 
         var isFirstItem = true;
 
+        // Iterating over each device in the response and creating dropdown items.
         response.forEach(function(device) {
             var option = $('<a>')
                 .addClass('dropdown-item')
                 .text(device.deviceName)
                 .attr('data-deviceid', device.deviceId);
 
+            // Automatically select the first device in the list.
             if (isFirstItem) {
                 option.addClass('selected');
                 $('#selectedDeviceText').text(device.deviceName);
@@ -205,94 +274,108 @@ function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
 
             $('#deviceList').append(option);
         });
-        
 
-        /// Listener for input change
+        // Listener for changes in the measurement frequency input.
         var originalValue = $('#measurementFrequency').val();
         $('#measurementFrequency').on('change', function() {
             var currentValue = $(this).val();
-            // Check if the current value is different from the original value
             console.log('current value: ', currentValue);
             console.log('original value: ', originalValue);
+
+            // Enable the update button if the current value differs from the original value.
             if(currentValue !== originalValue){
                 $('#updateFreqBtn').prop('disabled', false);
             } else {
                 $('#updateFreqBtn').prop('disabled', true);
             }
         });
+
+        // Re-initializing the Bootstrap dropdown.
         $('.dropdown-toggle').dropdown();
+
+        // Fetching sensor data for the initially selected device.
         var selectedDeviceId = getSelectedDeviceId();
         var selectedDate = getSelectedDate();
         console.log('selected device ID (in pop patient selector): ', selectedDeviceId);
         console.log('selected Date (in pop patient selector): ', selectedDate);
         getSensorData(selectedDeviceId, selectedDate, 'day');
         getSensorData(selectedDeviceId, selectedDate, 'week');
+
+        // Execute the callback function if it's provided.
         if (typeof callback === "function") {
             callback();
         }
     })
     .fail(function(error) {
+        // Logging the error and clearing old data in case of a failure.
         console.log(error);
         clearOldData();
         clearOldPatientSettings();
     });
 }
 
+// Function to populate the patient selector dropdown.
 function populatePatientSelectorDropdown() {
-
+    // AJAX GET request to fetch patient information.
     $.ajax({
-        url: '/physicians/read/',
+        url: '/physicians/read/', // URL to the API endpoint for reading physician info.
         method: 'GET',
         contentType: 'application/json',
-        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") }, // Setting authentication header.
         dataType: 'json'
     })
     .done(function(response) {
+        // Extracting patients data from the response.
         var patients = response.physicianInfo.patients;
         var isFirstItem = true;
 
+        // Iterating over each patient to create dropdown items.
         patients.forEach(function(patient) {
             var option = $('<a>')
                 .addClass('dropdown-item')
-                .text(patient.firstName + ' ' + patient.lastName)
-                .attr('data-patientid', patient._id) // Existing attribute for patient ID
-                .attr('data-patientemail', patient.email); // New attribute for patient email
+                .text(patient.firstName + ' ' + patient.lastName) // Setting text to patient's full name.
+                .attr('data-patientid', patient._id) // Storing patient ID as a data attribute.
+                .attr('data-patientemail', patient.email); // Storing patient email as a new data attribute.
         
+            // Selecting the first patient by default.
             if (isFirstItem) {
-                // Set the first item as the default selected item
                 option.addClass('selected');
                 isFirstItem = false;
         
-                // Optionally, set the default selected item text somewhere in your UI
+                // Setting the default selected patient's name in the UI.
                 $('#selectedPatientText').text(patient.firstName + ' ' + patient.lastName);
             }
         
+            // Prepending the new option to the dropdown list.
             $('#patientList').prepend(option);
         });
         
+        // Re-initializing the Bootstrap dropdown.
         $('.dropdown-toggle').dropdown();
 
-        // Retrieve the ID of the default selected item
+        // Retrieving the ID and email of the default selected patient.
         var defaultSelectedPatientId = $('#patientList .dropdown-item.selected').data('patientid');
         console.log('Default selected patient ID:', defaultSelectedPatientId);
         var defaultSelectedPatientEmail = $('#patientList .dropdown-item.selected').data('patientemail');
         console.log('Default selected patient email:', defaultSelectedPatientEmail);
         var defaultSelectedPatientName = $('#patientList .dropdown-item.selected').text();
-        populateDeviceSelectorDropdown(defaultSelectedPatientEmail, defaultSelectedPatientName);
-        // get sensor data based on selected device id and date
 
+        // Populating the device selector dropdown for the default selected patient.
+        populateDeviceSelectorDropdown(defaultSelectedPatientEmail, defaultSelectedPatientName);
+        // Additional functionality to fetch sensor data can be added here.
     })
     .fail(function(error) {
+        // Logging the error if the AJAX request fails.
         console.log(error);
     });
 }
 
 // Function to get the selected device ID
 function getSelectedDeviceId() {
-    
     return $('#deviceList .dropdown-item.selected').data('deviceid'); // returns the deviceId corresponding to the selected device name
 }
 
+// Function to get the selected device name
 function getSelectedDeviceName() {
     var selectedDeviceName = $('#selectedDeviceText').text();
     return selectedDeviceName;
@@ -302,7 +385,7 @@ function getSelectedPatientId() {
     var selectedDeviceName = $('#selectedDeviceText').text();
     return deviceNameToDeviceId[selectedDeviceName]; // returns the deviceId corresponding to the selected device name  
 }
-
+// Function to get the selected device name
 function getSelectedPatientName() {
     var selectedDeviceName = $('#selectedDeviceText').text();
     return selectedDeviceName;

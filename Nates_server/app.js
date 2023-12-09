@@ -5,8 +5,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-
-
 var app = express();
 
 app.use(logger('dev'));
@@ -16,7 +14,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var patientsRouter = require('./routes/patients');
 var sensorDataRouter = require('./routes/sensorData'); 
 var devicesRouter = require('./routes/devices');
 var integrationsRouter = require('./routes/integrations');
@@ -37,7 +35,7 @@ app.use(function (req, res, next) {
 
 // Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/patients', patientsRouter);
 app.use('/sensorData', sensorDataRouter); 
 app.use('/devices', devicesRouter);
 app.use('/integrations', integrationsRouter);
