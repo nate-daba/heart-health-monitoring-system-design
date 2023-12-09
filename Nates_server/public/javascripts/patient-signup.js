@@ -51,7 +51,7 @@ function signUp(e) {
     };
 
     $.ajax({
-        url: '/users/signup',
+        url: '/patients/signup',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(newPatientInfo),

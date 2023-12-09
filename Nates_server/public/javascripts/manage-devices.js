@@ -535,7 +535,7 @@ function onModalShown() {
 // Function to get the user info
 function getPatientInfo() {
     $.ajax({
-        url: '/users/read/',
+        url: '/patients/read/',
         method: 'GET',
         contentType: 'application/json',
         headers: { 'x-auth': window.localStorage.getItem("patient-token") },

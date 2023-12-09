@@ -17,7 +17,7 @@ function logIn(e) {
     };
     // console.log('credentials: ', credentials);
     $.ajax({
-        url: '/users/logIn',
+        url: '/patients/logIn',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(credentials),
