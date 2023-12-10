@@ -55,7 +55,7 @@ router.post('/store', async function(req, res) {
         let blinkConfig = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://api.particle.io/v1/devices/e00fce689a40d73e1ff0573a/flashGreenLED',
+            url: `https://api.particle.io/v1/devices/${req.body.coreid}/flashGreenLED`,
             headers: { 
                 'Content-Type': 'application/x-www-form-urlencoded', 
                 'Authorization': 'Bearer ' + accessToken // 
