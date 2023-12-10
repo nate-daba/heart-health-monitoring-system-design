@@ -9,7 +9,7 @@ const fs = require('fs');
 // Read the secret key from a file
 const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 
-// CRUD implementation for Physicians
+// CRUD implementation for physicians
 
 /** 
  * CREATE /signup route:
@@ -85,10 +85,11 @@ router.get('/read', async function(req, res) {
         // Decoding the token to retrieve the physician's email.
         const decoded = jwt.decode(token, secret);
         const physicianEmail = decoded.physicianEmail;
-
+        console.log('physician email: ' + physicianEmail);
         // Finding the physician in the database using the email.
         // Using .lean() for improved performance as a Mongoose document is not needed.
-        var physicianDoc = await Physician.findOne({ email: physicianEmail }).lean(); 
+        var physicianDoc = await Physician.findOne({ email: physicianEmail })
+        console.log('physician doc: ' + physicianDoc.toObject());
         if (!physicianDoc) {
             // If the physician is not found, send a not found response.
             return res.status(404).json({ message: 'Physician not found.' });

@@ -75,15 +75,21 @@ function dateChangeListener(e) {
     // It seems like there are two variables declared for selectedDeviceId; this could be a mistake.
     // The second declaration of selectedDeviceId should probably be currentSelectedDeviceId.
     var selectedDate = getSelectedDate();
-    var selectedDeviceId = getSelectedDeviceId();
-    var currentSelectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
+
     console.log('selected device ID (in date change listener): ', currentSelectedDeviceId);
     console.log('selected Date (in date change listener): ', selectedDate);
 
     // Calling getSensorData function with the selected device ID and date.
     // These calls seem to fetch sensor data for the day and week of the selected date.
-    getSensorData(currentSelectedDeviceId, formattedDate, 'day');
-    getSensorData(currentSelectedDeviceId, formattedDate, 'week');
+    try {
+        
+        getSensorData(currentSelectedDeviceId, formattedDate, 'day');
+        getSensorData(currentSelectedDeviceId, formattedDate, 'week');
+
+    } catch (error) {
+        console.log('Error in fetching sensor data: ', error);
+    }
+    
 }
 
 // Event listener function for dropdown items in the patient selector.
@@ -111,12 +117,16 @@ function patientDropdownItemClickListener(e) {
         // Logging for debugging purposes.
         console.log('current selected device name: ', selectedDeviceName);
         console.log('selected patient email: ', selectedPatientEmail);
-        console.log('selected device ID: ', selectedDeviceId);
+        console.log('selected device ID: ', currentSelectedDeviceId);
         console.log('selected Date: ', selectedDate);
 
         // Fetching sensor data for the selected device and date.
-        getSensorData(selectedDeviceId, selectedDate, 'day');
-        getSensorData(selectedDeviceId, selectedDate, 'week');
+        try {
+            getSensorData(selectedDeviceId, selectedDate, 'day');
+            getSensorData(selectedDeviceId, selectedDate, 'week');
+        } catch (error) {
+            console.log('Error in fetching sensor data: ', error);
+        }
     });
 }
 
@@ -168,8 +178,12 @@ function deviceDropdownItemClickListener(e) {
     var selectedDate = getSelectedDate();
 
     // Fetching sensor data for the selected device and date.
-    getSensorData(selectedDeviceId, selectedDate, 'day');
-    getSensorData(selectedDeviceId, selectedDate, 'week');
+    try {
+        getSensorData(selectedDeviceId, selectedDate, 'day');
+        getSensorData(selectedDeviceId, selectedDate, 'week');
+    } catch (error) {
+        console.log('Error in fetching sensor data: ', error);
+    }
 }
 
 
@@ -294,12 +308,16 @@ function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
         $('.dropdown-toggle').dropdown();
 
         // Fetching sensor data for the initially selected device.
-        var selectedDeviceId = getSelectedDeviceId();
+        var selectedDeviceId = currentSelectedDeviceId;
         var selectedDate = getSelectedDate();
         console.log('selected device ID (in pop patient selector): ', selectedDeviceId);
         console.log('selected Date (in pop patient selector): ', selectedDate);
-        getSensorData(selectedDeviceId, selectedDate, 'day');
-        getSensorData(selectedDeviceId, selectedDate, 'week');
+        try {
+            getSensorData(currentSelectedDeviceId, selectedDate, 'day');
+            getSensorData(currentSelectedDeviceId, selectedDate, 'week');
+        } catch (error) {
+            console.log('Error in fetching sensor data: ', error);
+        }
 
         // Execute the callback function if it's provided.
         if (typeof callback === "function") {
@@ -308,9 +326,13 @@ function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
     })
     .fail(function(error) {
         // Logging the error and clearing old data in case of a failure.
+        console.log('Error in fetching devices for patient', patientEmail)
         console.log(error);
-        clearOldData();
+        // clearOldData();
+        clearOldData('day');
+        clearOldData('week');
         clearOldPatientSettings();
+        currentSelectedDeviceId = null;
     });
 }
 
@@ -370,11 +392,6 @@ function populatePatientSelectorDropdown() {
     });
 }
 
-// Function to get the selected device ID
-function getSelectedDeviceId() {
-    return $('#deviceList .dropdown-item.selected').data('deviceid'); // returns the deviceId corresponding to the selected device name
-}
-
 // Function to get the selected device name
 function getSelectedDeviceName() {
     var selectedDeviceName = $('#selectedDeviceText').text();
@@ -421,6 +438,10 @@ function updateSelectedDeviceText(deviceName) {
 }
 // Function to get the sensor data for the selected device and date and plot it
 function getSensorData(deviceId, selectedDate, span){
+    console.log('span in get sensor data: ', span);
+    console.log('selected date in get sensor data: ', selectedDate);
+    console.log('selected device ID in get sensor data: ', deviceId);
+    
     var data = {
         deviceId: deviceId,
         selectedDate: selectedDate,
@@ -440,6 +461,7 @@ function getSensorData(deviceId, selectedDate, span){
             populateCharts(response);
         }
         else if (span === 'week') {
+            console.log('populating weekly summary (in get sensor data)')
             populateWeeklySummary(response);
         }
         
@@ -447,7 +469,8 @@ function getSensorData(deviceId, selectedDate, span){
     .fail(function(error) {
         console.log('No sensor data found for this device and date.')
         console.log(error);
-        clearOldData();
+        clearOldData(span);
+
     });   
 }
 // Function to plot the data
@@ -462,7 +485,7 @@ function plot(chartId, x, y, unit, label) {
             labels: x,
             datasets: [{
                 label: label,
-                lineTension: 0,
+                lineTension: 0.05,
                 backgroundColor: "rgba(78, 115, 223, 0.05)",
                 borderColor: "rgba(78, 115, 223, 1)",
                 pointRadius: 5,
@@ -618,22 +641,24 @@ function plot(chartId, x, y, unit, label) {
     });
     return myLineChart;
 }
-function clearOldData()
+function clearOldData(span)
 {
-    // Destroy the existing charts
-    if (heartRateChart && oxygenSaturationChart){
-        heartRateChart.destroy();
-        oxygenSaturationChart.destroy();
+    if (span === 'day') {
+        // Destroy the existing charts
+        if (heartRateChart && oxygenSaturationChart){
+            heartRateChart.destroy();
+            oxygenSaturationChart.destroy();
+        }
     }
-
-    // Clear the weekly summary cards
-    $("#avg-hr").text("--");
-    $("#max-hr").text("--");
-    $("#min-hr").text("--");
-    $("#avg-o2").text("--");
-    $("#max-o2").text("--");
-    $("#min-o2").text("--");
-
+    else if (span === 'week') {
+        // Clear the weekly summary cards
+        $("#avg-hr").text("--");
+        $("#max-hr").text("--");
+        $("#min-hr").text("--");
+        $("#avg-o2").text("--");
+        $("#max-o2").text("--");
+        $("#min-o2").text("--");
+    }
 }
 
 function clearOldPatientSettings(){
@@ -644,11 +669,12 @@ function clearOldPatientSettings(){
     // Clear the measurement frequency
     $('#measurementFrequency').val('');
     // Clear the charts
-    clearOldData();
+    // clearOldData();
 
 }
 // Function to populate the weekly summary cards
 function populateWeeklySummary(response){
+    // clearOldData();
     const [heartrateData, spo2Data, timeData] = extractData(response);
     console.log('populating weekly summary: ', response)
     // Calculate stats for the week
@@ -661,10 +687,10 @@ function populateWeeklySummary(response){
     var minOxygenSaturation = Math.min(...spo2Data);
 
     // Update the weekly summary cards
-    $("#avg-hr").text(avgHeartRate.toFixed(1) + ' bpm');
+    $("#avg-hr").text(avgHeartRate.toFixed(0) + ' bpm');
     $("#max-hr").text(maxHeartRate + ' bpm');
     $("#min-hr").text(minHeartRate  + ' bpm');
-    $("#avg-o2").text(avgOxygenSaturation.toFixed(1) + ' %');
+    $("#avg-o2").text(avgOxygenSaturation.toFixed(0) + ' %');
     $("#max-o2").text(maxOxygenSaturation + ' %');
     $("#min-o2").text(minOxygenSaturation + ' %');
 
@@ -715,7 +741,7 @@ function extractData(response){
         heartrateData.push(data.data.heartrate);
         spo2Data.push(data.data.spo2);
         var date = new Date(data.measurementTime);
-        var time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        var time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
         timeData.push(time); // wrap published_at in new Date() to convert it to a date object
     });
     var data = [heartrateData, spo2Data, timeData];

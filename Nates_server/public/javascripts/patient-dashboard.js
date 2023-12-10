@@ -54,7 +54,6 @@ function dateChangeListener(e) {
     }
     
     var selectedDate = getSelectedDate();
-    var selectedDeviceId = getSelectedDeviceId();
 
     getSensorData(selectedDeviceId, formattedDate, 'day');
     getSensorData(selectedDeviceId, formattedDate, 'week');
@@ -126,15 +125,12 @@ function populateDeviceSelectorDropdown() {
         }
     })
     .fail(function(error) {
+        clearOldData('day');
+        clearOldData('week');
         console.log(error);
     });
 }
 
-
-// Function to get the selected device ID
-function getSelectedDeviceId() {
-    return selectedDeviceId;
-}
 // Function to get the selected date
 function getSelectedDate(){
 
@@ -189,7 +185,7 @@ function getSensorData(deviceId, selectedDate, span){
     .fail(function(error) {
         console.log('No sensor data found for this device and date.' + ' Span:' + span)
         console.log(error);
-        clearOldData();
+        clearOldData(span);
     });   
 }
 // Function to plot the data
@@ -372,22 +368,24 @@ function findMin(data) {
     let minIndex = data.indexOf(min);
     return { min, minIndex };
 }
-function clearOldData()
+function clearOldData(span)
 {
-    // Destroy the existing charts
-    if (heartRateChart && oxygenSaturationChart){
-        heartRateChart.destroy();
-        oxygenSaturationChart.destroy();
+    if (span === 'day') {
+        // Destroy the existing charts
+        if (heartRateChart && oxygenSaturationChart){
+            heartRateChart.destroy();
+            oxygenSaturationChart.destroy();
+        }
     }
-
-    // Clear the weekly summary cards
-    $("#avg-hr").text("--");
-    $("#max-hr").text("--");
-    $("#min-hr").text("--");
-    $("#avg-o2").text("--");
-    $("#max-o2").text("--");
-    $("#min-o2").text("--");
-
+    else if (span === 'week') {
+        // Clear the weekly summary cards
+        $("#avg-hr").text("--");
+        $("#max-hr").text("--");
+        $("#min-hr").text("--");
+        $("#avg-o2").text("--");
+        $("#max-o2").text("--");
+        $("#min-o2").text("--");
+    }
 }
 // Function to populate the weekly summary cards
 function populateWeeklySummary(response){
@@ -444,7 +442,7 @@ function extractData(response){
         heartrateData.push(data.data.heartrate);
         spo2Data.push(data.data.spo2);
         var date = new Date(data.measurementTime);
-        var time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        var time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
         timeData.push(time); // wrap published_at in new Date() to convert it to a date object
     });
     var data = [heartrateData, spo2Data, timeData];

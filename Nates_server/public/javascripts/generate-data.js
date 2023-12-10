@@ -29,7 +29,8 @@ function generateAndSendData(deviceId, startDate, endDate, interval) {
                 measurementTime: currentTime.toISOString()
             }),
             coreid: deviceId,
-            published_at: new Date().toISOString()
+            published_at: new Date().toISOString(),
+            test: true
         };
 
         sendSensorData(data, function() {

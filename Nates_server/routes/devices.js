@@ -11,6 +11,8 @@ const fs = require('fs');
 // Read the secret key from a file
 const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 
+// CRUD implementation for sensor data
+
 /**
  * CREATE /register route:
  * This route is used to register a new device to a user's account. It starts by verifying the user's
@@ -415,10 +417,12 @@ router.get('/info', async function(req, res) {
                 deviceStatus: deviceInfoResponse.data.online ? 'online' : 'offline',
                 productName: productInfoResponse.data.product.name, // Add the product name to the response
                 registeredOn: device.registeredOn,
-                measurementFrequency: device.measurementFrequency,
-                timeOfDayRangeOfMeasurements: device.timeOfDayRangeOfMeasurements,
+                measurementFrequency:deviceInfoResponse.data.online ? device.measurementFrequency : 30,
+                timeOfDayRangeOfMeasurements: deviceInfoResponse.data.online ? device.timeOfDayRangeOfMeasurements : {startTime: '06:00', endTime: '22:00'},
             }
             device.deviceName = deviceName;
+            device.measurementFrequency = data.measurementFrequency;
+            device.timeOfDayRangeOfMeasurements = data.timeOfDayRangeOfMeasurements;
             await device.save();
             return res.status(200).json({ message : data });
         } else {

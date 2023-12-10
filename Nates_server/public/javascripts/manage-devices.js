@@ -175,7 +175,7 @@ function registerDevice(e) {
                 $('<td>').text(deviceType),
                 $('<td>').text(deviceStatus),
                 $('<td>').text(deviceRegisteredOn),
-                $('<td>').text(measurementFrequency),
+                $('<td>').text(measurementFrequency + ' mins'),
                 $('<td>').text(convertTo12Hour(startTime)), // Start Time
                 $('<td>').text(convertTo12Hour(endTime)), // End Time
                 $('<td>').html(createDropdown()) // Append the dropdown
