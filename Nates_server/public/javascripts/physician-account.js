@@ -30,6 +30,18 @@ $(document).ready(function() {
         // Toggle the eye/eye-slash icon
         $(this).find('i').toggleClass('fa-eye fa-eye-slash');
     });
+
+    // Open the modal when the delete button is clicked
+    $('#deleteAccountBtn').click(function() {
+        $('#deleteAccountModal').modal('show');
+    });
+
+    $('#confirmDeleteBtn').on('click', deleteAccount);
+
+    // Listener for Delete Account Confirmation Modal. go to home.html
+    $('#deleteAccountModal').on('hidden.bs.modal', function() {
+        window.location.href = '/home.html';
+    });
     
 });
 
@@ -42,17 +54,17 @@ function fetchAccountDetails() {
         dataType: 'json',
         headers: { 'x-auth': window.localStorage.getItem("physician-token") }, 
         success: function(response) {
-            var physicianInfo = response.physicianInfo;
-            if (physicianInfo) {
-                $('#email').val(physicianInfo.email);
-                $('#firstName').val(physicianInfo.firstName);
-                $('#lastName').val(physicianInfo.lastName);
+            var physicianDoc = response.physicianDoc;
+            if (physicianDoc) {
+                $('#email').val(physicianDoc.email);
+                $('#firstName').val(physicianDoc.firstName);
+                $('#lastName').val(physicianDoc.lastName);
 
                 // Set original data after fetching
                 originalData = {
-                    email: physicianInfo.email,
-                    firstName: physicianInfo.firstName,
-                    lastName: physicianInfo.lastName
+                    email: physicianDoc.email,
+                    firstName: physicianDoc.firstName,
+                    lastName: physicianDoc.lastName
                 };
             } else {
                 console.error('Invalid response format');
@@ -227,8 +239,8 @@ function getPhysicianInfo() {
     })
     .done(function(response) {
         console.log('response from server', response);
-        console.log('first name from server', response.physicianInfo.firstName);
-        $('#physicianFullName').text('Dr. ' + response.physicianInfo.firstName + ' ' + response.physicianInfo.lastName);
+        console.log('first name from server', response.physicianDoc.firstName);
+        $('#physicianFullName').text('Dr. ' + response.physicianDoc.firstName + ' ' + response.physicianDoc.lastName);
     })
     .fail(function(error) {
         console.log(error);
@@ -240,4 +252,32 @@ function showMessageModal(title, message, type) {
     modal.find('.modal-title').text(title);
     modal.find('.modal-body #genericMessage').text(message);
     modal.modal('show');
+}
+
+// Handle the confirmation of the deletion
+function deleteAccount()
+{
+    // Retrieve the stored JWT token
+    // Assuming you store your token in localStorage or a similar mechanism
+    const token = localStorage.getItem('physician-token');
+
+    // Perform the AJAX request to delete the account
+    $.ajax({
+        url: '/physicians/delete', 
+        method: 'DELETE',
+        contentType: 'application/json',
+        headers: { 'x-auth': window.localStorage.getItem("physician-token") },
+        dataType: 'json'
+    }).done(function(response) {
+        // Handle success
+        showMessageModal('Success', 'Account deleted successfully.', 'success');
+        // Remove the JWT token from localStorage
+        localStorage.removeItem('physician-token');
+    }).fail(function(error) {
+        // Handle error
+        showMessageModal('Error', error.responseJSON.message || 'An error occurred', 'error');
+    });
+
+    // Close the modal
+    $('#deleteAccountModal').modal('hide');
 }

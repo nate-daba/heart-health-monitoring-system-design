@@ -129,9 +129,6 @@ function registerDevice(e) {
     var deviceId = $('#deviceId').val();
     // input validation 
     if (deviceId === "") {
-        // var errorElement = $('<div>').addClass('text-red-500').text('Device ID can not be empty.');
-        // $('#registrationStatus').html(errorElement);
-        // $('#registrationStatus').show()
         showMessageModal('Error', 'Device ID can not be empty.', 'error');
         return;
     }
@@ -161,8 +158,7 @@ function registerDevice(e) {
             headers: { 'x-auth': window.localStorage.getItem("patient-token") },
             dataType: 'json',
         }).done(function(response){
-            console.log('device info', response.message);
-            showMessageModal('Device Registration', 'The device was registered successfully.', 'success');
+            showMessageModal('Device Registration', 'Device registered successfully.', 'success');
             var deviceName = response.message.deviceName;
             var deviceStatus = response.message.deviceStatus;
             var deviceType = response.message.productName;
@@ -194,31 +190,20 @@ function registerDevice(e) {
                 $('#devicesTable').show();
                 $('.no-devices-message').remove(); // Remove the 'no devices' message if it exists
             }
-            // var message = 'Device registered successfully!';
-        
-            // var messageElement = $('<div>').addClass('text-red-500').text(message);
-            // $('#registrationStatus').html(messageElement);
-            // $('#registrationStatus').show()
+
             $('#deviceId').val(''); // Clear the device ID field
             console.log(response);
             
-            
         }).fail(function(jqXHR){
-            console.log('An error occurred:', jqXHR);
             // Extract and display the error message
             var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
             showMessageModal('Device Registration', errorMessage, 'error');
-            console.log(errorMessage);
+
         });
     }) 
     .fail(function(jqXHR) {
-        console.log('An error occurred:', jqXHR);
         // Extract and display the error message
         var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
-        // console.log(errorMessage);
-        // var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
-        // $('#registrationStatus').html(errorElement);
-        // $('#registrationStatus').show()
         showMessageModal('Device Registration', errorMessage, 'error');
     });
 }
@@ -386,7 +371,7 @@ function removeDeviceListener(e) {
         console.log('Elements to remove:', $('tr[data-device-id="' + deviceId + '"]').length);
         $('tr[data-device-id="' + deviceId + '"]').remove();
         $('#confirmDeleteModal').modal('hide'); // Hide the confirmation modal
-        showMessageModal('Device removed', 'The device was removed successfully.', 'success');
+        showMessageModal('Device removed', 'Device removed successfully.', 'success');
 
         // Check if there are no more rows after deletion
         if ($('#devicesTable tbody tr').length === 0) {

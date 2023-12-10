@@ -36,10 +36,11 @@ function logIn(e) {
         if (data.success) {
             // Storing email and token in local storage for session management.
             window.localStorage.setItem("physician-email", email);
-            window.localStorage.setItem("physician-token", data.token);
+            window.localStorage.setItem("physician-token", data.physicianToken);
             window.localStorage.setItem('comingFrom', 'physician-login');
             // Redirecting to the physician dashboard upon successful login.
             window.location.href = '/physician-dashboard.html';
+            console.log('physician token: ' + data.physicianToken);
         }
         else {
             // Show error message if login is unsuccessful.

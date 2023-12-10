@@ -9,7 +9,7 @@ const moment = require('moment-timezone');
 
 // CREATE
 router.post('/store', async function(req, res) {
-
+    console.log('req.body', req.body);
     // Check if the API key is valid
     if (!req.headers['x-api-key']) {
         res.status(401).json({ message: "Unauthorized: API key is missing." });

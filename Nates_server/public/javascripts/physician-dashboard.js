@@ -326,7 +326,7 @@ function populatePatientSelectorDropdown() {
     })
     .done(function(response) {
         // Extracting patients data from the response.
-        var patients = response.physicianInfo.patients;
+        var patients = response.physicianDoc.patients;
         var isFirstItem = true;
 
         // Iterating over each patient to create dropdown items.
@@ -766,7 +766,7 @@ function getPhysicianInfo() {
     })
     .done(function(response) {
         console.log('response from server (in get physician info)', response);
-        $('#physicianFullName').text('Dr. ' + response.physicianInfo.firstName + ' ' + response.physicianInfo.lastName);
+        $('#physicianFullName').text('Dr. ' + response.physicianDoc.firstName + ' ' + response.physicianDoc.lastName);
     })
     .fail(function(error) {
         console.log(error);

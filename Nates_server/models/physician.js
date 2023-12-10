@@ -6,7 +6,7 @@ const physicianSchema = new db.Schema({
     email: String,
     specialty: String,
     hashedPassword: String,
-    patientIds: [
+    patients: [
         {
             type: db.Schema.Types.ObjectId,
             ref: 'User' // Linking to the User model

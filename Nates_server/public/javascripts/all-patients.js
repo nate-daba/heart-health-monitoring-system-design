@@ -169,8 +169,8 @@ function getPhysicianInfo() {
     })
     .done(function(response) {
         console.log('response from server (in get physician info)', response);
-        $('#physicianFullName').text('Dr. ' + response.physicianInfo.firstName + ' ' + response.physicianInfo.lastName);
-        var allPatients = response.physicianInfo.patients;
+        $('#physicianFullName').text('Dr. ' + response.physicianDoc.firstName + ' ' + response.physicianDoc.lastName);
+        var allPatients = response.physicianDoc.patients;
         allPatients.forEach(function(patient) {
             console.log(patient.email);
             getDevicesRegisteredToPatient(patient.email, patient.firstName, patient.lastName);

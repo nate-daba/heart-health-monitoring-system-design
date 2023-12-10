@@ -48,13 +48,13 @@ function signUp(e) {
 
     // Constructing new physician data from the form input values.
     let newPhysicianData = {
-        firstName: $('#firstName').val(),
-        lastName: $('#lastName').val(),
-        email: $('#email').val(),
-        password: $('#password').val(),
-        specialty: $('#specialty').val() // Adding the specialty field.
+        newPhysicianFirstName: $('#firstName').val(),
+        newPhysicianLastName: $('#lastName').val(),
+        newPhysicianEmail: $('#email').val(),
+        newPhysicianPassword: $('#password').val(),
+        newPhysicianSpecialty: $('#specialty').val() // Adding the specialty field.
     };
-
+    console.log("newPhysicianData: " + JSON.stringify(newPhysicianData));
     // AJAX POST request to send the signup data to the server.
     $.ajax({
         url: '/physicians/signup',
@@ -66,8 +66,7 @@ function signUp(e) {
     .done(function(data) {
         // On successful registration, log the data and set the token and email in local storage.
         console.log(data);
-        window.localStorage.setItem('physician-token', data.token);
-        window.localStorage.setItem('physician-email', newPhysicianData.email);
+        window.localStorage.setItem('physician-token', data.physicianToken);
         // Redirecting to the physician dashboard page after successful registration.
         window.location.href = '/physician-dashboard.html';
     })

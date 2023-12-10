@@ -35,14 +35,11 @@ router.post('/signup', async function(req, res) {
             return res.status(409).json({ message: 'A patient with this email address already exists. Please use a different email address.' });
         }
 
-        // Encode a new JWT token using the patient's email.
-        const token = jwt.encode({ patientEmail: newPatientEmail }, secret);
-
         // Hash the password using bcrypt with a salt round of 10 for security.
         const hashedPassword = await bcrypt.hash(newPatientPassword, 10);
 
         // Create a new patient record with the provided details.
-        const newPatient = new Patient({
+        const newPatientDoc = new Patient({
             firstName: newPatientFirstName,
             lastName: newPatientLastName,
             email: newPatientEmail,
@@ -50,7 +47,10 @@ router.post('/signup', async function(req, res) {
         });
 
         // Save the new patient record to the database.
-        await newPatient.save();
+        await newPatientDoc.save();
+
+        // Encode a new JWT token using the patient's email.
+        const token = jwt.encode({ patientEmail: newPatientEmail }, secret);
 
         // Send a success response with a custom message and the generated token.
         return res.status(201).json({ message: 'patient account created successfully.', patientToken: token });
@@ -161,7 +161,7 @@ router.put('/update', async (req, res) => {
                 const oldPhysicianDoc = await Physician.findOne({ email: patientDoc.physicianEmail });
                 if(oldPhysicianDoc) {
                     // Removing the patient's ID from the old physician's patients list.
-                    oldPhysicianDoc.patientIds = oldPhysicianDoc.patientIds.filter(patientId => !patientId.equals(patientDoc._id));
+                    oldPhysicianDoc.patients = oldPhysicianDoc.patients.filter(patientId => !patientId.equals(patientDoc._id));
                     await oldPhysicianDoc.save();
                 }
             }
@@ -177,7 +177,7 @@ router.put('/update', async (req, res) => {
                 return res.status(404).json({ message: "Physician not found." });
             }
 
-            selectedPhysicianDoc.patientIds.push(patientDoc._id);
+            selectedPhysicianDoc.patients.push(patientDoc._id);
             await selectedPhysicianDoc.save();
             res.status(200).json({ message: "Physician updated successfully.", patientDoc: patientDoc });
             return;
@@ -187,7 +187,7 @@ router.put('/update', async (req, res) => {
         else if(req.body.newPassword){
 
             const currentPassword = req.body.currentPassword;
-            console.log("req for password received")
+            
             // Verify the current password with the hashed password in the database.
             if (!bcrypt.compareSync(currentPassword, patientDoc.hashedPassword)) {
                 return res.status(401).json({ message: "Incorrect current password." });
@@ -249,7 +249,7 @@ router.delete('/delete', async function(req, res) {
         // Decode the token to retrieve the patient's email.
         const decoded = jwt.decode(token, secret);
         const patientEmail = decoded.patientEmail;
-        console.log('Patient deleted successfully.');
+        
         // Find and remove the patient
         const patient = await Patient.findOneAndDelete({ email: patientEmail });
         
@@ -273,7 +273,7 @@ router.delete('/delete', async function(req, res) {
         if (patient.physicianEmail) {
             await Physician.updateOne(
                 { email: patient.physicianEmail },
-                { $pull: { patientIds: patient._id } }
+                { $pull: { patients: patient._id } }
             );
         }
 
@@ -317,7 +317,7 @@ router.post("/login", async function (req, res) {
         }
         else {
             // If the patient is found, compare the provided password with the hashed password in the database.
-            if (bcrypt.compareSync(req.body.password, patientInDatabase.hashedPassword)) {
+            if (bcrypt.compareSync(patientPassword, patientInDatabase.hashedPassword)) {
                 // If password matches, create a new JWT token.
                 const token = jwt.encode({ patientEmail: patientInDatabase.email }, secret);
 

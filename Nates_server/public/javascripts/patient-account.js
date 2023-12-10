@@ -73,7 +73,7 @@ function fetchAccountDetails() {
                 $('#firstName').val(patientInfo.firstName);
                 $('#lastName').val(patientInfo.lastName);
                 // Check if patientInfo has physicianDoc
-                console.log
+                console.log('patientInfo', patientInfo)
                 if (patientInfo.physicianDoc) {
                     
                     // Populate physician fields
@@ -111,16 +111,16 @@ function fetchAllPhysicians() {
         method: 'GET',
         dataType: 'json',
         success: function(response) {
-            var physicians = response.physicians;
-            if (physicians && physicians.length > 0) {
-                physicians.forEach(function(physician) {
+            var allPhysicianDocs = response.allPhysicianDocs;
+            if (allPhysicianDocs && allPhysicianDocs.length > 0) {
+                allPhysicianDocs.forEach(function(physicianDoc) {
                     // Save physician details in the global object
-                    physiciansDetail[physician.email] = physician;
+                    physiciansDetail[physicianDoc.email] = physicianDoc;
 
                     // Create an option element for each physician
                     var option = $('<option></option>')
-                        .text('Dr. ' + physician.firstName + ' ' + physician.lastName) 
-                        .attr('data-email', physician.email); 
+                        .text('Dr. ' + physicianDoc.firstName + ' ' + physicianDoc.lastName) 
+                        .attr('data-email', physicianDoc.email); 
 
                     // Append the option to the select element
                     $('#physicianSelect').append(option);
