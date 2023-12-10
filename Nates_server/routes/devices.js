@@ -10,16 +10,11 @@ const fs = require('fs');
 
 // Read the secret key from a file
 const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
 
 // CREATE: this route attaches a device to a user account
 router.post('/register', async function(req, res){
-  
   try {
-    // Retrieve the email from the token
+    // Retrieve the patient email from the token
     const token = req.headers['x-auth'];
     if (!token) {
         return res.status(401).json({ message: 'Missing X-Auth header.' });
@@ -29,28 +24,24 @@ router.post('/register', async function(req, res){
 
     const deviceId = req.body.deviceId;
 
-    // Validate the input
+    // Check if the deviceId is provided and email exists
     if (!deviceId || !email) {
       return res.status(400).json({ message: 'Bad request: Device ID and email are required.' });
     }
 
     // Retrieve the access token using an async function
     const accessToken = await getAccessTokenFromParticleCloud();
-    console.log('Access token retrieved:', accessToken);
     
     // Check if the access token exists
     if (!accessToken) {
       return res.status(404).json({ message: "Can not obtain access token for Particle Cloud." });
-    }
-    else{
-      console.log('access token (in registration)', accessToken)
     }
     
     try {
       // Validate the device ID by making an API call to the Particle Cloud to get the device information
       const responseToDeviceInfoRequest = await axios.get(`https://api.particle.io/v1/devices/${deviceId}`, {
         headers: {
-          Authorization: `Bearer ${accessToken}`, // Replace with your Particle Cloud access token
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -59,38 +50,34 @@ router.post('/register', async function(req, res){
         return res.status(404).json({ message: 'Invalid device ID: Device not found on Particle Cloud.' });
       }
 
-      // Check if the device is already registered to another user
-      const existingDevice = await Device.findOne({ deviceId: deviceId });
-      if (existingDevice) {
-        if (existingDevice.email !== email) {
-          return res.status(409).json({ message: 'Device already registered to another user.' });
+      // Check if the device is already registered to another patient
+      const existingDeviceDoc = await Device.findOne({ deviceId: deviceId });
+      if (existingDeviceDoc) {
+        if (existingDeviceDoc.email !== email) {
+          return res.status(409).json({ message: 'Device already registered to another patient.' });
         } else {
           // If you want to indicate that the same user is trying to register the device again
-          return res.status(409).json({ message: 'Device already registered to this user.' });
+          return res.status(409).json({ message: 'Device already registered to this patient.' });
         }
       }
 
       // Initialize the new device
-      var newDevice = new Device({
+      var newDeviceDoc = new Device({
         deviceId: deviceId,
         email: email,
         accessToken: accessToken,
         registeredOn: Date.now(),
       });
       // Save the new device to the database
-      await newDevice.save();
+      await newDeviceDoc.save();
 
       // Send a 201 response if the device is successfully saved
       res.status(201).json({ message: 'Device registered successfully.' });
     } catch (deviceInfoError) {
-      console.error('Device info error:', deviceInfoError);
-
       // Send an appropriate error message to the client for device info error
       return res.status(400).json({ message: 'Invalid device ID.', errors: deviceInfoError });
     }
   } catch (error) {
-    console.error('Registration error:', error);
-
     // Check for validation errors (assuming the use of Mongoose)
     if (error.name === 'ValidationError') {
       return res.status(400).json({ message: 'Bad request: Invalid device data.', errors: error.errors });
@@ -113,8 +100,6 @@ router.post('/register', async function(req, res){
 
 // READ: create route for retrieving devices for a user with a given email
 router.get('/read', async function(req, res) {
-  // console.log('email received at backend', req.query)
-
   try {
     const token = req.headers['x-auth'];
     if (!token) {
@@ -132,7 +117,6 @@ router.get('/read', async function(req, res) {
       return res.status(404).json({ message: "No devices found for the provided email." });
     }
 
-    console.log('Devices retrieved successfully:', deviceDocs);
     res.status(200).json(deviceDocs); // Use 200 OK for a successful operation
   } catch (err) {
     console.error("An error occurred while retrieving devices:", err); // Log the error so you can inspect it in your server logs
@@ -149,8 +133,6 @@ router.get('/read', async function(req, res) {
 
 // READ: create route for retrieving devices for a user with a given email
 router.get('/physicianRead', async function(req, res) {
-  // console.log('email received at backend', req.query)
-
   try {
     const token = req.headers['x-auth'];
     if (!token) {
@@ -160,8 +142,8 @@ router.get('/physicianRead', async function(req, res) {
     const decoded = jwt.decode(token, secret);
     const email = decoded.email;
     
-    const physician = await Physician.findOne({ email: email });
-    if (!physician) {
+    const physicianDoc = await Physician.findOne({ email: email });
+    if (!physicianDoc) {
       return res.status(404).json({ message: "Physician not found." });
     }
 
@@ -173,10 +155,8 @@ router.get('/physicianRead', async function(req, res) {
       return res.status(404).json({ message: "No devices found for the provided email." });
     }
 
-    console.log('Devices retrieved successfully:', deviceDocs);
     res.status(200).json(deviceDocs); // Use 200 OK for a successful operation
   } catch (err) {
-    console.error("An error occurred while retrieving devices:", err); // Log the error so you can inspect it in your server logs
 
     // If this is a known error type, you can handle it accordingly
     if (err.name === 'CastError') {
@@ -187,9 +167,9 @@ router.get('/physicianRead', async function(req, res) {
     res.status(500).json({ message: "An error occurred while retrieving devices." });
   }
 });
+
 // UPDATE: create route for updating a device
 router.put('/update', async function(req, res) {
-  console.log('req.body', req.body)
   try {
     const token = req.headers['x-auth'];
     if (!token) {

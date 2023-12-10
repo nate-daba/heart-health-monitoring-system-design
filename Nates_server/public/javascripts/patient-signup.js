@@ -44,12 +44,12 @@ function signUp(e) {
     }
 
     let newPatientInfo = {
-        firstName: $('#firstName').val(),
-        lastName: $('#lastName').val(),
-        email: $('#email').val(),
-        password: $('#password').val(),
+        newPatientFirstName: $('#firstName').val(),
+        newPatientLastName: $('#lastName').val(),
+        newPatientEmail: $('#email').val(),
+        newPatientPassword: $('#password').val(),
     };
-
+    console.log("newPatientInfo: " + JSON.stringify(newPatientInfo))
     $.ajax({
         url: '/patients/signup',
         method: 'POST',
@@ -58,14 +58,10 @@ function signUp(e) {
         dataType: 'json'
     })
     .done(function(data) {
-        console.log(data);
-        window.localStorage.setItem('patient-token', data.token);
-        window.localStorage.setItem('patient-email', newPatientInfo.email);
-        window.localStorage.setItem('coming-from', 'signup');
+        window.localStorage.setItem('patient-token', data.patientToken);;
         window.location.href = '/patient-dashboard.html'; // Redirect to the device registration page
     })
     .fail(function(err) {
-        console.log(err.responseJSON.message);
         if(err.status === 409) {
             displayErrorMessages([err.responseJSON.message]);
         }
@@ -76,7 +72,7 @@ function checkPasswordFields() {
     var currentPassword = $('#password').val();
     var confirmPassword = $('#confirmPassword').val();
     var errorMessages = [];
-    console.log("currentPassword: " + currentPassword);
+    
     if(currentPassword.length > 0) {
         // Validate New Password
         if (currentPassword.length < 10 || currentPassword.length > 20) {
@@ -108,7 +104,6 @@ function displayErrorMessages(messages) {
         errorMessageHtml += "<li style=font-size:0.8em;text-align:left;margin-left:-27px;>" + message + "</li>";
     });
     errorMessageHtml += "</ul>";
-    console.log("errorMessageHtml: " + errorMessageHtml)
     $('.errorDiv').html(errorMessageHtml);
     $('.errorDiv').show();
 }

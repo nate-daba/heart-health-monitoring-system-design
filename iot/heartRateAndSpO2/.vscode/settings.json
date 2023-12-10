@@ -4,7 +4,7 @@
     "files.associations": {
         "*.ino": "cpp"
     },
-    "particle.targetDevice": "e00fce68324153a783dcc4f7",
+    "particle.targetDevice": "ndaba",
     "particle.firmwareVersion": "4.2.0",
     "particle.targetPlatform": "argon"
 }

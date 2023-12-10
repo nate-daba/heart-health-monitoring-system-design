@@ -195,7 +195,7 @@
                                 </div> 
                             </div>
                         </div>
-                            
+                        
                         <!-- Manage Physicians Card -->
                         <div class="col-md-6 mb-4">
                             <div class="card shadow">
@@ -230,6 +230,12 @@
                                     </div>
                                  </div>
                             </div>
+                        </div>
+                    </div>
+                    <!-- New Row for Delete Account Button -->
+                    <div class="row">
+                        <div class="col-md-12 text-center mt-2 mb-4">
+                            <button type="button" class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
                         </div>
                     </div>
                 </div>
@@ -288,6 +294,26 @@
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
                     <a class="btn btn-primary" href="patient-login.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Account Deletion</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete your account? This cannot be undone.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" type="button" id="confirmDeleteBtn">Delete Account</button>
                 </div>
             </div>
         </div>

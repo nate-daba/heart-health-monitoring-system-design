@@ -26,10 +26,7 @@ function logIn(e) {
     .done(function(data){
         console.log(data);
         if (data.success){
-            window.localStorage.setItem("patient-email", email);
             window.localStorage.setItem("patient-token", data.patientToken);
-            console.log('patient token: ', data.patientToken)
-            window.localStorage.setItem('comingFrom', 'login');
             window.location.href = '/patient-dashboard.html'; // Redirect to the device registration page
         }
         else{
@@ -40,7 +37,6 @@ function logIn(e) {
         $('.errorDiv').show();
     });
 };
-
 
 $(document).ready(function() {
     $('#loginForm').on('submit', logIn); // Changed to listen on form submit

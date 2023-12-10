@@ -26,7 +26,7 @@ $(document).ready(function() {
 function getALLDevices(e) {
     // stopped here
     // will continue by making a get call to backend to get all devices
-    // registered to the user and populate the table with the devices info
+    // registered to the patient and populate the table with the devices info
     $('#devicesTable tbody').empty();
 
     $.ajax({
@@ -532,7 +532,7 @@ function onModalShown() {
     $('#editDeviceModal').data('originalValues', originalValues);
 }
 
-// Function to get the user info
+// Function to get the patient info
 function getPatientInfo() {
     $.ajax({
         url: '/patients/read/',
@@ -543,7 +543,7 @@ function getPatientInfo() {
     })
     .done(function(response) {
         console.log('response from server', response);
-        $('#patientFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+        $('#patientFullName').text(response.patientDoc.firstName + ' ' + response.patientDoc.lastName);
     })
     .fail(function(error) {
         console.log(error);

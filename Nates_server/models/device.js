@@ -2,7 +2,7 @@ const db = require('../db');
 
 const deviceSchema = new db.Schema({
     deviceId: String,
-    email: String,
+    patientEmail: String,
     accessToken: String,
     registeredOn: { type: Date, default: Date.now },
     deviceName: String,

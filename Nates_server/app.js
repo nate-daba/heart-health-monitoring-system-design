@@ -17,7 +17,6 @@ var indexRouter = require('./routes/index');
 var patientsRouter = require('./routes/patients');
 var sensorDataRouter = require('./routes/sensorData'); 
 var devicesRouter = require('./routes/devices');
-var integrationsRouter = require('./routes/integrations');
 var physiciansRouter = require('./routes/physicians');
 
 // view engine setup
@@ -38,7 +37,6 @@ app.use('/', indexRouter);
 app.use('/patients', patientsRouter);
 app.use('/sensorData', sensorDataRouter); 
 app.use('/devices', devicesRouter);
-app.use('/integrations', integrationsRouter);
 app.use('/physicians', physiciansRouter);
 
 // catch 404 and forward to error handler

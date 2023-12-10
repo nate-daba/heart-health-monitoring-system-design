@@ -17,7 +17,7 @@ $(document).ready(function() {
     $('#datepicker-input').on('change', dateChangeListener);
 
     getPatientInfo();
-    // populate the dropdown with the list of devices registered to the user
+    // populate the dropdown with the list of devices registered to the patient
     populateDeviceSelectorDropdown();
 
     // Register log out button click event listener
@@ -91,11 +91,11 @@ function logoutEventListener(e) {
 
 
 // ====================  Helper Functions =========================
-// Function to populate the dropdown with the list of devices registered to the user update the chart
+// Function to populate the dropdown with the list of devices registered to the patient update the chart
 // Global variable to keep track of the selected device ID
 var selectedDeviceId = null;
 
-// Function to populate the dropdown with the list of devices registered to the user
+// Function to populate the dropdown with the list of devices registered to the patient
 function populateDeviceSelectorDropdown() {
 
     $.ajax({
@@ -483,7 +483,7 @@ function sortByMeasurementTime(data) {
     return [sortedHeartrateData, sortedSpo2Data, sortedTime];
 }
 
-// Function to get the user info
+// Function to get the patient info
 function getPatientInfo() {
     if (!window.localStorage.getItem("patient-token")) {
         console.log("No token found");
@@ -499,7 +499,7 @@ function getPatientInfo() {
     })
     .done(function(response) {
         console.log('response from server', response);
-        $('#patientFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+        $('#patientFullName').text(response.patientDoc.firstName + ' ' + response.patientDoc.lastName);
     })
     .fail(function(error) {
         console.log(error);

@@ -44,44 +44,57 @@ $(document).ready(function() {
     });
     // Listener for save changes button click
     $('#savePhysicianChangesBtn').on('click', savePhysicianChanges);
+
+    // Open the modal when the delete button is clicked
+    $('#deleteAccountBtn').click(function() {
+        $('#deleteAccountModal').modal('show');
+    });
+
+    $('#confirmDeleteBtn').on('click', deleteAccount);
+
+    // Listener for Delete Account Confirmation Modal. go to home.html
+    $('#deleteAccountModal').on('hidden.bs.modal', function() {
+        window.location.href = '/home.html';
+    });
+
+
 });
 
 function fetchAccountDetails() {
     $.ajax({
-        url: 'users/read/',
+        url: 'patients/read/',
         type: 'GET',
         dataType: 'json',
         headers: { 'x-auth': window.localStorage.getItem("patient-token") },
         success: function(response) {
-            var userInfo = response.userInfo;
-            if (userInfo) {
-                $('#email').val(userInfo.email);
-                $('#firstName').val(userInfo.firstName);
-                $('#lastName').val(userInfo.lastName);
-                $('#password').val(userInfo.password);
-                // Check if userInfo has physicianDoc
+            var patientInfo = response.patientDoc;
+            if (patientInfo) {
+                $('#email').val(patientInfo.email);
+                $('#firstName').val(patientInfo.firstName);
+                $('#lastName').val(patientInfo.lastName);
+                // Check if patientInfo has physicianDoc
                 console.log
-                if (userInfo.physicianDoc) {
+                if (patientInfo.physicianDoc) {
                     
                     // Populate physician fields
-                    var physicianFullName = userInfo.physicianDoc.firstName + ' ' + userInfo.physicianDoc.lastName;
+                    var physicianFullName = patientInfo.physicianDoc.firstName + ' ' + patientInfo.physicianDoc.lastName;
                     $('#physicianFullName').text(physicianFullName);
-                    $('#specialty').text(userInfo.physicianDoc.specialty);
-                    $('#physicianEmail').text(userInfo.physicianDoc.email);
+                    $('#specialty').text(patientInfo.physicianDoc.specialty);
+                    $('#physicianEmail').text(patientInfo.physicianDoc.email);
 
                     // Find and select the option in the dropdown that matches the physician's email
                     $('#physicianSelect option').each(function() {
-                        if ($(this).data('email') === userInfo.physicianDoc.email) {
+                        if ($(this).data('email') === patientInfo.physicianDoc.email) {
                             $(this).prop('selected', true);
                         }
                     });
 
-                    originalPhysicianEmail = userInfo.physicianDoc.email;
-                    originalData.physicianEmail = userInfo.physicianDoc.email;
+                    originalPhysicianEmail = patientInfo.physicianDoc.email;
+                    originalData.physicianEmail = patientInfo.physicianDoc.email;
 
                 }
-                originalData.firstName = userInfo.firstName;
-                originalData.lastName = userInfo.lastName;
+                originalData.firstName = patientInfo.firstName;
+                originalData.lastName = patientInfo.lastName;
             } else {
                 console.error('Invalid response format');
             }
@@ -119,7 +132,7 @@ function fetchAllPhysicians() {
         },
         error: function(xhr, status, error) {
             console.error('Error fetching physicians:', error);
-            // Optionally display an error message to the user
+            // Optionally display an error message to the patient
         }
     });
 }
@@ -213,7 +226,7 @@ function saveChanges() {
         errorMessages.push("Last Name cannot be empty");
     }
     if (errorMessages.length > 0){
-        displayErrorMessages(errorMessages, 'userInfoErrorMessages');
+        displayErrorMessages(errorMessages, 'patientInfoErrorMessages');
         return;
     }
     var updatedData = {
@@ -223,7 +236,7 @@ function saveChanges() {
     };
 
     $.ajax({
-        url: 'users/update',
+        url: 'patients/update',
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(updatedData),
@@ -236,7 +249,7 @@ function saveChanges() {
         $('#saveChangesBtn').prop('disabled', true);
         // disable input fields
         $('#firstName, #lastName').attr('readonly', true);
-        // update userFullName
+        // update patientFullName
         $('#patientFullName').text(updatedData.firstName + ' ' + updatedData.lastName);
         
         // Update original data
@@ -274,7 +287,7 @@ function updatePassword() {
     };
 
     $.ajax({
-        url: 'users/update',
+        url: 'patients/update',
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(passwordData),
@@ -307,7 +320,7 @@ function savePhysicianChanges() {
     // AJAX call to update the physician
     console.log('data', data);
     $.ajax({
-        url: 'users/update',
+        url: 'patients/update',
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(data),
@@ -330,10 +343,39 @@ function savePhysicianChanges() {
         }
     });
 }
-// Function to get the user info
+
+// Handle the confirmation of the deletion
+function deleteAccount()
+{
+    // Retrieve the stored JWT token
+    // Assuming you store your token in localStorage or a similar mechanism
+    const token = localStorage.getItem('patient-token');
+
+    // Perform the AJAX request to delete the account
+    $.ajax({
+        url: '/patients/delete', 
+        method: 'DELETE',
+        contentType: 'application/json',
+        headers: { 'x-auth': window.localStorage.getItem("patient-token") },
+        dataType: 'json'
+    }).done(function(response) {
+        // Handle success
+        showMessageModal('Success', 'Account deleted successfully.', 'success');
+        // Remove the JWT token from localStorage
+        localStorage.removeItem('patient-token');
+    }).fail(function(error) {
+        // Handle error
+        showMessageModal('Error', error.responseJSON.message || 'An error occurred', 'error');
+    });
+
+    // Close the modal
+    $('#deleteAccountModal').modal('hide');
+}
+
+// Function to get the patient info
 function getPatientInfo() {
     $.ajax({
-        url: '/users/read/',
+        url: '/patients/read/',
         method: 'GET',
         contentType: 'application/json',
         headers: { 'x-auth': window.localStorage.getItem("patient-token") },
@@ -341,7 +383,7 @@ function getPatientInfo() {
     })
     .done(function(response) {
         console.log('response from server', response);
-        $('#patientFullName').text(response.userInfo.firstName + ' ' + response.userInfo.lastName);
+        $('#patientFullName').text(response.patientDoc.firstName + ' ' + response.patientDoc.lastName);
     })
     .fail(function(error) {
         console.log(error);

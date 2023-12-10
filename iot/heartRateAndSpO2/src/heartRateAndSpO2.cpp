@@ -39,7 +39,7 @@ const int EEPROM_SIZE = 512; // Define the size of EEPROM for data storage
 // char dataInEEPROM[EEPROM_SIZE]; // Buffer to store data in EEPROM
 char dataInEEPROM[EEPROM_SIZE]; // Declare a character array to store the data
 
-unsigned long measurementPeriod = 60000;
+unsigned long measurementPeriod = 60000*30; // 30 minutes in milliseconds
 struct MeasurementTime {
   unsigned long startTime = 360; // minutes since midnight
   unsigned long endTime = 1320;   // minutes since midnight

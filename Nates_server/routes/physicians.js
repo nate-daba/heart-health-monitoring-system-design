@@ -11,7 +11,7 @@ const secret = fs.readFileSync(__dirname + '/../keys/jwtkey').toString();
 
 // CRUD implementation
 
-// Route handler for '/signup' endpoint using Express.js.
+// Route handler for '/signup' endpoint 
 // This asynchronous function handles the creation of new physician accounts.
 // It checks for existing accounts with the same email, hashes the password for security, and creates a new account with a token.
 router.post('/signup', async function(req, res) {
@@ -62,7 +62,7 @@ router.post('/signup', async function(req, res) {
 });
 
 
-// Route handler for the '/read' endpoint using Express.js.
+// Route handler for the '/read' endpoint
 // This asynchronous function handles retrieving physician information from the database,
 // including their associated patients, using a token provided in the request headers.
 router.get('/read', async function(req, res) {
@@ -92,10 +92,10 @@ router.get('/read', async function(req, res) {
 
     // Checking if physicianInfo has an array of patients.
     if (Array.isArray(physicianInfo.patients)) {
-      // Fetching user documents for each patient ID in the array.
+      // Fetching patient documents for each patient ID in the array.
       const patientsDocuments = await Promise.all(
         physicianInfo.patients.map(patientId =>
-          User.findById(patientId) // Assuming 'User' is your user model.
+          Patient.findById(patientId) // Assuming 'Patient' is your patient model.
         )
       );
       console.log('Updated patientsDocuments: ', patientsDocuments)
@@ -109,14 +109,14 @@ router.get('/read', async function(req, res) {
     return res.status(200).json({ message: 'Physician found.', physicianInfo: physicianInfo });
   } catch (err) {
     // Logging any errors that occur during the process.
-    console.error('Error during user lookup:', err);
+    console.error('Error during patient lookup:', err);
 
     // Sending an internal server error response.
     return res.status(500).json({ message: 'An unexpected error occurred on the server while processing your request.' });
   }
 });
 
-// Route handler for the '/readAll' endpoint using Express.js.
+// Route handler for the '/readAll' endpoint
 // This asynchronous function is designed to retrieve all physician records from the database.
 router.get('/readAll', async function(req, res) {
   try {
@@ -142,7 +142,7 @@ router.get('/readAll', async function(req, res) {
   }
 });
 
-// Route handler for the '/update' endpoint using Express.js.
+// Route handler for the '/update' endpoint
 // This asynchronous function handles updating physician information, including password changes.
 router.put('/update', async (req, res) => {
   try {
@@ -163,7 +163,7 @@ router.put('/update', async (req, res) => {
       // If the physician is not found, send a not found response.
       return res.status(404).json({ message: "Physician not found." });
     }
-    console.log('user: ', physician)
+    console.log('patient: ', physician)
 
     // Handle password update request.
     if(req.body.newPassword){
@@ -204,11 +204,11 @@ router.put('/update', async (req, res) => {
       // Saving the updated physician information.
       console.log('got here')
       await physician.save();
-      res.status(200).json({ message: "User updated successfully.", user: physician });
+      res.status(200).json({ message: "Physician info updated successfully.", physician: physician });
     }
   } catch (err) {
     // Logging any errors that occur during the update process.
-    console.error("An error occurred while updating the user:", err);
+    console.error("An error occurred while updating the patient:", err);
 
     // Handling validation errors.
     if (err.name === 'ValidationError') {
@@ -216,12 +216,12 @@ router.put('/update', async (req, res) => {
     }
 
     // Handling other uncaught errors.
-    res.status(500).json({ message: "An error occurred while updating the user." });
+    res.status(500).json({ message: "An error occurred while updating the patient." });
   }
 });
 
 
-// Route handler for the '/login' endpoint using Express.js.
+// Route handler for the '/login' endpoint
 // This asynchronous function handles the login process for physicians,
 // verifying their credentials and issuing an authentication token upon successful login.
 router.post("/login", async function (req, res) {
