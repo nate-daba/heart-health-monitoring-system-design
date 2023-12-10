@@ -105,11 +105,12 @@ router.get('/read/:span', async function(req, res) {
             // Handling data retrieval for a single day
             if (req.query.selectedDate) {
                 let selectedDate = moment.tz(req.query.selectedDate, serverTimeZone);
-                console.log('selectedDate (in day span): ', selectedDate)
+                console.log('ServerTimeZone', serverTimeZone)
                 selectedDate.startOf('day'); // Set time to midnight
 
                 let endDate = moment(selectedDate).endOf('day'); // Set time to end of the day
-
+                console.log('selectedDate start date (in day span): ', selectedDate)
+                console.log('selectedDate end date (in day span): ', endDate)
                 // Query for sensor data within the specified day
                 const sensorDocs = await SensorData.find({
                     deviceId: deviceId,
