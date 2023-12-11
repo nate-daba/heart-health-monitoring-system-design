@@ -502,7 +502,7 @@ function sortByMeasurementTime(data) {
 // Function to get the patient info
 function getPatientInfo() {
     if (!window.localStorage.getItem("patient-token")) {
-        
+        window.location.href = '/patient-login.html';
         return;
     }
     
@@ -520,5 +520,11 @@ function getPatientInfo() {
     .fail(function(error) {
         console.log(error);
     });
+}
+
+// Function to get the value of a query parameter by name
+function getQueryParam(name) {
+    var queryParams = new URLSearchParams(window.location.search);
+    return queryParams.get(name);
 }
 // ==================== End of Helper Functions ====================

@@ -224,10 +224,6 @@ void loop()
           timeOfLastStoredMeasurement = millis();
         }
         takeMeasurement = false;
-      } else 
-      {
-        // Handle invalid reading
-        Serial.println(F("Invalid reading. Please ensure your finger is properly placed on the sensor and remain still."));
       }
       lastMeasurementPrompted = millis(); // Reset timer for next measurement
     }

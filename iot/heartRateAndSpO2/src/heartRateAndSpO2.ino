@@ -1,3 +1,29 @@
+/*
+ * HeartO2Monitor - heart rate and oxygen saturation level monitoring system
+ * 
+ * Description:
+ * This code is part of the HeartO2Monitor project, designed for monitoring 
+ * patients' heart rate and oxygen saturation using the MAX30105 sensor. 
+ * It includes functionalities for sensor data acquisition, processing, and 
+ * sending measurement data to Particle Cloud. It also includes functionalities
+ * for remote control of the device via Particle Cloud using cloud functions, 
+ * and for storing measurement data locally on a file in the case where Particle 
+ * device is disconnected from the cloud and publishes stored data when 
+ * connection is restored.
+ * 
+ * Author: Natnael Daba
+ * Contact: ndaba@arizona.edu   
+ * Date of Authorship: Monday, December 11, 2023
+ * Team Members: 
+ * - Member 1: Raphael Lepercq (Back-end Developer)
+ * - Member 2: Kory Pearson (Front-end Developer)
+ * - Member 3: Natnael Daba (System Architect)
+ * 
+ * This code also includes integration with Particle IoT Device SDK for 
+ * cloud connectivity, and sending measurement data to the Particle Cloud and 
+ * uses external libraries for sensor data processing and SpO2 calculation.
+ */
+
 // Include necessary libraries
 #include <Wire.h>
 #include "MAX30105.h"         // Library for MAX30105 sensor
@@ -214,16 +240,11 @@ void loop()
           timeOfLastStoredMeasurement = millis();
         }
         takeMeasurement = false;
-      } else 
-      {
-        // Handle invalid reading
-        Serial.println(F("Invalid reading. Please ensure your finger is properly placed on the sensor and remain still."));
       }
       lastMeasurementPrompted = millis(); // Reset timer for next measurement
     }
   }
 }
-
 
 // Function: updateMeasurementPeriod
 // This function updates the measurement period for a monitoring system.
@@ -247,7 +268,6 @@ int updateMeasurementPeriod(String period) {
 
   return 1; // Indicate success
 }
-
 
 // Function: updateMeasurementTimeofDay
 // This function updates the start and end times for measurements taken during a specific time of day.
