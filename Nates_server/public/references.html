@@ -5,32 +5,53 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>HeartO2Monitor - References</title>
+  <title>HeartO2Monitor - Home</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
   <link href="images/favicon.png" rel="icon">
   <link href="images/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="landing-vendor/aos/aos.css" rel="stylesheet">
+  <link href="landing-vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="landing-vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="landing-vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="landing-vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="landing-vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
   <!-- Template Main CSS File -->
   <link href="stylesheets/landing-css/style.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: FlexStart
+  * Updated: Sep 18 2023 with Bootstrap v5.3.2
+  * Template URL: https://bootstrapmade.com/flexstart-bootstrap-startup-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
 </head>
 
 <body>
-
-<header id="header" class="header fixed-top">
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top">
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
 
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="home.html" class="logo d-flex align-items-center">
         <img src="images/favicon.png" alt="">
         <span>HeartO2Monitor</span>
       </a>
 
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a class="nav-link scrollto active" href="home.html">Home</a></li>
-          <li><a class="nav-link scrollto" href="references.html">References</a></li>
-          <li><a class="nav-link scrollto" href="index.html">Team</a></li>
+          <li><a class="nav-link scrollto" href="home.html">Home</a></li>
+          <li><a class="nav-link scrollto" href="home.html#about">About</a></li>
+          <li><a class="nav-link scrollto" href="home.html#team">Team</a></li>
+          <li><a class="nav-link scrollto active" href="references.html">References</a></li>
           <li class="dropdown"><a href="#"><span>Login</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
               <li><a href="patient-login.html">Patient</a></li>
@@ -47,7 +68,6 @@
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
-
     </div>
   </header><!-- End Header -->
 
@@ -57,31 +77,84 @@
       <div class="row">
         <!-- Left Sidebar Navigation Menu -->
         <!-- Main Content -->
-        <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+        <div class="col-md-9 ml-sm-auto col-lg-10 px-md-4 mt-5">
           <div class="section-header">
             <h1 class="section-title">References</h1>
+            <h4>This page lists and describes third-party APIs, libraries, and code that we used in our project.</h4>
           </div>
 
-          <!-- Section for Third-party APIs -->
-          <section id="third-party-apis" class="section-bg">
-            <h3 class="section-title">Third-party APIs</h3>
-            <p>Content describing the third-party APIs used in the project.</p>
-            <p>
-                
-            </p>
-          </section>
+            <!-- Section for Third-party APIs -->
+            <section id="third-party-apis" class="section-bg mt-3">
+                <h3 class="section-title">APIs</h3>
+                <p><a href="https://docs.particle.io/reference/cloud-apis/api/" target="_blank">Particle Device Cloud API</a></p>
+                <p>
+                    The Particle Device Cloud API is a REST API that allows for programmatic access to Particle devices. The API is used in our project in the following ways:
+                </p>
+                <ul>
+                    <li>To validate the device ID by making an API call to the Particle Cloud to get the device information.</li>
+                    <li>Retrieve current device status (i.e., online/offline) from the Particle Cloud.</li>
+                    <li>To get the device name based on the product ID.</li>
+                    <li>To request a new access token from the Particle Cloud.</li>
+                    <li>To send parameter update requests to our Particle device using cloud functions.</li>
+                </ul>
+                <p><a href="https://developers.google.com/fonts/docs/getting_started" target="_blank">Google Fonts API</a></p>
+                <p>
+                    The Google Fonts API provides a vast collection of fonts which we have implemented throughout our website. By utilizing this API, we've ensured a consistent and visually pleasing design across all text, headings, and paragraphs, enhancing the user experience with typography that is both readable and aesthetically pleasing.
+                </p>
+            </section>
+  
 
           <!-- Section for Third-party Libraries -->
-          <section id="third-party-libraries" class="section-bg">
-            <h3 class="section-title">Third-party Libraries</h3>
-            <p>Content detailing the third-party libraries incorporated into the project.</p>
-          </section>
+            <section id="third-party-libraries" class="section-bg mt-3">
+                <h3 class="section-title">Libraries</h3>
+                <p><a href="https://github.com/sparkfun/SparkFun_MAX3010x_Sensor_Library" target="_blank">SparkFun MAX301x Particle Sensor Library</a></p>
+                <p>We used <a href="https://github.com/sparkfun/SparkFun_MAX3010x_Sensor_Library/blob/master/src/spo2_algorithm.cpp" target="_blank">spo2_algorithm.cpp</a> module to calculate the heart rate/SpO2 level.</p>
+                <p>We have also used the Node.js packages and frameworks breifly described below to develop our backend. This is by no means an exhastive list.</p>
+                <ul>
+                    <li><strong>axios:</strong> Axios is a Promise-based HTTP client for JavaScript environments (such as browsers and Node.js). It allows developers to make asynchronous HTTP requests, handling features like request and response interception, and providing a clean, intuitive API.</li>
+                    <li><strong>bcryptjs:</strong> Bcryptjs is a JavaScript library used for securely hashing passwords. It implements the bcrypt hashing algorithm, which is designed to hash passwords in a secure manner, making it more computationally expensive for attackers to crack hashed passwords.</li>
+                    <li><strong>cookie-parser:</strong> Cookie-parser is an Express middleware used in Node.js applications to parse HTTP request cookies. It simplifies the handling of cookies by parsing them into a JavaScript object, allowing easier manipulation and access to cookie data.</li>
+                    <li><strong>debug:</strong> Debug is a debugging utility for Node.js and browsers that allows developers to add customizable logging messages throughout their code. It aids in debugging by providing detailed information about the program's execution flow and state.</li>                
+                    <li><strong>express:</strong> Express is a widely used web application framework for Node.js. It simplifies the creation of web applications by providing a robust set of features for routing, handling HTTP requests and responses, middleware support, and creating APIs.</li>
+                    <li><strong>http-errors:</strong> Http-errors is a utility library that simplifies the creation and management of HTTP errors in Node.js applications. It allows developers to generate HTTP error objects with specific status codes and error messages, making error handling more structured.</li>
+                    <li><strong>jwt-simple:</strong> Jwt-simple is a JavaScript library used for encoding and decoding JSON Web Tokens (JWT) in Node.js applications. It enables the creation and verification of JWTs, often employed in implementing secure authentication and authorization mechanisms.</li>
+                    <li><strong>moment-timezone:</strong> Moment-timezone is a JavaScript library for working with dates, times, and time zones. It extends the capabilities of the Moment.js library by providing functionality to manage and convert time between different time zones.</li>
+                    <li><strong>mongoose:</strong> Mongoose is an Object Data Modeling (ODM) library for MongoDB and Node.js. It simplifies interactions with MongoDB databases by providing a schema-based solution for modeling application data and handling database operations.</li>
+                    <li><strong>morgan:</strong> Morgan is an HTTP request logging middleware for Node.js used with Express. It logs detailed information about incoming HTTP requests, such as request method, URL, status code, response size, and execution time, aiding in application monitoring and debugging.</li>
+                    <li><strong>particle-api-js:</strong> Particle-api-js is a JavaScript library used to interact with Particle IoT (Internet of Things) devices. It provides a convenient API to manage and control Particle devices, facilitating the development of IoT applications.</li>
+                    <li><strong>pug:</strong> Pug, formerly known as Jade, is a template engine for Node.js. It simplifies the process of writing HTML by using a concise and expressive syntax for generating HTML templates.</li>
+                    <li><strong>yargs:</strong> Yargs is a Node.js library used for parsing command-line arguments. It simplifies the process of handling command-line inputs by providing a flexible and easy-to-use API for defining and parsing command-line options and arguments.</li>
+                </ul>
 
-          <!-- Section for Third-party Code -->
-          <section id="third-party-code" class="section-bg">
-            <h3 class="section-title">Third-party Code</h3>
-            <p>Information on third-party code sources and how they have been used.</p>
-          </section>
+            </section>
+
+            <!-- Section for Third-party Code -->
+            <section id="third-party-code" class="section-bg mt-3">
+                <h3 class="section-title">Code</h3>
+                <h4 class="section-title">Bootstrap Templates</h4>
+                <p>We utilized components from two main Bootstrap templates to enrich our user interface. These templates facilitated a quicker development process, allowing us to concentrate on functionality and providing us with pre-designed elements that enhanced the visual appeal and intuitiveness of our application interface. We extend our gratitude to the creators of these templates.</p>
+                <ul>
+                <li>
+                    <strong>SB Admin 2</strong> - This template provided us with foundational UI components. More details and documentation can be found at <a href="https://startbootstrap.com/theme/sb-admin-2" target="_blank">SB Admin 2</a>. Components incorporated from this template include:
+                    <ul>
+                    <li>Buttons</li>
+                    <li>Summary cards</li>
+                    <li>Charts</li>
+                    <li>Navigation bar</li>
+                    <li>Table</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>FlexStart</strong> - A template that contributed to the landing page design elements. Visit <a href="https://bootstrapmade.com/flexstart-bootstrap-startup-template/" target="_blank">FlexStart</a> for more information. Components utilized from this template include:
+                    <ul>
+                    <li>Landing page animations</li>
+                    <li>Buttons</li>
+                    <li>Dropdowns</li>
+                    </ul>
+                </li>
+                </ul>
+            </section>
+  
 
         </div>
       </div>
