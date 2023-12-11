@@ -60,6 +60,7 @@ $(document).ready(function() {
 
 });
 
+// Function to fetch account details of logged in patient
 function fetchAccountDetails() {
     $.ajax({
         url: 'patients/read/',
@@ -105,6 +106,7 @@ function fetchAccountDetails() {
     });
 }
 
+// Function to fetch all physicians from the database
 function fetchAllPhysicians() {
     $.ajax({
         url: '/physicians/readAll',
@@ -136,7 +138,7 @@ function fetchAllPhysicians() {
         }
     });
 }
-
+// Function to handle the change in physician selection
 function physicianSelectChange() {
     var selectedEmail = $(this).find('option:selected').data('email');
     var physician = physiciansDetail[selectedEmail];
@@ -149,7 +151,7 @@ function physicianSelectChange() {
 
     updateSaveButtonState();
 }
-
+// Function to update the state of the save button (enabled/disabled)
 function updateSaveButtonState() {
     var selectedEmail = $('#physicianSelect').find('option:selected').data('email');
 
@@ -160,7 +162,7 @@ function updateSaveButtonState() {
         $('#savePhysicianChangesBtn').removeClass('disabled');
     }
 }
-
+// Function to check if any fields have changed
 function checkFieldsForChange() {
     var hasChanged = false;
     console.log('originalData', originalData);
@@ -170,7 +172,7 @@ function checkFieldsForChange() {
 
     $('#saveChangesBtn').prop('disabled', !hasChanged);
 }
-
+// Function to check password fields for errors
 function checkPasswordFields() {
     var currentPassword = $('#currentPassword').val();
     var newPassword = $('#newPassword').val();
@@ -202,7 +204,7 @@ function checkPasswordFields() {
     // Display Error Messages
     displayErrorMessages(errorMessages, 'passwordErrorMessages');
 }
-
+// Function to display error messages
 function displayErrorMessages(messages, errorDivId) {
     var errorMessageHtml = "<ul>";
     messages.forEach(function(message) {
@@ -212,7 +214,7 @@ function displayErrorMessages(messages, errorDivId) {
 
     $('#'+errorDivId).html(errorMessageHtml);
 } 
-
+// Function to save patient name changes 
 function saveChanges() {
 
     // input data validation
@@ -262,7 +264,7 @@ function saveChanges() {
         showMessageModal('Error', xhr.responseText.message || 'An error occurred', 'error');
     });
 }
-
+// Function to update the password
 function updatePassword() {
     var currentPassword = $('#currentPassword').val();
     var newPassword = $('#newPassword').val();
@@ -310,7 +312,7 @@ function updatePassword() {
         showMessageModal('Error', error.responseJSON.message || 'An error occurred', 'error');
     });
 }
-
+// Function to save physician changes
 function savePhysicianChanges() {
     var selectedPhysicianEmail = $('#physicianSelect').find('option:selected').data('email');
     console.log('selectedPhysicianEmail', selectedPhysicianEmail);
@@ -343,8 +345,7 @@ function savePhysicianChanges() {
         }
     });
 }
-
-// Handle the confirmation of the deletion
+// Handle the confirmation of the account deletion
 function deleteAccount()
 {
     // Retrieve the stored JWT token
@@ -371,7 +372,6 @@ function deleteAccount()
     // Close the modal
     $('#deleteAccountModal').modal('hide');
 }
-
 // Function to get the patient info
 function getPatientInfo() {
     $.ajax({
@@ -389,7 +389,6 @@ function getPatientInfo() {
         console.log(error);
     });
 }
-
 function showMessageModal(title, message, type) {
     var modal = $('#genericModal');
     modal.find('.modal-title').text(title);

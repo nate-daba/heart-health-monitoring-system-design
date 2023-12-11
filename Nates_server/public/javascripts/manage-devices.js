@@ -22,7 +22,7 @@ $(document).ready(function() {
         getALLDevices(); // Call the function to refresh devices
     });
 });
-
+// Function to get all devices and populate the Devices table
 function getALLDevices(e) {
     // stopped here
     // will continue by making a get call to backend to get all devices
@@ -58,7 +58,6 @@ function getALLDevices(e) {
                 var startTime = response.message.timeOfDayRangeOfMeasurements.startTime;
                 var endTime = response.message.timeOfDayRangeOfMeasurements.endTime;
                 // Create a row for each device
-                console.log('added on', deviceRegisteredOn)
                 var tr = $('<tr>').attr('data-device-id', deviceId).append(
                     $('<td>').text(deviceId),
                     $('<td>').text(deviceName),
@@ -73,15 +72,11 @@ function getALLDevices(e) {
                 $('.dropdown-toggle').dropdown();
                 // Append the new row to the devices table body
                 $('#devicesTable tbody').append(tr);
-                console.log('lenght of device table', $('#devicesTable tbody tr').length)
-                
-                console.log(response);
 
                 // Make the row clickable
                 tr.css('cursor', 'pointer');
                 tr.click(function() {
                 // You can also populate the form with existing device settings
-                console.log('received device name: ', deviceName);
                 $('#deviceName').val(deviceName);
                 $('#measurementFrequency').val(measurementFrequency); // This should be retrieved from your device settings
                 $('#startTime').val(startTime); // This should be retrieved from your device settings
@@ -104,9 +99,6 @@ function getALLDevices(e) {
     .fail(function(jqXHR) {
         console.log('An error occurred:', jqXHR);
         // Extract and display the error message
-        
-        console.log(errorMessage);
-        
         if ($('#devicesTable tbody tr').length !== 0) {
             var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
             var errorElement = $('<div>').addClass('text-red-500').text(errorMessage);
@@ -115,14 +107,14 @@ function getALLDevices(e) {
         toggleDeviceTableVisibility();
     });
 }
-
+// Function to logout the patient
 function logoutEventListener(e) {
     e.preventDefault();
     window.localStorage.removeItem("patient-token");
     window.localStorage.removeItem("patient-email");
     window.location.href = '/patient-login.html';
 }
-
+// Function to register a device
 function registerDevice(e) {
     e.preventDefault();
     $('#registrationStatus').hide()
@@ -207,8 +199,7 @@ function registerDevice(e) {
         showMessageModal('Device Registration', errorMessage, 'error');
     });
 }
-
-
+// Function to handle row click event
 function rowClickListener(e) {
     e.preventDefault();
     
@@ -226,7 +217,7 @@ function rowClickListener(e) {
         $('#editDeviceModal').modal('show');
     }
 }
-
+// Function to handle save device settings click event
 function saveDeviceSettingsListener() {
     // Clear previous errors
     $('#errorContainer').remove();
@@ -323,7 +314,7 @@ function saveDeviceSettingsListener() {
         }
     }
 }
-
+// Function for "Edit device settings" click event
 function editDeviceSettingsListener(e) {
     e.preventDefault();
     // e.stopPropagation();
@@ -340,7 +331,6 @@ function editDeviceSettingsListener(e) {
     // Show the modal
     $('#editDeviceModal').modal('show');
 }
-
 // Function for "Remove device" click event
 function removeDeviceListener(e) {
     e.preventDefault();
@@ -352,7 +342,7 @@ function removeDeviceListener(e) {
 
     $('#confirmDeleteModal').modal('show'); // Show the confirmation modal
 }
-
+// Function for "Confirm Delete" click event
  function confirmDeleteListener(e) {
     var deviceId = $('#deleteMessage').data('device-id');
     console.log('Deleting device with ID:', deviceId);
@@ -387,14 +377,14 @@ function removeDeviceListener(e) {
         showMessageModal('Error', 'An error occurred while deleting the device.', 'error');
     });
 }
-
+// Function to show a modal with a message
 function showMessageModal(title, message, type) {
     var modal = $('#genericModal');
     modal.find('.modal-title').text(title);
     modal.find('.modal-body #genericMessage').text(message);
     modal.modal('show');
 }
-
+// Helper function to convert 24-hour time to 12-hour time
 function convertTo12Hour(time) {
     // Check correct time format and split into components
     time = time.toString().match(/^([01]?[0-9]|2[0-3])(:([0-5][0-9]))?$/) || [time];
@@ -412,7 +402,7 @@ function convertTo12Hour(time) {
     }
     return ''; // Return empty string if the time format is incorrect
 }
-
+// Helper function to update the device table row
 function updateDeviceTableRow(row, deviceName, frequency, startTime, endTime) {
     $(row).find('td').eq(1).text(deviceName); // Assuming name is in the second column
     $(row).find('td').eq(5).text(frequency + ' mins'); // Update measurement frequency
@@ -420,7 +410,7 @@ function updateDeviceTableRow(row, deviceName, frequency, startTime, endTime) {
     $(row).find('td').eq(7).text(convertTo12Hour(endTime)); // Update end time
     // Update other columns as needed
 }
-
+// Helper function to update the device settings modal
 function updateDeviceSettingsModal(row, modal) {
     var startTime24hr = convertTo24Hour(row.find('td').eq(6).text());
     var endTime24hr = convertTo24Hour(row.find('td').eq(7).text());
@@ -431,7 +421,7 @@ function updateDeviceSettingsModal(row, modal) {
     modal.find('#startTime').val(startTime24hr);
     modal.find('#endTime').val(endTime24hr);
 }
-
+// Helper function to convert 12-hour time to 24-hour time
 function convertTo24Hour(time) {
     var timeParts = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
     if (!timeParts) {
@@ -452,7 +442,7 @@ function convertTo24Hour(time) {
     var sMinutes = minutes.toString().padStart(2, '0');
     return sHours + ":" + sMinutes;
 }
-
+// Helper function to create the dropdown
 function createDropdown(deviceId) {
     return `
         <div class="dropdown">
@@ -470,7 +460,7 @@ function createDropdown(deviceId) {
         </div>
     `;
 }
-
+// Helper function to toggle the visibility of the device table
 function toggleDeviceTableVisibility() {
     // Check if there are no devices (after clearing the table)
     if ($('#devicesTable tbody tr').length === 0) {
@@ -500,7 +490,7 @@ function toggleDeviceTableVisibility() {
         $('.no-devices-message').remove();
     }
 }
-
+// Helper function to handle modal shown event
 function onModalShown() {
     var row = $('#editDeviceModal').data('row');
     updateDeviceSettingsModal(row, $('#editDeviceModal'));
@@ -516,7 +506,6 @@ function onModalShown() {
 
     $('#editDeviceModal').data('originalValues', originalValues);
 }
-
 // Function to get the patient info
 function getPatientInfo() {
     $.ajax({

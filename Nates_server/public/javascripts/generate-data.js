@@ -15,10 +15,10 @@ function generateAndSendData(deviceId, startDate, endDate, interval) {
     let currentTime = startDate;
     let successCount = 0;
     let totalCount = 0;
-
+    clearMessageDisplay();
     while (currentTime <= endDate) {
         totalCount++;
-        const heartrate = generateRandomValue(30, 250);
+        const heartrate = generateRandomValue(40, 190);
         const spo2 = generateRandomValue(90, 100);
 
         const data = {
@@ -86,6 +86,7 @@ function clearSensorData(deviceId, startDate, endDate) {
         contentType: 'application/json',
         data: JSON.stringify({ deviceId, startDate, endDate }),
         success: function(response) {
+            clearMessageDisplay();
             $('#clearMessageDisplay').text(`Success: ${response.message}. Data points deleted: ${response.deletedCount}`);
         },
         error: function(error) {
@@ -97,6 +98,11 @@ function clearSensorData(deviceId, startDate, endDate) {
 function displayMessage(message) {
     $('#messageDisplay').text(message);
 }
+// Clear message display for both buttons
+function clearMessageDisplay() {
+    $('#createMessageDisplay').text('');
+    $('#clearMessageDisplay').text('');
+}   
 // Document ready function for event listener registration
 $(document).ready(function() {
     $('#dataForm').on('submit', handleFormSubmit);

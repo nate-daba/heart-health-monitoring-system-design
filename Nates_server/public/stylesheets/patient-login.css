@@ -1,98 +1,83 @@
-html {
-    height: 100%;
-    /* Interactive background gradient */
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-  }
-  
-  @keyframes gradientBG {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-  }
-  
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden; /* Hide scrollbars if not necessary */
-  }
-  
-  h1 {
-    color: white;
+/* physician-login.css */
+body {
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f8f9fa; /* Light grey background */
+}
+
+h1 {
+  color: #495057; /* Updated text color */
   }
 
+#loginForm {
+  width: 300px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 2;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input[type=text], input[type=email], input[type=password], select {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  display: block;
+  background: #ffffff;
+}
+
+#logInButton {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff; /* Bootstrap primary color */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#logInButton:hover {
+  background-color: #0069d9; /* Slightly darker shade for hover effect */
+}
+
+.errorDiv {
+  color: #dc3545; /* Bootstrap danger color */
+  text-align: center;
+  margin-top: 10px;
+}
+
+.errorMessage {
+  font-size: 14px;
+}
+
+a {
+  color: #007bff; /* Bootstrap primary color */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 576px) {
   #loginForm {
-    width: 300px;
-    padding: 16px;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    /* Additional styles to ensure form is above the animated background */
-    position: relative;
-    z-index: 2;
+      margin: 0 10px;
+      padding: 15px;
   }
-  
-  input[type=text], input[type=password] {
-    width: calc(100% - 30px);
-    padding: 15px;
-    margin: 5px 0 22px 0;
-    border: 1px solid #ccc;
-    background: #f1f1f1;
-    border-radius: 10px;
-  }
-  
-  input[type=text]:focus, input[type=password]:focus {
-    background-color: #ddd;
-    outline: none;
-  }
-  
-  #logInButton {
-    background-color: #008CBA;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    cursor: pointer;
-    width: 100%;
-    opacity: 0.9;
-    border-radius: 10px;
-  }
-  
-  #logInButton:hover {
-    opacity: 1;
-  }
-  
-  a {
-    color: dodgerblue;
-    text-decoration: none;
-  }
-  
-  a:hover {
-    text-decoration: underline;
-  }
-  
-  .errorDiv {
-    color: red;
-    text-align: center;
-    margin-top: 10px; /* Adds space above the error message */
-    display: none; /* Start with the div hidden */
-  }
-  
-  .errorMessage {
-    margin: 0; /* Removes default paragraph margin */
-    font-size: 0.9em; /* Optional: Adjusts the font size */
-  }
-  
+}

@@ -76,8 +76,6 @@ function dropdownItemClickListener(e) {
         
         var deviceName = $(this).text();
         updateSelectedDeviceText(deviceName);
-
-        console.log('Selected device ID: ', selectedDeviceId);
         
         // Get current selected date and selected device
         var selectedDate = getSelectedDate();
@@ -154,7 +152,7 @@ function populateDeviceSelectorDropdown() {
     
 }
 
-// Function to get the selected date
+// Function to get the current selected date
 function getSelectedDate(){
 
     var selectedDate = $('#datepicker-input').val();
@@ -179,6 +177,7 @@ function getSelectedDate(){
 function updateSelectedDeviceText(deviceName) {
     $('#selectedDeviceText').text(deviceName);
 }
+
 // Function to get the sensor data for the selected device and date and plot it
 function getSensorData(deviceId, selectedDate, span){
     var data = {
@@ -211,6 +210,7 @@ function getSensorData(deviceId, selectedDate, span){
         clearOldData(span);
     });   
 }
+
 // Function to plot the data
 function plot(chartId, x, y, unit, label) {
     const { max, maxIndex } = findMax(y);
@@ -379,18 +379,19 @@ function plot(chartId, x, y, unit, label) {
     });
     return myLineChart;
 }
-
+// Helper function to find the max value and its index in an array
 function findMax(data) {
     let max = Math.max(...data);
     let maxIndex = data.indexOf(max);
     return { max, maxIndex };
 }
-
+// Helper function to find the min value and its index in an array
 function findMin(data) {
     let min = Math.min(...data);
     let minIndex = data.indexOf(min);
     return { min, minIndex };
 }
+// Helper function to clear the old data
 function clearOldData(span)
 {
     if (span === 'day') {
@@ -413,7 +414,6 @@ function clearOldData(span)
 // Function to populate the weekly summary cards
 function populateWeeklySummary(response){
     const [heartrateData, spo2Data, timeData] = extractData(response);
-    console.log('populating weekly summary: ', response)
     // Calculate stats for the week
     const average = array => array.reduce((a, b) => a + b) / array.length;
     var avgHeartRate = average(heartrateData);
@@ -431,8 +431,6 @@ function populateWeeklySummary(response){
     $("#max-o2").text(maxOxygenSaturation + ' %');
     $("#min-o2").text(minOxygenSaturation + ' %');
 
-    console.log('heartrate in weekly', heartrateData);
-
 }
 // Initialize chart variables (assuming they are initially created elsewhere)
 var heartRateChart = null;
@@ -441,9 +439,6 @@ var oxygenSaturationChart = null;
 function populateCharts(response){
 
     const [heartrateData, spo2Data, timeData] = extractData(response);
-    console.log('heartrate data: ', heartrateData);
-    console.log('spo2 data: ', spo2Data);   
-    console.log('time data: ', timeData);
 
     // Check if the charts have been initialized
     if (heartRateChart && oxygenSaturationChart) {

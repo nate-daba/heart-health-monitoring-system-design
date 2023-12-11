@@ -68,6 +68,7 @@ function signUp(e) {
     });
 };
 
+// Function to check/validate password fields
 function checkPasswordFields() {
     var currentPassword = $('#password').val();
     var confirmPassword = $('#confirmPassword').val();
@@ -98,6 +99,7 @@ function checkPasswordFields() {
     displayErrorMessages(errorMessages);
 }
 
+// Function to display error messages
 function displayErrorMessages(messages) {
     var errorMessageHtml = "<ul>";
     messages.forEach(function(message) {

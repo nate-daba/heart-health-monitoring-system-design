@@ -15,10 +15,8 @@ $(document).ready(function() {
 
     // Attaching click event listeners to the patient and device list.
     // These listeners are set up for dynamic dropdown items using event delegation.
-    $('#patientList').on('click', '.dropdown-item', patientDropdownItemClickListener);
     $('#sidebarPatientList').on('click', '.collapse-item', patientDropdownItemClickListener);
     
-    $('#deviceList').on('click', '.dropdown-item', deviceDropdownItemClickListener);
     $('#sidebarDeviceList').on('click', '.collapse-item', deviceDropdownItemClickListener);
 
     // Attaching click event listener for the update frequency button.
@@ -79,16 +77,11 @@ function dateChangeListener(e) {
     // The second declaration of selectedDeviceId should probably be currentSelectedDeviceId.
     var selectedDate = getSelectedDate();
 
-    console.log('selected device ID (in date change listener): ', currentSelectedDeviceId);
-    console.log('selected Date (in date change listener): ', selectedDate);
-
     // Calling getSensorData function with the selected device ID and date.
     // These calls seem to fetch sensor data for the day and week of the selected date.
     try {
-        
         getSensorData(currentSelectedDeviceId, formattedDate, 'day');
         getSensorData(currentSelectedDeviceId, formattedDate, 'week');
-
     } catch (error) {
         console.log('Error in fetching sensor data: ', error);
     }
@@ -116,12 +109,6 @@ function patientDropdownItemClickListener(e) {
         var selectedDeviceId = $('#deviceList .dropdown-item.selected').data('deviceid');
         var selectedDeviceName = $('#deviceList .dropdown-item.selected').text();
         var selectedDate = getSelectedDate(); // Function to get the currently selected date.
-
-        // Logging for debugging purposes.
-        console.log('current selected device name: ', selectedDeviceName);
-        console.log('selected patient email: ', selectedPatientEmail);
-        console.log('selected device ID: ', currentSelectedDeviceId);
-        console.log('selected Date: ', selectedDate);
 
         // Fetching sensor data for the selected device and date.
         try {
@@ -168,11 +155,6 @@ function deviceDropdownItemClickListener(e) {
         var errorMessage = jqXHR.responseJSON ? jqXHR.responseJSON.message : jqXHR.responseText;
         console.log(errorMessage);
     });
-
-    // Logging for debugging purposes.
-    console.log('device dropdown item clicked');
-    console.log('Selected device ID:', selectedDeviceId);
-    console.log('Selected device Name:', selectedDeviceName);
 
     // Updating the UI to reflect the selected device.
     updateSelectedDeviceText(selectedDeviceName);
@@ -469,9 +451,6 @@ function updateSelectedDeviceText(deviceName) {
 }
 // Function to get the sensor data for the selected device and date and plot it
 function getSensorData(deviceId, selectedDate, span){
-    console.log('span in get sensor data: ', span);
-    console.log('selected date in get sensor data: ', selectedDate);
-    console.log('selected device ID in get sensor data: ', deviceId);
     
     var data = {
         deviceId: deviceId,
@@ -695,7 +674,7 @@ function clearOldData(span)
 function clearOldPatientSettings(){
     // Clear the device selector dropdown
     $('#deviceList').empty();
-    $('#sidebarDeviceList').empty();
+    $('#sidebarDeviceList').children(':not(:first-child)').remove();
     // Clear the selected device text
     $('#selectedDeviceText').text('Select Device');
     // Clear the measurement frequency
@@ -726,8 +705,6 @@ function populateWeeklySummary(response){
     $("#max-o2").text(maxOxygenSaturation + ' %');
     $("#min-o2").text(minOxygenSaturation + ' %');
 
-    console.log('heartrate in weekly', heartrateData);
-
 }
 
 function findMax(data) {
@@ -749,9 +726,6 @@ var oxygenSaturationChart = null;
 function populateCharts(response){
 
     const [heartrateData, spo2Data, timeData] = extractData(response);
-    console.log('heartrate data: ', heartrateData);
-    console.log('spo2 data: ', spo2Data);   
-    console.log('time data: ', timeData);
 
     // Check if the charts have been initialized
     if (heartRateChart && oxygenSaturationChart) {
@@ -814,7 +788,6 @@ function sortByMeasurementTime(data) {
 
 // Function to get the user info
 function getPhysicianInfo() {
-    console.log('physician token ', window.localStorage.getItem("physician-token"));
     $.ajax({
         url: '/physicians/read/',
         method: 'GET',

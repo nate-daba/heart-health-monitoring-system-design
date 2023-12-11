@@ -29,6 +29,7 @@
         #datepicker{width:191px;} 
         #datepicker > span:hover{cursor: pointer;} 
     </style> 
+    <link href="images/favicon.png" rel="icon">
 </head>
 
 <body id="page-top">
@@ -57,36 +58,37 @@
                     <span>Dashboard</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#patients"
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#patients"
                     aria-expanded="true" aria-controls="patients">
                     <i class="fa fa-user" aria-hidden="true"></i>
                     <span>Patient</span>
                 </a>
-                <div id="patients" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="patients" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div id="sidebarPatientList" class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Your Patients:</h6>
                     </div>
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-microchip"></i>
+                    <i class="fas fa-microchip" aria-hidden="true"></i>
                     <span>Device</span>
                 </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div id="sidebarDeviceList" class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Your Devices:</h6>
+                        <h6 class="collapse-header">Patient Devices:</h6>
                     </div>
                 </div>
             </li>
+            
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseUtilities"
                     aria-expanded="true" aria-controls="collapseUtilities">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Date</span>
                 </a>
-                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#collapseUtilities">
+                <div id="collapseUtilities" class="collapse show" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
                     <div id="sidebarDatePicker" class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Select Date</h6>
                         <div class="col-md-5 col-lg-3 px-0">

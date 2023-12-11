@@ -76,6 +76,7 @@ function fetchAccountDetails() {
     });
 }
 
+// Function to check if any fields have changed
 function checkFieldsForChange() {
     var hasChanged = false;
     if ($('#firstName').val() !== originalData.firstName || $('#lastName').val() !== originalData.lastName) {
@@ -84,6 +85,8 @@ function checkFieldsForChange() {
 
     $('#saveChangesBtn').prop('disabled', !hasChanged);
 }
+
+// Function to check password fields for errors
 function checkPasswordFields() {
     var currentPassword = $('#currentPassword').val();
     var newPassword = $('#newPassword').val();
@@ -116,7 +119,7 @@ function checkPasswordFields() {
     displayErrorMessages(errorMessages, 'passwordErrorMessages');
 }
 
-
+// Function to display error messages
 function displayErrorMessages(messages, errorDivId) {
     var errorMessageHtml = "<ul>";
     messages.forEach(function(message) {
@@ -178,6 +181,7 @@ function saveChanges() {
     });
 }
 
+// Listener for Update Password button
 function updatePassword() {
     var currentPassword = $('#currentPassword').val();
     var newPassword = $('#newPassword').val();
@@ -254,7 +258,7 @@ function showMessageModal(title, message, type) {
     modal.modal('show');
 }
 
-// Handle the confirmation of the deletion
+// Listener for Delete Account button
 function deleteAccount()
 {
     // Retrieve the stored JWT token

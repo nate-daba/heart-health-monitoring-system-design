@@ -218,7 +218,7 @@ router.put('/update', async function(req, res) {
         // Decode the token to get the user's email
         const decoded = jwt.decode(token, secret);
         const patientEmail = decoded.patientEmail;
-
+        
         // Check if the deviceId is provided in the request body
         if (!req.body.deviceId) {
             return res.status(400).json({ message: "Bad request: Device ID is required." });
@@ -226,7 +226,7 @@ router.put('/update', async function(req, res) {
 
         // Find the device by deviceId
         const device = await Device.findOne({ deviceId: req.body.deviceId });
-
+        
         // Check if the device exists
         if (!device) {
             return res.status(404).json({ message: "Device not found." });
@@ -258,9 +258,7 @@ router.put('/update', async function(req, res) {
                 device[key] = updateData[key];
             }
         }
-
-        
-
+        delete updateData.deviceName;
         // Send parameter update requests to the device for specific fields
         for (const key in updateData) {
             if (updateData.hasOwnProperty(key)) {
@@ -273,7 +271,6 @@ router.put('/update', async function(req, res) {
                     parameterValue = JSON.stringify(timeObject);
                     cloudFunctionName = 'updateMeasurementTimeofDay';
                 }
-
                 var success = await sendParmeterUpdateRequestToDevice(device.deviceId, parameterValue, cloudFunctionName);
                 if (!success) {
                     return res.status(400).json({ message: "Parameter update failed." });
@@ -522,7 +519,6 @@ async function sendParmeterUpdateRequestToDevice(deviceId, parameterValue, cloud
         },
         data: data // Data to be sent in the request
     };
-
     try {
         
         const response = await axios.request(config); // Send the request to the device
