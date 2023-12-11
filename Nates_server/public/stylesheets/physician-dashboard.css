@@ -282,5 +282,10 @@
         width: 100%;
     }
 }
+.selected-item {
+    background-color: #f0f0f0; /* Light grey background */
+    color: #365CCD; /* Dark text color */
+    font-weight: bold; /* Make text bold */
+}
 
 

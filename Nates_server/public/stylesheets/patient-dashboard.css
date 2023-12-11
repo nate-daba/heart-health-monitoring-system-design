@@ -225,8 +225,8 @@
     min-width: 200px;
 }
 /* General styles (apply to all screen sizes) */
+/* Responsive Sidebar */
 
-/* ...existing styles... */
 
 /* Styles for tablets and smaller devices (less than 768px) */
 @media (max-width: 768px) {
@@ -234,6 +234,7 @@
         flex-direction: column;
     }
     .sidebar {
+        display: block;
         width: 100%;
     }
     #content-wrapper {
@@ -259,6 +260,7 @@
         flex-direction: column;
     }
     .sidebar {
+        display: block;
         display: none;
     }
     .navbar {
@@ -272,5 +274,59 @@
     }
 }
 
+.selected-item {
+    background-color: #f0f0f0; /* Light grey background */
+    color: #365CCD; /* Dark text color */
+    font-weight: bold; /* Make text bold */
+}
 
+@media (min-width: 768px) {
+    .sidebar {
+        width: 10px;
+    }
+}
+
+
+
+/* Show sidebar toggle button on smaller screens */
+@media (max-width: 767px) {
+    #sidebarToggle {
+        display: block; /* Show toggle button */
+    }
+}
+/* Adjust sidebar for small screens */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        display: none; /* Hide sidebar initially */
+    }
+
+    /* Show sidebar when toggled */
+    #wrapper.toggled .sidebar {
+        display: block;
+    }
+}
+
+/* Hide sidebar by default on small screens */
+@media (max-width: 767px) {
+    #wrapper #accordionSidebar {
+        display: none;
+    }
+    /* Show the hamburger menu button on small screens */
+    #hamburgerMenuToggle {
+        display: block;
+    }
+}
+
+/* Hide the hamburger menu button on larger screens */
+@media (min-width: 768px) {
+    #hamburgerMenuToggle {
+        display: none;
+    }
+}
+
+/* Adjust content wrapper when sidebar is toggled */
+#content-wrapper.toggled #accordionSidebar {
+    display: block;
+}
 

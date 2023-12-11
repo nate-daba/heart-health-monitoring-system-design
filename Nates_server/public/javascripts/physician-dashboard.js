@@ -16,7 +16,10 @@ $(document).ready(function() {
     // Attaching click event listeners to the patient and device list.
     // These listeners are set up for dynamic dropdown items using event delegation.
     $('#patientList').on('click', '.dropdown-item', patientDropdownItemClickListener);
+    $('#sidebarPatientList').on('click', '.collapse-item', patientDropdownItemClickListener);
+    
     $('#deviceList').on('click', '.dropdown-item', deviceDropdownItemClickListener);
+    $('#sidebarDeviceList').on('click', '.collapse-item', deviceDropdownItemClickListener);
 
     // Attaching click event listener for the update frequency button.
     $('#updateFreqBtn').on('click', updateFreqListener);
@@ -261,11 +264,12 @@ function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
         dataType: 'json',
     })
     .done(function(response) {
+        clearOldPatientSettings();
         // Logging the response from the server.
         console.log('response from server', response);
 
         // Emptying the current device list before populating new items.
-        $('#deviceList').empty();
+        // $('#deviceList').empty();
 
         var isFirstItem = true;
 
@@ -275,7 +279,18 @@ function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
                 .addClass('dropdown-item')
                 .text(device.deviceName)
                 .attr('data-deviceid', device.deviceId);
+            var sidebarOption = $('<a>').addClass('collapse-item')
+                .text(device.deviceName)
+                .data('deviceid', device.deviceId);
+            // Add click event listener to sidebar items
+            sidebarOption.on('click', function() {
+                // Remove 'selected-item' class from all items
+                $('#sidebarDeviceList .collapse-item').removeClass('selected-item');
 
+                // Add 'selected-item' class to the clicked item
+                $(this).addClass('selected-item');
+            });
+            $('#sidebarDeviceList').append(sidebarOption);
             // Automatically select the first device in the list.
             if (isFirstItem) {
                 option.addClass('selected');
@@ -284,9 +299,11 @@ function populateDeviceSelectorDropdown(patientEmail, patientName, callback) {
                 $('#measurementFrequency').val(device.measurementFrequency);
                 currentSelectedDeviceId = device.deviceId;
                 isFirstItem = false;
+                $('#sidebarDeviceList .collapse-item').first().addClass('selected-item');
             }
 
             $('#deviceList').append(option);
+            
         });
 
         // Listener for changes in the measurement frequency input.
@@ -358,7 +375,19 @@ function populatePatientSelectorDropdown() {
                 .text(patient.firstName + ' ' + patient.lastName) // Setting text to patient's full name.
                 .attr('data-patientid', patient._id) // Storing patient ID as a data attribute.
                 .attr('data-patientemail', patient.email); // Storing patient email as a new data attribute.
-        
+            var sidebarOption = $('<a>')
+                .addClass('collapse-item')
+                .text(patient.firstName + ' ' + patient.lastName) // Setting text to patient's full name.
+                .attr('data-patientid', patient._id) // Storing patient ID as a data attribute.
+                .attr('data-patientemail', patient.email); // Storing patient email as a new data attribute.
+            sidebarOption.on('click', function() {
+                // Remove 'selected-item' class from all items
+                $('#sidebarPatientList .collapse-item').removeClass('selected-item');
+    
+                // Add 'selected-item' class to the clicked item
+                $(this).addClass('selected-item');
+            });
+            $('#sidebarPatientList').append(sidebarOption);
             // Selecting the first patient by default.
             if (isFirstItem) {
                 option.addClass('selected');
@@ -366,21 +395,23 @@ function populatePatientSelectorDropdown() {
         
                 // Setting the default selected patient's name in the UI.
                 $('#selectedPatientText').text(patient.firstName + ' ' + patient.lastName);
+                $('#sidebarPatientList .collapse-item').first().addClass('selected-item');
             }
         
             // Prepending the new option to the dropdown list.
             $('#patientList').prepend(option);
+            
         });
         
         // Re-initializing the Bootstrap dropdown.
         $('.dropdown-toggle').dropdown();
 
         // Retrieving the ID and email of the default selected patient.
-        var defaultSelectedPatientId = $('#patientList .dropdown-item.selected').data('patientid');
+        var defaultSelectedPatientId = $('#sidebarPatientList .collapse-item').first().data('patientid');
         console.log('Default selected patient ID:', defaultSelectedPatientId);
-        var defaultSelectedPatientEmail = $('#patientList .dropdown-item.selected').data('patientemail');
+        var defaultSelectedPatientEmail = $('#sidebarPatientList .collapse-item').first().data('patientemail');
         console.log('Default selected patient email:', defaultSelectedPatientEmail);
-        var defaultSelectedPatientName = $('#patientList .dropdown-item.selected').text();
+        var defaultSelectedPatientName = $('#sidebarPatientList .collapse-item.selected-item').text();
 
         // Populating the device selector dropdown for the default selected patient.
         populateDeviceSelectorDropdown(defaultSelectedPatientEmail, defaultSelectedPatientName);
@@ -527,7 +558,7 @@ function plot(chartId, x, y, unit, label) {
             }],
         },
         options: {
-
+            responsive: true,
             maintainAspectRatio: false,
             layout: {
                 padding: {
@@ -664,6 +695,7 @@ function clearOldData(span)
 function clearOldPatientSettings(){
     // Clear the device selector dropdown
     $('#deviceList').empty();
+    $('#sidebarDeviceList').empty();
     // Clear the selected device text
     $('#selectedDeviceText').text('Select Device');
     // Clear the measurement frequency

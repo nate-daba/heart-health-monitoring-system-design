@@ -11,7 +11,8 @@ $(document).ready(function() {
 
     // Attach the click event listener to a parent element
     // and delegate it to the dynamic dropdown items
-    $('#deviceList').on('click', '.dropdown-item', dropdownItemClickListener);
+    // $('#deviceList').on('click', '.dropdown-item', dropdownItemClickListener);
+    $('#sidebarDeviceList').on('click', '.collapse-item', dropdownItemClickListener);
 
     // Attach the change event listener to the datepicker input
     $('#datepicker-input').on('change', dateChangeListener);
@@ -29,6 +30,10 @@ $(document).ready(function() {
     });
 
     $('#refreshDevicesBtn').on('click', dateChangeListener);
+
+    $('#hamburgerMenuToggle').on('click', function() {
+        $('#wrapper').toggleClass('toggled');
+    });
 });
 
 // Event listener for the datepicker input
@@ -113,6 +118,18 @@ function populateDeviceSelectorDropdown() {
                                  .text(device.deviceName)
                                  .data('deviceid', device.deviceId);
             $('#deviceList').prepend(option);
+            var sidebarOption = $('<a>').addClass('collapse-item')
+                                        .text(device.deviceName)
+                                        .data('deviceid', device.deviceId);
+                                        // Add click event listener to sidebar items
+            sidebarOption.on('click', function() {
+                // Remove 'selected-item' class from all items
+                $('#sidebarDeviceList .collapse-item').removeClass('selected-item');
+
+                // Add 'selected-item' class to the clicked item
+                $(this).addClass('selected-item');
+            });
+            $('#sidebarDeviceList').append(sidebarOption);
         });
 
         // Set the default selected device if any
@@ -122,6 +139,8 @@ function populateDeviceSelectorDropdown() {
             var selectedDate = getSelectedDate();
             getSensorData(selectedDeviceId, selectedDate, 'day');
             getSensorData(selectedDeviceId, selectedDate, 'week');
+            // Find the first sidebar item and add 'selected-item' class
+            $('#sidebarDeviceList .collapse-item').first().addClass('selected-item');
         }
     })
     .fail(function(error) {
@@ -129,6 +148,10 @@ function populateDeviceSelectorDropdown() {
         clearOldData('week');
         console.log(error);
     });
+    $('#sidebarToggle').on('click', function() {
+        $('#wrapper').toggleClass('toggled');
+    });
+    
 }
 
 // Function to get the selected date
@@ -242,7 +265,7 @@ function plot(chartId, x, y, unit, label) {
             }],
         },
         options: {
-
+            responsive: true,
             maintainAspectRatio: false,
             layout: {
                 padding: {
@@ -484,7 +507,7 @@ function sortByMeasurementTime(data) {
 // Function to get the patient info
 function getPatientInfo() {
     if (!window.localStorage.getItem("patient-token")) {
-        console.log("No token found");
+        
         return;
     }
     
