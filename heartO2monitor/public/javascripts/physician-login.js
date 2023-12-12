@@ -3,7 +3,7 @@ function logIn(e) {
     e.preventDefault(); // Prevents the default form submission action.
 
     // Hides any previous error messages.
-    $('.errorDiv').hide();
+    $('.errorDiv').addClass('d-none').removeClass('d-block');
     console.log("login form submitted");
 
     // Retrieving email and password values from the form inputs.
@@ -44,12 +44,12 @@ function logIn(e) {
         }
         else {
             // Show error message if login is unsuccessful.
-            $('.errorDiv').show();
+            $('.errorDiv').removeClass('d-none').addClass('d-block');
         }
     })
     .fail(function(err) {
         // Showing error message if the AJAX request itself fails.
-        $('.errorDiv').show();
+        $('.errorDiv').removeClass('d-none').addClass('d-block');
     });
 };
 

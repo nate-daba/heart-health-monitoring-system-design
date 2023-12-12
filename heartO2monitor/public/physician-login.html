@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartO2Monitor - Physician Log in</title>
+    <title>HeartO2Monitor - Physician Login</title>
     <link rel="stylesheet" href="./stylesheets/physician-login.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="images/favicon.png" rel="icon">
@@ -37,13 +37,13 @@
                 <li><a class="nav-link scrollto" href="home.html#about">About</a></li>
                 <li><a class="nav-link scrollto" href="home.html#team">Team</a></li>
                 <li><a class="nav-link scrollto" href="home.html#references.html">References</a></li>
-                <li class="dropdown"><a href="#"><span>Login</span> <i class="bi bi-chevron-down"></i></a>
+                <li class="dropdown"><a href="#"><span>Log In</span> <i class="bi bi-chevron-down"></i></a>
                 <ul>
                     <li><a href="patient-login.html">Patient</a></li>
                     <li><a href="physician-login.html">Physician</a></li>
                 </ul>
                 </li>
-                <li class="dropdown"><a href="#"><span>Sign-up</span> <i class="bi bi-chevron-down"></i></a>
+                <li class="dropdown"><a href="#"><span>Sign Up</span> <i class="bi bi-chevron-down"></i></a>
                 <ul>
                     <li><a href="patient-signup.html">Patient</a></li>
                     <li><a href="physician-signup.html">Physician</a></li>
@@ -63,10 +63,10 @@
         <label for="password"><b>Password</b></label>
         <input type="password" placeholder="Enter password" name="password" id="password" required>
 
-        <button type="submit" id="logInButton">Login</button>
-        <div class="errorDiv" hidden>
+        <button type="submit" id="logInButton">Log In</button>
+        <div class="errorDiv d-none">
             <p class="errorMessage">Invalid email or password</p>
-        </div>
+        </div>    
         <p class="mt-2" style="text-align:center">Don't have an account? <a href="physician-signup.html">Create account</a></p>
         <!-- <p></p> -->
     </form>

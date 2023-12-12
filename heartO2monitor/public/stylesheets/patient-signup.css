@@ -55,6 +55,7 @@ input[type=text], input[type=email], input[type=password], select {
   color: #dc3545; /* Bootstrap danger color */
   text-align: center;
   margin-top: 10px;
+  margin-left: 10px;
 }
 
 .errorMessage {

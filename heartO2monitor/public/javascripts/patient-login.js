@@ -1,7 +1,7 @@
 // Login callback function
 function logIn(e) {
     e.preventDefault();
-    $('.errorDiv').hide();
+    $('.errorDiv').addClass('d-none').removeClass('d-block');
     console.log("login form submitted")
     var email = $('#email').val();
     var password = $('#password').val();
@@ -30,11 +30,11 @@ function logIn(e) {
             window.location.href = '/patient-dashboard.html'; // Redirect to the device registration page
         }
         else{
-            $('.errorDiv').show();
+            $('.errorDiv').removeClass('d-none').addClass('d-block');
         }
     })
     .fail(function(err){
-        $('.errorDiv').show();
+        $('.errorDiv').removeClass('d-none').addClass('d-block');
     });
 };
 
