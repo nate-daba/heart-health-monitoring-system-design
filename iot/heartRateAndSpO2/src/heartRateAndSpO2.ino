@@ -7,8 +7,8 @@
  * It includes functionalities for sensor data acquisition, processing, and 
  * sending measurement data to Particle Cloud. It also includes functionalities
  * for remote control of the device via Particle Cloud using cloud functions, 
- * and for storing measurement data locally on a file in the case where Particle 
- * device is disconnected from the cloud and publishes stored data when 
+ * and for storing measurement data locally on a file in the case where the 
+ * Particle device is disconnected from the cloud and publishes stored data when 
  * connection is restored.
  * 
  * Author: Natnael Daba
