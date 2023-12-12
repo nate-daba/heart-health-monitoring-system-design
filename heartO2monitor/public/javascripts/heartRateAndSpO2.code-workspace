@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../iot/heartRateAndSpO2"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"extensions.ignoreRecommendations": true,
+		"files.associations": {
+			"*.ino": "cpp"
+		}
+	}
+}

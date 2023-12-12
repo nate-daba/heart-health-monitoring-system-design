@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HeartO2Monitor - Generate Sensor Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/generate-data.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="images/favicon.png" rel="icon">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Generate Random Sensor Data</h1>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="deviceId">Device ID:</label>
+                <input type="text" id="deviceId" name="deviceId" required>
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Start Date & Time:</label>
+                <input type="datetime-local" id="startDate" name="startDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="endDate">End Date & Time:</label>
+                <input type="datetime-local" id="endDate" name="endDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="interval">Measurement Interval (minutes):</label>
+                <input type="number" id="interval" min="1" max="10000" name="interval" required>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Generate and Send Data">
+                <input type="button" value="Clear Data" id="clearDataBtn">
+            </div>
+
+            <span id="createMessageDisplay"></span> <!-- Element to display creation messages -->
+            <br>
+            <span id="clearMessageDisplay"></span> <!-- Element to display clear messages -->
+        </form>
+    </div>
+    <script src="/javascripts/generate-data.js"></script>
+</body>
+</html>

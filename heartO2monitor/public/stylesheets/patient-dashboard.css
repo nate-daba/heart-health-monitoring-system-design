@@ -1,0 +1,332 @@
+/* CSS for moving the device selection dropdown */
+.device-selection-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* Move to the right */
+}
+
+.select-device-label {
+    margin-right: 10px; /* Add some space between label and dropdown */
+}
+
+/*Bootstrap Calendar*/
+.datepicker {
+    border-radius: 0;
+    padding: 0;
+}
+.datepicker-days table thead, .datepicker-days table tbody, .datepicker-days table tfoot {
+    padding: 10px;
+    display: list-item;
+}
+.datepicker-days table thead, .datepicker-months table thead, .datepicker-years table thead, .datepicker-decades table thead, .datepicker-centuries table thead {
+    background: #3546b3;
+    color: #ffffff;
+    border-radius: 0;
+}
+.datepicker-days table thead tr:nth-child(2n+0) td, .datepicker-days table thead tr:nth-child(2n+0) th {
+    border-radius: 3px;
+}
+.datepicker-days table thead tr:nth-child(3n+0) {
+    text-transform: uppercase;
+    font-weight: 300 !important;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+.table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
+    padding: 11px 13px;
+}
+.datepicker-months table thead td, .datepicker-months table thead th, .datepicker-years table thead td, .datepicker-years table thead th, .datepicker-decades table thead td, .datepicker-decades table thead th, .datepicker-centuries table thead td, .datepicker-centuries table thead th {
+    border-radius: 0;
+}
+.datepicker td, .datepicker th {
+    border-radius: 50%;
+    padding: 0 12px;
+}
+.datepicker-days table thead, .datepicker-months table thead, .datepicker-years table thead, .datepicker-decades table thead, .datepicker-centuries table thead {
+    background: #3546b3;
+    color: #ffffff;
+    border-radius: 0;
+}
+.datepicker table tr td.active, .datepicker table tr td.active:hover, .datepicker table tr td.active.disabled, .datepicker table tr td.active.disabled:hover {
+    background-image: none;
+}
+.datepicker .prev, .datepicker .next {
+    color: rgba(255, 255, 255, 0.5);
+    transition: 0.3s;
+    width: 37px;
+    height: 37px;
+}
+.datepicker .prev:hover, .datepicker .next:hover {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.99);
+    font-size: 21px;
+}
+.datepicker .datepicker-switch {
+    font-size: 24px;
+    font-weight: 400;
+    transition: 0.3s;
+}
+.datepicker .datepicker-switch:hover {
+    color: rgba(255, 255, 255, 0.7);
+    background: transparent;
+}
+.datepicker table tr td span {
+    border-radius: 2px;
+    margin: 3%;
+    width: 27%;
+}
+.datepicker table tr td span.active, .datepicker table tr td span.active:hover, .datepicker table tr td span.active.disabled, .datepicker table tr td span.active.disabled:hover {
+  background-color: #3546b3;
+  background-image: none;
+}
+.dropdown-menu {
+    border: 1px solid rgba(0,0,0,.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+}
+.datepicker-dropdown.datepicker-orient-top:before {
+    border-top: 7px solid rgba(0,0,0,.1);
+}
+
+#selectDateText{
+    margin-right: 8px;
+}
+
+/* Custom CSS to match the height of the date picker to h6 headers */
+#datepicker-input {
+    height: calc(0.8em + .75rem + 2px); /* Adjust the calc() formula as needed */
+    padding: .375rem .75rem; /* Adjust padding as needed to match h6 */
+}
+
+.input-group-text {
+    height: calc(0.8em + .75rem + 2px); /* Adjust the calc() formula as needed */
+    
+}
+
+.custom-dropdown-width {
+    width: auto; /* Start with auto width */
+    min-width: 150px; /* Adjust this value based on your needs */
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
+#selectedDeviceText {
+    border: 3px solid rgba(241, 236, 236, 0.5); /* Thicker and more transparent border */
+    border-radius: 10px; /* Slightly rounded corners */
+    padding: 5px; /* Padding inside the border */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transition for hover effect */
+}
+#selectedPatientText {
+    border: 3px solid rgba(241, 236, 236, 0.5); /* Thicker and more transparent border */
+    border-radius: 10px; /* Slightly rounded corners */
+    padding: 5px; /* Padding inside the border */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transition for hover effect */
+}
+#selectedDeviceText:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for floating effect */
+    transform: translateY(-2px); /* Slightly raise the element */
+}
+#selectedPatientText:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for floating effect */
+    transform: translateY(-2px); /* Slightly raise the element */
+}
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(153, 153, 153, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(153, 153, 153, 0.5);
+    }
+}
+
+#selectedDeviceText:active {
+    animation: glow 1s ease-in-out infinite;
+}
+
+#selectedPatientText:active {
+    animation: glow 1s ease-in-out infinite;
+}
+
+/* Adjust the card body to be a flex container */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%; /* Ensure the container takes full height */
+    padding: 15px; /* Adjust padding to allow equal distribution */
+}
+
+/* Style for each card within the card body */
+/* Style for each card within the card body */
+.card-body .card {
+    flex: 1; /* Allow each card to grow and shrink equally */
+    margin-bottom: 10px; /* Adjust the margin as needed */
+}
+
+/* Adjust the last card's margin */
+.card-body .card:last-child {
+    margin-bottom: 0;
+}
+
+/* You may need to adjust this depending on your overall design */
+.card-body .card .card-body {
+    padding: 5px; /* Reduce padding if necessary */
+}
+/* Chart Container Adjustments */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 15px; /* Consistent padding */
+}
+/* General Row and Column Adjustments */
+.row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch; /* This ensures that all children (cols) are the same height */
+}
+.col-lg-10, .col-lg-2 {
+    padding-right: 15px; /* Adjust the right padding */
+    padding-left: 15px;  /* Adjust the left padding */
+    margin-bottom: 10px; /* Consistent bottom margin */
+}
+/* Specific Adjustments for Chart and Summary Containers */
+.card {
+    margin-bottom: 0; /* Remove bottom margin */
+    height: 50vh; /* Adjust the height to be auto */
+}
+/* Chart Size Adjustments */
+#heartRateChart, #oxygenSaturationChart {
+    max-height: 100%; /* Ensuring chart does not exceed card size */
+}
+/* Summary Card Adjustments */
+.card.shadow.mr-3 {
+    height: 100%; /* Make summary cards take full height of their container */
+}
+/* Summary Card Internal Layout */
+.card-body.d-flex {
+    flex-direction: row; /* Change direction to row for horizontal layout */
+    justify-content: space-around; /* Space out the cards evenly */
+    align-items: stretch; /* Align items vertically */
+}
+/* Individual Summary Cards */
+.card.shadow.h-100 {
+    flex-grow: 1; /* Allow each summary card to grow equally */
+    margin: 0 10px; /* Add horizontal margin for spacing */
+}
+
+/* Text Adjustment */
+.text-xs {
+    margin-bottom: 0; /* Adjust or remove bottom margin as needed */
+}
+
+#selectedDeviceText {
+    text-align: center;
+    width: auto; /* Adjust as needed, or remove if the text should fit naturally */
+    margin-left: 10px; /* Add some spacing between icon and text */
+    min-width: 200px;
+}
+/* General styles (apply to all screen sizes) */
+/* Responsive Sidebar */
+
+
+/* Styles for tablets and smaller devices (less than 768px) */
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: column;
+    }
+    .sidebar {
+        display: block;
+        width: 100%;
+    }
+    #content-wrapper {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .row {
+        flex-direction: column;
+    }
+    .col-lg-10, .col-lg-2 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    .card-body .card {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+}
+
+/* Styles for smartphones (less than 480px) */
+@media (max-width: 480px) {
+    .navbar-expand {
+        flex-direction: column;
+    }
+    .sidebar {
+        display: block;
+        display: none;
+    }
+    .navbar {
+        padding: 0;
+    }
+    .card-body {
+        padding: 5px;
+    }
+    #sidebarToggleTop {
+        display: block;
+    }
+}
+
+.selected-item {
+    background-color: #f0f0f0; /* Light grey background */
+    color: #365CCD; /* Dark text color */
+    font-weight: bold; /* Make text bold */
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        width: 10px;
+    }
+}
+
+
+
+/* Show sidebar toggle button on smaller screens */
+@media (max-width: 767px) {
+    #sidebarToggle {
+        display: block; /* Show toggle button */
+    }
+}
+/* Adjust sidebar for small screens */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        display: none; /* Hide sidebar initially */
+    }
+
+    /* Show sidebar when toggled */
+    #wrapper.toggled .sidebar {
+        display: block;
+    }
+}
+
+/* Hide sidebar by default on small screens */
+@media (max-width: 767px) {
+    #wrapper #accordionSidebar {
+        display: none;
+    }
+    /* Show the hamburger menu button on small screens */
+    #hamburgerMenuToggle {
+        display: block;
+    }
+}
+
+/* Hide the hamburger menu button on larger screens */
+@media (min-width: 768px) {
+    #hamburgerMenuToggle {
+        display: none;
+    }
+}
+
+/* Adjust content wrapper when sidebar is toggled */
+#content-wrapper.toggled #accordionSidebar {
+    display: block;
+}
+
