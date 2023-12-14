@@ -3,3 +3,4 @@
 *.icloud
 *.map
 *.elf
+.env
