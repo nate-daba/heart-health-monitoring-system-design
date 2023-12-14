@@ -24,7 +24,7 @@ function logIn(e) {
         dataType: 'json',
     })
     .done(function(data){
-        console.log(data);
+        
         if (data.success){
             window.localStorage.setItem("patient-token", data.patientToken);
             window.location.href = '/patient-dashboard.html'; // Redirect to the device registration page
