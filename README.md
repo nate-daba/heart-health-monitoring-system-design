@@ -2,7 +2,7 @@
 
 This is a code implementation of our final project for the course ECE 413/513 - Web Development and the Internet of Things, offered in Fall 2023. The primary objective of this project is to develop a low-cost, IoT-enabled web application designed for monitoring heart rate and blood oxygen saturation levels throughout the day. The app features customizable measurement intervals that can be set by either a patient or a physician.
 
-For a full description of the final project requirements, please visit: https://docs.google.com/document/d/1arQNgbs0e5aAFzrnOEtEw4g3M-fzGqx4EFPX2Zv2Xdw/edit#heading=h.h819zarsa53
+For a full description of the final project requirements, click [here](https://docs.google.com/document/d/1arQNgbs0e5aAFzrnOEtEw4g3M-fzGqx4EFPX2Zv2Xdw/edit#heading=h.h819zarsa53).
 
 Our team members are:
 
