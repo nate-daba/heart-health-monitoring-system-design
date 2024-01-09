@@ -11,7 +11,7 @@ Our team members are:
 3. Natnael Daba
 
 Our implementation has two components:
-1. A user firmware for a Particle [Argon](https://docs.particle.io/argon/)  or [Photon](https://docs.particle.io/photon/).
+1. A user firmware for a Particle [Argon](https://docs.particle.io/argon/)  or [Photon](https://docs.particle.io/photon/) IoT device.
 2. A [web application](https://newhearto2monitor.onrender.com/home.html) for visualizing measured values sent from Particle devices.
 
 For a detailed description the user experience and code implementation, chekckout our demo [video](https://www.youtube.com/watch?v=D8xL6-8aT8E).
