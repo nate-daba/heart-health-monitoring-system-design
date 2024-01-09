@@ -18,7 +18,7 @@ For a detailed description the user experience and code implementation, chekckou
 
 ## Usage
 
-To use the Heart Health Monitoring System, navigato to the [landing page](https://newhearto2monitor.onrender.com/home.html) and follow the instruction from the demo [video](https://www.youtube.com/watch?v=D8xL6-8aT8E) which describes how to create a new patient or physician, register a new device to your account, take measurement, and visualize the measured values in your dashboard.
+To use the Heart Health Monitoring System, navigate to to the [landing page](https://newhearto2monitor.onrender.com/home.html) and follow the instruction from the demo [video](https://www.youtube.com/watch?v=D8xL6-8aT8E) which describes how to create a new patient or physician, register a new device to your account, take measurement, and visualize the measured values in your dashboard.
 
 If you want to log in to an already existing patient or physician account and visualize their data, you can the user credentials below:
 
